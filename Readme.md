@@ -218,14 +218,14 @@ int Num = 1;//二者不一致
 int a;//默认 0
 string str; //默认 null，不在内存中开辟空间
 bool b;//默认false
-int d, e, f, g;//连续声明变量
+int d, e, f, g;//连续声明变量,要求变量类型一致
 ```
 
 变量的初始化及在声明变量的同时进行赋值。
 
 ```csharp
 int a = 100, b = 0, c = 20;
-//连续声明以及赋值
+//连续声明以及赋值,要求变量类型一致
 ```
 
 声明变量`a`（默认0）,并将值100赋值给`a`。底层是在内存中开辟一个存储整数的空间，并将100存放其中。
@@ -247,8 +247,7 @@ Console.WriteLine(doubleNum.GetType());
 :red_circle:缺陷：必须初始化
 
 ```csharp
-var a;错误
-//声明时必须赋值
+var a;//错误,声明时必须赋值
 var a = 1;
 a = "";//错误，类型确定后不再改变
 ```
@@ -276,6 +275,7 @@ static void Main(string[] args)
 {
     int a = 1;
     int b = 2;
+    //将Main函数中的a，b储存的值赋值形参a,b，变量名虽相同但不冲突
     Range(a, b);
     Console.WriteLine(a);//1，只能访问到本方法中的a
     Console.WriteLine(b);//2
@@ -307,7 +307,7 @@ static void ChangeArr(int[] arr)
 
 ### 静态字段模拟全局变量
 
-Main函数中声明的变量只能在Main函数中使用，自定义函数是无法访问到。我们可以通过声明静态字段来模拟全局变量，该类中所有方法都可以访问到，且结束后不会销毁变量。
+Main函数中声明的变量只能在Main函数中使用，自定义函数是无法访问到。我们可以在类中通过声明静态字段来模拟全局变量，该类中所有方法都可以访问到，且结束后不会销毁变量。
 
 ```csharp
 internal class Program
@@ -329,7 +329,7 @@ internal class Program
 
 ## 常量
 
-不可以多次赋值的变量。
+常量是不可以多次赋值的变量，要求声明时必须初始化。
 
 ```csharp
 const 变量类型 变量名 = 值
@@ -404,7 +404,7 @@ n += 5 + 3 * 2 + 6;
 
 :red_circle:整数类型相除，若不能整除，返回值仍是整型。
 
-:red_circle:模`%`与`/`优先级相同。
+:red_circle:模`%`与`/`以及`*`优先级相同。
 
 :red_circle:对于像`++`，`--`只需要一个操作数完成的运算叫一元运算符，对于`+`，`-`，`*`,`/`,`%`需要两个操作数完成的运算叫做二元运算符。一元运算符的优先级比二元运算符级别要高。
 
@@ -511,7 +511,8 @@ Console.WriteLine(++e);//7
 ```csharp
 int a = 10;
 int num = a++ + a * 10 + ++a + a--;
-         // 10 + 12 + 12 +11*10,a = 11
+         // 10 + 11*10+12 + 12,a = 11
+		// a*10可看作 +a*10,虽然乘法优先级低，但 +-(正负)也是一元运算符，会先计算a的值。最后执行乘法运算
 Console.WriteLine(num);//144
 Console.WriteLine(a);//a=11
 ```
@@ -2318,7 +2319,7 @@ Array.Reverse(numArr);//对数组进行反转
 
 方法的功能一定要单一：如定义一个求取最大值方法，不能在里面添加求润年函数。
 
-忌讳方法里面提示用户输入：因为`Conosle.WriteLine()`只有在控制台中存在，不能在其他地方使用。
+忌讳方法里面提示用户输入，因为`Conosle.WriteLine()`只有在控制台中存在，不能在其他地方使用。
 
 ```csharp
 [public] static 返回值类型 方法名（[形参列表]）
@@ -2374,30 +2375,31 @@ Program.Sing()
     
 ```
 
-调用方法的时候，某些情况下可省略类名：如果自定义方法跟Main函数在同一个类中，类名可省略，直接写方法即可。
+:red_circle:调用方法的时候，某些情况下可省略类名：如果自定义方法跟Main函数在同一个类中，类名可省略，直接写方法即可。
 
-## return
+## return关键字
 
 1. 在方法中返回要返回的值
 2. 立即结束本次方法。
 
 ```csharp
- bool b = true;
- while (b) 
- {
-     b = false;
-     Console.WriteLine("打印");
-     return;
- }
- //retun会结束main方法，下面代码不会运行
- Console.WriteLine("这里不会输出");
+static void Main(string[] args)
+{
+    while (true)
+    {
+        Console.WriteLine("while循环内输出");
+        return;
+    }
+    Console.WriteLine("while循环外");//此处不会输出
+}
+//程序执行到return处会立即退出Main函数，while循环外的输出语句不会执行
 ```
 
 ## 方法调用
 
-我们在Main函数中调用自定义函数，我们管Main函数叫调用者，自定义函数叫被调用者。
+我们在Main函数中调用自定义函数，我们管Main函数叫`调用者`，自定义函数叫被`调用者`。
 
-若被调用者想获得调用者中声明的变量:
+若`被调用者`想获得`调用者`中声明的变量:
 
 :one:传参（形参与实参）
 
@@ -2542,7 +2544,7 @@ public static int SumArr(int[] arr)
 
 如果返回多个不同类型的值的时候，考虑使用out参数。
 
-out参数侧重于在一个方法中返回多个不同类型的值（也可以返回多个相同类型的值）,允许参数通过引用传递，也可以不预先初始化变量。
+out参数侧重于在一个方法中返回多个不同类型的值（也可以返回多个相同类型的值）,允许参数通过引用传递，可以不预先初始化变量。
 
 ```csharp
 public static int[] GetMaxMinSumAvg(int[] arr)
