@@ -1,4 +1,4 @@
-本文档只讨论基础概念，[面向对象篇章请点击跳转至此处](./C#之面向对象.md)
+本文档只讨论基础概念，[面向对象篇章请点击跳转至此处](https://gitee.com/xiaopickles/csharp/blob/master/C%23%E4%B9%8B%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1.md)
 
 # 初识
 
