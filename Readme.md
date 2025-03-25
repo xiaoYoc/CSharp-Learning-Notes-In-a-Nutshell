@@ -1,3 +1,5 @@
+本文档只讨论基础概念，[面向对象篇章请点击跳转至此处](C#之面向对象.md)
+
 # 初识
 
 `.NetFramWork `框架是`.Net `平台不可或缺的一部分，提供了稳定的运行环境保证我们基`.Net` 平台开发的应用能够稳定运行。
@@ -2078,13 +2080,24 @@ for (int i = 2; i <=100; i++)
 3. 给结构实例的成员赋值
 
 ```csharp
-[public] struct 结构名
-{
-    //结构成员
-    public 数据类型 _字段1；
-    public 数据类型_字段2；
-}
-//字段可以存多个值
+struct Car
+ {
+     //静态只读字段
+     public static readonly string _name = "Tractor";
+     // 实例字段
+     public int _id;
+
+     //静态方法
+     public static void GetName() 
+     {
+         Console.WriteLine("name is {0}",_name);
+     }
+     //实例方法
+     public void GetId() 
+     {
+         Console.WriteLine(this._id);
+     }
+ }
 ```
 
 :one:声明结构类型
@@ -2136,7 +2149,7 @@ myColor._green = 0;
 myColor._blue = 0;
 ```
 
-与类不同的是， struct 传递属于值传递。 
+与类不同的是， struct 属于值类型。 
 
 # 数组
 
