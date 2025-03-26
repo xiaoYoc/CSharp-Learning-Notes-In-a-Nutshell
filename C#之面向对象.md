@@ -89,6 +89,22 @@ static void Main(string[] args)
 
 :two:对象的初始化：依次给对象的字段或属性赋值，:red_circle:只有给属性赋值时才会执行`set`方法。
 
+## readonly修饰符
+
+> `readonly`修饰符可作用与字段，作用同`Const`，不同的是`readonly`修饰符作用的变量，其值可在编译器决定，也可在程序运行时决定。
+
+:one:只读字段可以在声明时直接赋值，或者在构造函数中赋值，不能再其他类中对只读字段赋值。
+
+```c#
+internal  static class Test
+{
+    //静态只读字段声明时直接初始化
+    public readonly static double Pi = 3.14;
+    ////静态字段须在静态构造函数中初始化。
+    public readonly static double radius;
+}
+```
+
 ## 属性
 
 属性的作用是保护字段，对字段的赋值和取值进行限定。
