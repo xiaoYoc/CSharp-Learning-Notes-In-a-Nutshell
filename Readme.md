@@ -110,6 +110,8 @@ namespace worklzb
 
 变量类型包括预定义类型和自定义类型。
 
+:one:预定义类型
+
 ```mermaid
 flowchart TD
 A(预定义类型)--> B[(简单类型)]
@@ -128,6 +130,18 @@ E --> 浮点类型
 B-->F(非数值类型)
 F-->bool
 F --> char
+```
+
+:two:自定义类型
+
+```mermaid
+flowchart TD
+A(自定义类型)--> 结构struct
+A --> 枚举enum
+A --> 集合类型
+A --> 类类型
+A --> 接口
+A--> 委托
 ```
 
 :book:变量类型详解
