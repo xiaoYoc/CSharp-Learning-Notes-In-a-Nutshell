@@ -35,6 +35,7 @@
     字段：存储数据；
     属性：保护字段，对字段的赋值和取值进行限定；
     方法：描述对象的行为；
+    索引器;
     析构函数：主要是在程序结束时立即释放内存；
 }
 //写好一个类，我们需要使用关键字new创建这个类的对象。这个过程叫类的实例化
@@ -508,6 +509,8 @@ internal class Ticket
 
 :three:用于静态类中的拓展方法，像实例一样去调用方法，也可以用类名.方法去调用。
 
+:four:声明索引器。
+
 ```csharp
 internal class Ticket
 {
@@ -580,6 +583,57 @@ static void Main(string[] args)
     name.Print();//变量.方法调用
 }
 ```
+
+## 索引器
+
+> 索引器类似于属性，有`get`和`set`访问器，可访问多个数据成员。
+>
+> 索引器没有名称，用`this`去指代当前名称。
+>
+> 索引器必须是实例
+
+```c#
+public struct Color
+{
+    public static readonly int _red = 1;
+    public static readonly int _green = 2;
+    public static readonly int _blue = 3;
+}
+
+internal class IndexDemo
+{
+    private string _color;
+    //索引器没有名称，用this指代
+    //[]中可是是任何类型
+    public string this[int index]
+    {
+        get
+        {
+            switch (index)
+            {
+                case 1:
+                    _color = "red";
+                    break;
+                case 2:
+                    _color = "green";
+                    break;
+                case 3:
+                    _color = "blue";
+                    break;
+            }
+            return _color;
+        }
+    }
+}
+//主函数中调用
+static void Main(string[] args)
+{
+    IndexDemo demo = new IndexDemo();
+    Console.WriteLine(demo[Color._red]);
+}
+```
+
+
 
 ## 析构函数
 
@@ -1040,4 +1094,482 @@ static void Main(string[] args)
  }
 
  public class Dog : Animal { }//无法从密封类中派生
+```
+
+# string
+
+## 引用类型与值类型
+
+内存中常用内存分为三块，堆栈以及静态存储区域。三者都是是用来存储数据。
+
+:red_circle:静态存储区域用来存储静态数据，静态函数，及常量。
+
+1. 栈的空间小，但读取速度快；
+2. 堆的空间大，但读取速度慢；
+
+| 值类型             | 引用     |
+| ------------------ | -------- |
+| int,double,decimal | string   |
+| bool               | 数组     |
+| char               | 自定义类 |
+| struct             | 集合     |
+| enum               | 接口     |
+|                    | Object   |
+
+值类型只需要一段单独的内存，值是存储在内存的栈(`stack`)中；而引用类型则需要两段内存，第一段存储实际的数据，在内存的堆中存储，第二段是一个引用（内存地址），指向堆中的位置。
+
+![image-20250330114743619](assets/image-20250330114743619.png)
+
+### 值类型
+
+创建一个值类型时，变量直接包含数据值。当值类型变量赋值给另一个变量时，会创建一个独立的副本。
+
+修改另一个变量并不会影响原变量。
+
+```csharp
+int a = 10;
+int b = a;
+b = 20;//将原栈中存储的值用20替换掉
+Console.WriteLine(a);//10
+```
+
+### 引用类型
+
+引用类型变量存储的是对象的引用（内存地址），而对象实际的数据存储在堆内存中。堆内存的管理时通过GC完成，当对象不在被任何变量引用时，垃圾回收器会回收其占用的内存。
+
+![image-20250330114825428](assets/image-20250330114825428.png)
+
+`MyType`实例有`A`值类型变量与`B`引用类型变量。`A`存储堆中的实际数据；`B`储存实际数据的引用，该引用才指向实际数据。
+
+引用类型的复制行为：引用类型变量赋值给另一个变量，只是赋值了引用地址，两个变量指向同一个对象，修改一个会影响另一个。
+
+```csharp
+int[] arr1 = { 1, 2, 3 };
+int[] arr2 = arr1;//变量中存储的是引用地址
+arr2[0] = 100;
+Console.WriteLine(arr1[0]);//100
+```
+
+### 静态类型变量
+
+静态类型变量存储在静态存储区域，程序加载时便被初始化，整个程序结束时才会销毁变量。
+
+值类型直接存储在静态存储区域中，若是引用类型变量与栈类似，存储对象的引用，该引用指向堆中的实际数据。
+
+## 字符串的不可变性
+
+当给字符串重新赋值时，老值并没有消失，而是在堆中开辟一块空间存储新值。
+
+```csharp
+static void Main(string[] args)
+{
+    //堆中开辟空间存储1，s1在栈内存储引用地址
+    string s1 = "1";
+    //堆中重新开辟空间存储"2",s1中原引用地址被替换掉，新地址指向"2"
+    s1 = "2";
+    Console.WriteLine(s1);//2
+}
+```
+
+## 字符串的数组特性
+
+可以将`string`类型看作是`char`类型的一个**只读数组**，根据索引访问字符串某个元素。
+
+```csharp
+string s = "adcd";
+Console.WriteLine(s[1]);//d
+```
+
+改变字符串其中某个字符：
+
+1. 转换为char类型数组；
+2. 将数组转化为字符串。
+
+```csharp
+string s = "adcd";
+char[] chas = s.ToCharArray();//返回char类型数组
+//第一个元素变为A
+chas[0] = 'A';
+s = new string(chas);//通过string类实例化，将字符数组转化为字符串
+Console.WriteLine(s);//Adcd
+```
+
+## StringBuilder类
+
+由于字符串的不可变性，重新赋值需要不段开辟新空间，对于某些场合不适合
+
+```csharp
+static void Main(string[] args)
+{
+    Stopwatch sw = new Stopwatch();//创建一个实例
+    sw.Start();//开始计时
+    string s = null;
+    for (int i = 0; i < 100000; i++) 
+    {
+        s += i;
+    }
+    sw.Stop();//结束计时
+    Console.WriteLine(sw.Elapsed);//测量运行的总时间
+
+}
+//约10s
+```
+
+使用`StringBuilder`类
+
+```csharp
+static void Main(string[] args)
+{
+    Stopwatch sw =new Stopwatch();
+    sw.Start();//开始计时
+    StringBuilder sb = new StringBuilder();//实例化一个sb对象
+    for (int i = 0; i <100000; i++) 
+    {
+        sb.Append(i);//追加
+    }
+    sw.Stop();//结束计时
+    Console.WriteLine(sw.Elapsed);
+}
+//约0.01s
+```
+
+## 字符串方法与属性
+
+### $_文本内使用变量
+
+```c#
+ int month = 3;
+ int date = 29;
+ Console.WriteLine($"0{month}月{date}日");//03月29日
+```
+
+`{}`内也可以直接写值
+
+```c#
+string name = $"{"this day is cold"}";
+```
+
+### Length属性
+
+获取字符串的长度
+
+```csharp
+Console.WriteLine("请输入你心中所想的名字");
+string s = Console.ReadLine();
+Console.WriteLine(s.Length);
+```
+
+### ToUpper/ToLower_转化大写/小写
+
+两个学员输入喜欢的课程，相同则输出相同，不同则输出不同。
+
+```csharp
+static void Main(string[] args)
+{
+    Console.WriteLine("请输入喜欢的课程");
+    string classOne = Console.ReadLine();
+    //转换大写
+    classOne = classOne.ToUpper();
+    Console.WriteLine("请下一个学员");
+    string classTwo = Console.ReadLine();
+    //转换大写，返回一个字符串
+    classTwo = classTwo.ToUpper();
+    if (classOne == classTwo)
+    {
+        Console.WriteLine("相同");
+    }
+    else 
+    {
+        Console.WriteLine("不同");
+    }
+}
+```
+
+使用`Equals(与**相等)`方法，比较两个字符串是否相同，返回`bool`值。参数1待比较字符串，参数2枚举类型`StringComParison`，如何进行比较。
+
+```csharp
+static void Main(string[] args)
+{
+    Console.WriteLine("请输入喜欢的课程");
+    string classOne = Console.ReadLine();
+    Console.WriteLine("请下一个学员");
+    string classTwo = Console.ReadLine();
+    if (classOne.Equals(classTwo, StringComparison.InvariantCultureIgnoreCase)
+        //忽略大小写进行比较
+    {
+        Console.WriteLine("相同");
+    }
+    else 
+    {
+        Console.WriteLine("不同");
+    }
+}
+```
+
+### Split()_分隔字符串
+
+基于字符数组或字符串数组，将原字符串进行分隔，返回一个string数组。
+
+重载:one:`str.Split(params char[] separator)`,
+
+参数为分隔数组，`char[]`类型
+
+重载:two:`str.Split(char[]/string[] separator,StringSplitOptions options)`
+
+参数1分隔符数组，有字串或字符类型，参数2是`StringSplitOptions`枚举类型，可用来判断是否需要空字符串。
+
+```csharp
+string s = "a b   cdf _ + = , _";
+//去除字符串中的空格，_,+，=
+//参数1为分隔数组，参数2枚举值指定是否需要空字符串
+char[] chars = {' ' ,'+',',','=','_'};
+string[] strArr = s.Split(chars, StringSplitOptions.RemoveEmptyEntries);
+//{a,b,cdf}
+```
+
+从字符串2008-08-08分隔出年月日。
+
+```csharp
+string s = "2008-08-08";
+string[] strArr = s.Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries);
+Console.WriteLine("{0}年{1}月{2}日", strArr[0], strArr[1], strArr[2]);
+//2008年08月08日
+```
+
+### Replace()_替换
+
+用新值替换旧值
+
+```csharp
+static void Main(string[] args)
+{
+    //Replace(string oldValue,string newValue)
+    string str = "国家关键人物老宁";
+    if (str.Contains("老宁"))//判断是否包含该字符串，返回bool
+    {
+        str = str.Replace("老宁", "**");
+    }
+    Console.WriteLine(str);
+}
+```
+
+### SubString()_截取字符串
+
+1. `SubString(int startIndex)`，从指定索引开始截取（包含指定索引），直到最后
+2. `SubString(int startIndex，int length)`,从指定索引开始截取指定长度，且长度不能超出索引。
+
+```csharp
+string str = "艳阳天那么风光好";
+str = str.Substring(3);//从指定索引开始截取，直到最后
+Console.WriteLine(str);//那么风光好
+
+//重载，参数2截取长度
+string str = "艳阳天那么风光好";
+str = str.Substring(3,2);
+Console.WriteLine(str);//那么
+```
+
+### StartWith()_判断是否以指定字符串开头
+
+返回Bool值，对应的方法是`EndWith()`.
+
+```csharp
+string str = "艳阳天那么风光好";
+if (str.StartsWith("艳阳") )
+{
+    Console.WriteLine("是的");
+}
+```
+
+### IndexOf()_查找字符/字符串的位置
+
+返回int类型，找不到返回`-1`。
+
+1. `IndexOf(string value)`,`value`要查找的字符或字符串，从前往后查找
+2. `IndexOf(string value,int startIndex)`,`stringValue`要查找的字符，`startIndex`指定位置，从前往后查找
+
+`LastIndexOf`同理，不过是从后往前查找。
+
+```csharp
+ string str = "天,今天天气真好";
+ int num = str.IndexOf('天');//传入字符
+ int num2 = str.IndexOf("天", 5);
+ Console.WriteLine(num);//0
+ Console.WriteLine(num2);//-1
+```
+
+截取文件名练习
+
+```csharp
+string path = @"C:\Users\Administrator\Desktop\学习资源";//@取消转义
+int index = path.LastIndexOf('\\');//注意此处是\\。获取\的索引
+string name = path.Substring(index + 1);
+Console.WriteLine(name);//学习资源
+```
+
+### Trim()_去除空格
+
+返回字符串，Trim()去除字符串前后空格。
+
+1. `TrimStart()`,去除前空格
+2. `TrimEnd()`去除后空格
+
+```csharp
+string str = "   学校      ";
+str = str.Trim();
+Console.Write(str);
+Console.Write(1); //学校1
+//去除前空格
+string str = "   学校      ";
+str = str.TrimStart();
+Console.Write(str);
+Console.Write(1); //学校   1
+```
+
+### string.Format()_格式化字符串
+
+与占位符相同。
+
+```c#
+string str =  string.Format("{0},{1}", "A", "B");
+```
+
+### string.IsNullOrEmpty(string str)
+
+判断字符串是`null`或者`""`，是则返回True.
+
+```csharp
+string str = "   学校      ";
+if(!string.IsNullOrEmpty(str))
+{
+    Console.WriteLine('N');
+}
+```
+
+### string.Join()_插入分隔符
+
+在每个元素之间插入分隔符，返回`string`值。
+
+```csharp
+string[] name = { "张三", "李四", "王五", "马六" };
+string str = string.Join("|", name);
+Console.WriteLine(str);//张三|李四|王五|马六
+```
+
+## 练习
+
+1. 读取文件，以`书名|作者名`形式打印到控制台，要求书名长度超过8个以后用`...`代替。
+
+```csharp
+明朝那些事儿            当前明月
+坏蛋是怎样练成的怎样炼成的       六道
+西游记                             吴承恩
+水浒         施耐庵
+static void Main(string[] args)
+{
+    string path = @"C:\Users\Administrator\Desktop\1.txt";
+    string[] bookNames = File.ReadAllLines(path,Encoding.UTF8);
+    //使用UTF8编码，每行内容是一个数组元素
+    for (int i = 0; i < bookNames.Length; i++)
+    {
+        string[] temp = bookNames[i].Split(new string[] { " "}, StringSplitOptions.RemoveEmptyEntries);
+        //此处可以使用三元表达式，但是难看
+        if (temp[0].Length <= 8)
+        {
+            Console.WriteLine(string.Join("|",temp));
+        }
+        else 
+        {
+            string name = temp[0].Substring(0, 8) + "..." + "|" + temp[1];
+            Console.WriteLine(name);
+        }
+    }
+}
+```
+
+1. 接收用户输入的字符串，将其中的字符以相反顺序输出，`abc→cba`。
+
+```csharp
+//方法一不改变数组元素顺序
+static void Main(string[] args)
+{
+    Console.WriteLine("请输入...");
+    string input = Console.ReadLine();
+    char[] chars = input.ToCharArray();
+    for (int i = 0; i < chars.Length; i++)
+    {
+        Console.Write(chars[chars.Length-1-i]);
+    }
+}
+//方法二改变数组元素顺序
+static void Main(string[] args)
+{
+    Console.WriteLine("请输入...");
+    string input = Console.ReadLine();
+    char[] chars = input.ToCharArray();
+    for (int i = 0; i < chars.Length/2; i++)
+    {
+        char cha = chars[i];
+        chars[i] = chars[chars.Length-1-i];
+        chars[chars.Length - 1-i] = cha;
+    }
+}
+```
+
+1. `hellp c sharp` →` sharp c hello`。
+
+```csharp
+static void Main(string[] args)
+{
+    string value = "hello c sharp";
+    string[] values = value.Split(new char[] { ' '}, 
+                                  StringSplitOptions.RemoveEmptyEntries);
+    //Array.Reverse(values);直接使用reverse方法
+    for (int i = 0; i < values.Length/2; i++)
+    {
+        string temp = values[i];
+        values[i] = values[values.Length-1-i];
+        values[values.Length-1-i] = temp;
+    }
+    value = string.Join(" ", values);
+    Console.WriteLine(value);//sharp c hello
+}
+```
+
+1. 从`email`中提取`QQ号`和`域名`。
+
+```csharp
+static void Main(string[] args)
+{
+    //471457680@qq.com
+    string email = "471457680@qq.com";
+    int index = email.IndexOf("@");
+    string qqName = email.Substring(0, index);
+    string yuName = email.Substring(index + 1);
+    Console.WriteLine(qqName);
+    Console.WriteLine(yuName);
+}
+//也可使用split方法
+```
+
+1. 让用户输入内容，显示所有`e`的位置。
+
+```csharp
+static void Main(string[] args)
+{
+    string value = "aewsewdasde";
+    int index = value.IndexOf('e');
+    int i = 1;
+    while(index <= value.Length)
+    {
+        if (index != -1)
+        {
+            Console.WriteLine("第{0}个e，索引{1}", i, index);
+            i++;
+            index = value.IndexOf('e', index + 1);
+        }
+        else { break; }//搜索不到退出循环
+    }
+}
+//也可以遍历字符串数组，判断是否==e，弊端只能用于字符
 ```
