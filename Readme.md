@@ -303,7 +303,7 @@ int Num = 1;//二者不一致
 
 ```csharp
 // 数据类型 变量名
-int a;//未定义
+int a;//未定义,不能直接使用
 string str; //未定义
 bool b = false;//声明且初始化
 int d, e, f, g;//连续声明变量,要求变量类型一致
@@ -2228,6 +2228,20 @@ for (int i = 2; i <=100; i++)
 //此种方法，质数2未参与判断
 ```
 
+# using语句
+
+`using`语句是为了管理非托管资源，该资源实现了`IDisposable`接口中的`Dispose`方法。
+
+管理资源流程:
+
+:one:分配括弧内的资源，并隐式生成一个`try-finally`结构
+
+:two:资源放在`try`结构中
+
+:three:`finally`块中调用资源的`Dispose`方法，用以块退出时结束资源。
+
+![image-20250420220514438](assets/image-20250420220514438-1745157922321-1.png)
+
 # 结构
 
 一次性声明多个不同类型的字段。
@@ -2535,7 +2549,7 @@ Console.WriteLine(num);
 /// <summary>
 /// 一段封装好的歌曲函数
 /// </summary>
-public static void Sing() //用boid关键字声明 
+public static void Sing() //用void关键字声明 
 {
     Console.WriteLine("艳阳天那么风光好");
     Console.WriteLine("红的花儿是绿的草");
@@ -2547,7 +2561,7 @@ Program.Sing()
     
 ```
 
-:red_circle:调用方法的时候，某些情况下可省略类名：如果自定义方法跟Main函数在同一个类中，类名可省略，直接写方法即可。
+:red_circle:调用方法的时候，某些情况下可省略类名：如果自定义方法跟Main函数在同一个类中，类名可省略，直接写方法名即可。
 
 ## return关键字
 
@@ -2569,9 +2583,7 @@ static void Main(string[] args)
 
 ## 方法调用
 
-我们在Main函数中调用自定义函数，我们管Main函数叫`调用者`，自定义函数叫被`调用者`。
-
-若`被调用者`想获得`调用者`中声明的变量:
+我们在Main函数中调用自定义函数，我们管Main函数叫`调用者`，自定义函数叫被`调用者`,若`被调用者`想获得`调用者`中声明的变量:
 
 :one:传参（形参与实参）
 
@@ -2599,124 +2611,116 @@ public static int GetNumber(int a)
 }
 ```
 
-## 方法简单练习
+## 方法的参数
 
-:one:写一个方法，判断年份是否为闰年。
+### 值参数
+
+方法的默认参数类型为值参数，系统在栈上给形参分配内存，并将实参的值复制给形参。实参为值类型，形参保存一份副本，实参为引用类型，形参保存引用，指向同一个对象。
+
+```c#
+static void Main(string[] args)
+{
+    int[] arr = { 1, 2 };
+    int num = 3;
+    //1,3
+    Console.WriteLine($"arr[0]={arr[0]},num = {num}");
+    Change(arr, num);//100,4
+    //100,3
+    Console.WriteLine($"arr[0]={arr[0]},num = {num}");
+
+}
+public static void Change(int[] arr,int num) 
+{
+    arr[0] = 100;
+    num++;
+    Console.WriteLine(arr[0]);
+    Console.WriteLine(num);
+    //方法结束后形参都被销毁
+}
+```
+
+### 引用参数ref
+
+`ref`参数,系统不会在栈中为形参开辟空间，而是将形参视为实参的别名，指向同一内存位置。
 
 ```csharp
 static void Main(string[] args)
 {
-    Console.WriteLine("请输入一个年份");
-    string year = Console.ReadLine();
-    IsLeapYear(year);
+    int money = 5000;
+    Salary(ref money);
+    Console.WriteLine(money);//5500
+    //方法结束后，形参虽销毁，但实参值也做改变
 }
-public static void IsLeapYear(string year) 
-{ 
-    //适合使用try-catch
-    int intYear = int.Parse(year);//转成int类型
-    //闰年条件 被400整除 或 被4整除但不被100整除
-    if (intYear % 400 == 0 || (intYear % 4 == 0 && intYear % 100 != 0))
-    {
-        Console.WriteLine("{0}是闰年", year);
-    }
-    else 
-    {
-        Console.WriteLine("{0}年不是闰年",year);
-    }
+public static void Salary(ref int money) 
+{
+    money += 500;
 }
 ```
 
-:two:读取用户输入的内容，如果是整数，则返回，否则提示用户重新输入。
+:one:使用方法交换两个`int`类型的变量。
 
 ```csharp
 static void Main(string[] args)
 {
-    Console.WriteLine("请输入一个数字");
-    string str = Console.ReadLine();
-    ReadNum(str);
+    int a = 3;
+    int b = 5;
+    Change(ref a, ref b);
+    Console.WriteLine(a);
+    Console.WriteLine(b);
 }
-/// <summary>
-/// 将用户输入的内容转化为数字，返回Int型数字
-/// </summary>
-/// <param name="str">参数为用户输入的字符串</param>
-/// <returns>返回数字</returns>
-public static int ReadNum(string str)
+
+public static void Change(ref int a,ref int b) 
 {
-    bool b = false;
-    do
-    {
-        b = int.TryParse(str, out int num);
-        if (!b)//转换失败入口
-        {
-            Console.WriteLine("请重新输入一个文本型数字");
-            str = Console.ReadLine();
-        }
-    } while (!b);//转换失败执行，成功则退出循环
-    return num;
+    a = b - a;
+    b = b - a;
+    a += b;
 }
 ```
 
-:three:允许用户输入Y/N，若不是提示重新输入。
+:two:引用类型作为引用参数
 
-```csharp
-static void Main(string[] args)
-{
-    Console.WriteLine("请输入Y/N");
-    string input = Console.ReadLine();
-    //调用方法
-    string str=Repeat(input);
-    Console.WriteLine(str);
-}
-public static string Repeat(string str) 
-{
-    bool b = str == "Y" || str == "N";
-    //输入Y或者N则b为true
-    while (!b) //输入非法字符入口
-    {
-        Console.WriteLine("输入非法字符，请重新输入");
-        str = Console.ReadLine();
-        b = str == "Y" || str == "N";
-        //布尔变量重新赋值
-    }
-    //输入正确
-    return str;
-}
+```c#
+ class Person 
+ {
+     //初始化20
+     public int age = 20;
+ }
+ static void Main(string[] args)
+ {
+     Person p = new Person();
+     int num = 0;
+     ChangeAge(ref p, num);
+     Console.WriteLine(p.age);//20
+     Console.WriteLine(num);//0
+ }
+static void ChangeAge(ref Person p,int num) 
+ {
+     p.age = 30;
+     num += 30;
+    //创建新对象赋值给形参时，形参与实参指向同一对象
+     p = new Person();
+ }
 ```
 
-:four:计算输入数组的和。
+### 输出参数out
 
-```csharp
-static void Main(string[] args)
-{
-    int[] arr = { 1, 3, 5, 7, 8 };
-    int arrSum =SumArr(arr);
-    Console.WriteLine(arrSum);
-}
-/// <summary>
-/// 求数组的和
-/// </summary>
-/// <param name="arr">传入需要求和的数组</param>
-/// <returns>返回总和值</returns>
-public static int SumArr(int[] arr) 
-{
-    int sum = 0;
-    for (int i = 0; i < arr.Length; i++) 
-    {
-        sum += arr[i];
-    }
-    return sum;
-}
+与引用参数类型，输出参数也是实参的别名，二者都是同一内存的名称，在方法内对形参所作的更改，通过实参都是可见的。
+
+out参数侧重于在一个方法中返回多个不同类型的值（也可以返回多个相同类型的值）,可以不预先初始化变量。
+
+* 如果在一个方法中，返回多个相同类型的值的时候，可以考虑返回一个数组；
+* 如果返回多个不同类型的值的时候，考虑使用out参数。
+
+`C#7.0`新增语法:显示消除变量的声明，调用完后可以直接使用变量:
+
+```c#
+//int num = 2;
+//Change(out num);
+//被新语法替换↓
+Change(out int num);
 ```
 
-## 方法的高级参数
-
-### out参数
-
-如果在一个方法中，返回多个相同类型的值的时候，可以考虑返回一个数组；
-
-如果返回多个不同类型的值的时候，考虑使用out参数。
-
-out参数侧重于在一个方法中返回多个不同类型的值（也可以返回多个相同类型的值）,允许参数通过引用传递，可以不预先初始化变量。
+:bookmark:返回多个相同类型:
 
 ```csharp
 public static int[] GetMaxMinSumAvg(int[] arr)
@@ -2744,7 +2748,7 @@ public static int[] GetMaxMinSumAvg(int[] arr)
 }
 ```
 
-使用out返回多余参数。
+:bookmark:使用out返回多余参数。
 
 ```csharp
 static void Main(string[] args)
@@ -2866,44 +2870,6 @@ public static bool ImitateTryParse(string s, out int num)
 }
 ```
 
-### ref参数
-
-`ref`参数，指定参数按照引用传递。`ref`要求在方法外必须赋值。
-
-```csharp
-static void Main(string[] args)
-{
-    int money = 5000;
-    Salary(ref money);
-    Console.WriteLine(money使用方法交换两个int类型的变量。);//5500
-    //方法结束后，实参值也做改变
-}
-public static void Salary(ref int money) 
-{
-    money += 500;
-}
-```
-
-:one:使用方法交换两个`int`类型的变量。
-
-```csharp
-static void Main(string[] args)
-{
-    int a = 3;
-    int b = 5;
-    Change(ref a, ref b);
-    Console.WriteLine(a);
-    Console.WriteLine(b);
-}
-
-public static void Change(ref int a,ref int b) 
-{
-    a = b - a;
-    b = b - a;
-    a += b;
-}
-```
-
 ### params_可变参数数组
 
 将实参列表中跟可变参数数组类型一致的变量当作数组元素去处理；
@@ -2911,6 +2877,12 @@ public static void Change(ref int a,ref int b)
 :red_circle:可变参数数组必须是在形参列表最后一个参数；
 
 :red_circle:一个参数列表中只能存在一个可变参数数组。
+
+注意事项:
+
+:one:如果依次传递参数，则方法内部会自行声明一个数组，形参保存其引用。如果数组元素是引用类型，在方法内部修改会影响外部的变量。
+
+:two:如果传递的是一个数组，即为值参数，形参和实参指向同一对象。
 
 ```csharp
 static void Main(string[] args)
@@ -2954,6 +2926,45 @@ public static int ArrMax(params int[] arr)
     return max;
 }
 ```
+
+### 命名参数
+
+以任意顺序填写参数，格式`形参:实参值或表达式`
+
+```c#
+ public static void Main(string[] args)
+ {
+     Test(c: 5, b: 2, a: 1);
+ }
+ public static void Test(int a, int b, int c) 
+ {
+     Console.WriteLine(a + b + c);
+ }
+```
+
+### 可选参数
+
+表明某个参数是可选的，需在方法声明中提供默认值。可选参数只能是值类型，字符串与`null`，且为值参数(不能与`ref,out,params`连用)。
+
+```c#
+public static void Example(int a,int b ,int c= 2,params string[] strs){}
+//声明顺序：必选，可选，params
+```
+
+参数省略顺序：
+
+1. 应当从最后往前依次省略
+2. 如果不按照顺序省略，则应与命名参数结合使用
+
+```c#
+public static void Main(string[] args)
+{
+    Test(1, 2, strings: "s");//省略c
+}
+public static void Test(int a, int b =0, int c = 0,params string[] strings) {}
+```
+
+
 
 ## 方法的重载
 
@@ -3000,9 +3011,26 @@ public static int Connect(int a,int b,int c)
 }
 ```
 
-## 方法的递归
+## 认识递归
 
-方法自己调用自己。（找文件夹中所有文件）
+栈帧：调用方法的时候，内存从栈顶分配内存，用来分配参数的内存或其他数据管理项。
+
+方法调用时，整个栈帧都会进栈，退出方法时，整个栈帧从栈顶弹出，符合后进先出原则。
+
+```c#
+public static void Main(string[] args)
+{
+    Print(3);// 1,2,3
+}
+public static void Print(int num) 
+{
+    if (num == 0) return;
+    Print(num-1);
+    Console.WriteLine(num);
+}
+```
+
+`Print`方法调用时会存在4个独立的栈帧，退出时，依次从栈顶弹出。
 
 ## 综合练习
 
