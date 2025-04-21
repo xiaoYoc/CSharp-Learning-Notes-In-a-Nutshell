@@ -48,33 +48,47 @@ B-->析构函数
 ```csharp
 [public] class 类名//类名符合Pascal规范
 {
+    //类的成员
     构造函数：依次为对象的属性赋值（实例化类以后）;
     字段：存储数据；
     属性：保护字段，对字段的赋值和取值进行限定；
     方法：描述对象的行为；
     索引器;
     析构函数：主要是在程序结束时立即释放内存；
+    索引器
+    事件
 }
 //写好一个类，我们需要使用关键字new创建这个类的对象。这个过程叫类的实例化
 ```
 
 :red_circle:类的内部成员可以互相访问，要想被外界访问，需使用`public`修饰符。
 
-## 字段
+## 实例成员与静态成员
 
-```c#
-class Car
+默认情况下，每个类实例都会保存一份成员的副本，这些成员统称为实例成员；而有的成员被类的所有实例共享，统称为静态成员，在静态存储区域存储，且只有一份拷贝。
+
+1. 在外部调用实例成员的时候，需要使用`对象名.实例成员`。
+2. 在外部调用静态成员时，使用`类名.静态成员`。
+
+```csharp
+public static void Main(string[] args)
 {
-    string _type;//内部可访问
-    int _wheel =4;//初始化值
-    public void ShowCar() 
-    {
-        Console.WriteLine($"这个车车有{_wheel}个轮子");
-    }
+    D._num = 1;//静态成员直接调用
+    D d = new D();
+    d._age = 20;//实例成员：对象名.成员名
+}
+public  class D 
+{
+    public int _age;
+    public static int _num;
 }
 ```
 
-字段可以有初始化值，没有则创建对象时编译器会自动给字段赋予初值（初值由类型决定,值类型为`0`，引用类型为`null`）。
+## 字段
+
+### 实例字段
+
+字段可以有初始化值，若没有创建对象时编译器会自动给字段赋予初值（初值由类型决定,值类型为`0`，引用类型为`null`，布尔值为`false`）。
 
 使用类类型步骤：声明类型，创建实例(类的实例化)，初始化对象。
 
@@ -126,6 +140,82 @@ static void Main(string[] args)
 }
 ```
 
+对于实例成员改变其值不会影响到其他实例成员的值。
+
+```c#
+Car c1 = new Car();
+c1._type = "拖拉机";
+Car car2 = new Car();
+car2._type = "飞机";
+Console.WriteLine(c1._type);//拖拉机
+Console.WriteLine(car2._type);//飞机
+//两个对象在内部中分别开辟了空间
+```
+
+### 静态字段
+
+静态字段被类的所有实例共享，所有实例都访问内存的同一位置。
+
+```c#
+ public static void Main(string[] args)
+ {
+     //即使类为实例化，可直接访问静态字段
+     Console.WriteLine(D._num);
+ }
+ public  class D 
+ {
+     public static int _num;
+ }
+```
+
+:red_circle:与实例成员不同的是，只有在实例创建后才会产生实例成员，实例销毁后实例成员也不存在；对于静态成员即使不存在类实例，在使用静态成员之前，编译器会自动初始化该成员。
+
+## 成员常量
+
+```c#
+ public static void Main(string[] args)
+ {
+     Console.WriteLine(MyClass.age);
+     MyClass myClass = new MyClass();
+ }
+ public class MyClass 
+ {
+     //声明时必须初始化
+     public const int age = 20;
+ }
+```
+
+与静态字段类似，对于每个类实例都是可见的，直接使用`类名.成员名`调用；不同的是，常量在内存没有位置，在编译时变量名被替换为具体值。
+
+## 静态函数与实例函数
+
+静态成员在首次调用前加载，即类未实例化前就可以直接访问，而实例成员在实例化后才会分配初始化内存，因此在静态方法中不能访问实例成员。
+
+在内存方面：静态成员在静态存储区域中只有一份拷贝（如静态字段模拟全局变量），而实例成员每个实例都有自己的拷贝。
+
+注意一下两点：
+
+1. **静态方法中**，能直接访问静态成员，不能直接访问实例成员。
+2. 实例方法中，既可以使用静态成员，也可以访问实例成员。
+
+```csharp
+public class Car 
+{
+    int _type;
+    static int _wheel;
+    //实例方法
+    public void Show() 
+    {
+        Console.WriteLine($"type:{_type},wheel{_wheel}");
+    }
+    public static void Des() 
+    {
+        //无法访问实例成员
+        //Console.WriteLine(_type);
+    }
+}
+```
+
 ## readonly修饰符
 
 > `readonly`修饰符可作用与字段，作用同`Const`，不同的是`readonly`修饰符作用的变量，其值可在编译器决定，也可在程序运行时决定。
@@ -144,11 +234,11 @@ internal  static class Test
 
 ## 属性
 
-属性的作用是保护字段，对字段的赋值和取值进行限定。
+属性的作用是保护字段，对后备字段的赋值和取值进行限定。
 
 属性的本质是两个方法，一个是`get`，一个是`set`。
 
-1. 给属性赋值会执行`set`方法，将值`value`赋值给字段；
+1. 给属性赋值会执行`set`方法，将值`value`赋值给字段(value是set方法的隐式参数)；
 2. 读取属性的值时会执行`get`方法，取字段的值。
 
 在类中，为保护字段存储的数据，应该设置为私有访问修饰符`private`，通过中间商属性去读取字段。
@@ -206,7 +296,7 @@ static void Main(string[] args)
 
 执行过程：
 
-1. 实例化一个`car`对象，**字段与属性会获得与其类型对应的值**。
+1. 实例化一个`car`对象，**字段会获得与其类型对应的值**。
 2. 对象的初始化，给属性赋值会执行`set`方法，给字段赋值。
 3. 调用对象的`Show`方法，内部会访问对象的属性，此时调用属性的`get`方法，取得字段存储的值。
 
@@ -234,9 +324,9 @@ public int Speed
 
 ### 自动属性
 
-不需要显示声明一个私有变量，编译器会自动生成一个私有字段存储值（必须有`get`方法），适合不需要逻辑处理的属性。
+不需要显示声明一个私有变量，编译器会自动生成一个私有后备字段存储值（必须有`get`方法），适合不需要复杂逻辑处理的属性。
 
-1. 自动属性访问器后可赋一个默认值，普通属性无此语法。
+1. 自动属性访问器后可赋一个默认值，用以初始化字段。
 2. 自动实现属性必须要有`get`访问器。
 
 ```csharp
@@ -305,127 +395,23 @@ static void Main(string[] args)
     Console.WriteLine(car.Type);
 ```
 
-:three:只读自动属性在构造函数中初始化
+:three:自动只读属性初始化
 
 ```csharp
-internal class Car
-{
-    public Car(string type,int wheel) 
-    { 
-        //执行构造函数之前，属性的初始值与其类型相对应
-        this.Type = type;
-        this.Wheel = wheel;
-    }
-    public string Type  { get; }
-    public int Wheel {get; }
-}
+ public class Car
+ {
+     public Car(string name,int wheel) 
+     {
+         ////执行构造函数之前，字段已有初始值
+         Wheel = wheel;
+     }
+     public string Name { get;} = "Tractor";
+     public int Wheel { get; }
+ }
+//Name属性可在有默认值的情况下，也可在构造函数中重新为字段赋值.
 ```
 
-## 静态与非静态类
-
-### 非静态类
-
-1. 在**非静态类**中既可以有实例成员(非静态成员)，也可以有静态成员。
-
-1. 在调用实例成员的时候，需要使用`对象名.实例成员`。
-2. 在调用静态成员时，使用`类名.静态成员`（若在同一类中，可省略类名）。
-
-```csharp
-public class Person
-{
-    string _exOne = "非静态";//实例
-    public string ExOne 
-    { 
-        get { return _exOne; }
-    }
-    static string _exTwo = "静态";
-    static public string EXTwo 
-    {
-        get { return _exTwo; }
-    }
-    public void MethOne()
-    {
-        Console.WriteLine(_exOne);
-        Console.WriteLine(_exTwo);//实例函数中可以访问实例与静态成员
-    }
-    public static void MetTwo()
-    {
-       Console.WriteLine(_exTwo);
-       //Console.WriteLine(_exOne);静态方法中不能使用实例成员
-    }
-}
-```
-
-### 非静态类中的静态方法与实例方法
-
-静态成员在类首次调用前加载，即未实例化前就可以直接访问，而实例成员在实例化后才会分配内存，因此在静态方法中不能直接访问实例成员，若需要访问，则在参数中显式传递实例成员。
-
-在内存方面：静态成员在静态存储区域中只有一份拷贝（如静态字段模拟全局变量），而实例成员每个实例都有自己的拷贝。
-
-注意一下两点：
-
-1. **静态方法中**，能直接访问静态成员，不能直接访问实例成员。
-2. 实例方法中，既可以使用静态成员，也可以访问实例成员。
-
-```csharp
-//静态类Test
-internal static class Test
-{
-    //在静态类中访问实例属性
-    public static void Print(Vector3 v) 
-    {
-        Console.WriteLine(v.X);
-    }
-}
-//在main函数中调用
-static void Main(string[] args)
-{
-    Vector3 v1 = new Vector3(1, 2, 4,7);
-    //调用静态类中的静态函数
-    Test.Print(v1);//输出1
-}
-```
-
-### 静态类
-
-**静态类**中只允许静态成员，不允许出现实例成员。且对于静态类，不允许实例化，也不允许继承。
-
-1. 如果一个类作为工具类使用时，可以考虑写成静态类。
-2. 静态类在整个项目中资源共享。
-3. 静态字段和静态属性会在类首次调用前加载，且有默认值（用户定义或者编译器提供）。
-4. 之后自动执行静态构造函数。
-
-只有在程序全部结束后，静态类才会释放资源。
-
-```csharp
-static Test()//必须无参数
-{
-    //相关代码
-}
-```
-
-静态类可以使用this关键字拓展方法，像`对象.方法`一样去调用，见`this`章节。
-
-```csharp
-internal class Program
-{
-    static void Main(string[] args)
-    {
-        string str = "this的拓展方法";
-        str.Print();
-    }
-} 
-//this的拓展方法
-internal static class Person
-{
-    public static void Print(this string name) 
-    {
-        Console.WriteLine(name);
-    }
-}  
-```
-
-## 构造函数
+## 实例构造函数
 
 帮助我们初始化对象，通过属性给给私有字段依次赋值。
 
@@ -1130,6 +1116,45 @@ static void Main(string[] args)
  }
 
  public class Dog : Animal { }//无法从密封类中派生
+```
+
+## 静态类
+
+**静态类**中只允许静态成员，不允许出现实例成员。且对于静态类，不允许实例化，也不允许继承。
+
+1. 如果一个类作为工具类使用时，可以考虑写成静态类。
+2. 静态类在整个项目中资源共享。
+3. 静态成员会在首次调用前加载。
+4. 之后自动执行静态构造函数。
+
+只有在程序全部结束后，静态类才会释放资源。
+
+```csharp
+static Test()//必须无参数
+{
+    //相关代码
+}
+```
+
+静态类可以使用this关键字拓展方法，像`对象.方法`一样去调用，见`this`章节。
+
+```csharp
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        string str = "this的拓展方法";
+        str.Print();
+    }
+} 
+//this的拓展方法
+internal static class Person
+{
+    public static void Print(this string name) 
+    {
+        Console.WriteLine(name);
+    }
+}  
 ```
 
 # string
