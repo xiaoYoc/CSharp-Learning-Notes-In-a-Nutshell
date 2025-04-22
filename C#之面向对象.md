@@ -55,7 +55,6 @@ B-->析构函数
     方法：描述对象的行为；
     索引器;
     析构函数：主要是在程序结束时立即释放内存；
-    索引器
     事件
 }
 //写好一个类，我们需要使用关键字new创建这个类的对象。这个过程叫类的实例化
@@ -75,7 +74,7 @@ public static void Main(string[] args)
 {
     D._num = 1;//静态成员直接调用
     D d = new D();
-    d._age = 20;//实例成员：对象名.成员名
+    d._age = 20;//实例成员：对象名.实例成员名
 }
 public  class D 
 {
@@ -168,7 +167,7 @@ Console.WriteLine(car2._type);//飞机
  }
 ```
 
-:red_circle:与实例成员不同的是，只有在实例创建后才会产生实例成员，实例销毁后实例成员也不存在；对于静态成员即使不存在类实例，在使用静态成员之前，编译器会自动初始化该成员。
+:red_circle:与实例成员不同的是，只有在实例创建后才会产生实例成员，实例销毁后实例成员也不存在；对于静态成员即使不存在类实例，可以直接使用。
 
 ## 成员常量
 
@@ -176,7 +175,7 @@ Console.WriteLine(car2._type);//飞机
  public static void Main(string[] args)
  {
      Console.WriteLine(MyClass.age);
-     MyClass myClass = new MyClass();
+     //编译时MyClass.age替换为20
  }
  public class MyClass 
  {
@@ -189,13 +188,13 @@ Console.WriteLine(car2._type);//飞机
 
 ## 静态函数与实例函数
 
-静态成员在首次调用前加载，即类未实例化前就可以直接访问，而实例成员在实例化后才会分配初始化内存，因此在静态方法中不能访问实例成员。
+静态成员在类型首次调用前加载，即类未实例化前就可以直接访问，而实例成员在实例化后才会分配初始化内存，因此在静态方法中不能访问实例成员。
 
 在内存方面：静态成员在静态存储区域中只有一份拷贝（如静态字段模拟全局变量），而实例成员每个实例都有自己的拷贝。
 
 注意一下两点：
 
-1. **静态方法中**，能直接访问静态成员，不能直接访问实例成员。
+1. 静态方法中，能直接访问静态成员，不能直接访问实例成员。
 2. 实例方法中，既可以使用静态成员，也可以访问实例成员。
 
 ```csharp
@@ -210,7 +209,7 @@ public class Car
     }
     public static void Des() 
     {
-        //无法访问实例成员
+        //静态方法无法访问实例成员
         //Console.WriteLine(_type);
     }
 }
@@ -218,16 +217,18 @@ public class Car
 
 ## readonly修饰符
 
-> `readonly`修饰符可作用与字段，作用同`Const`，不同的是`readonly`修饰符作用的变量，其值可在编译器决定，也可在程序运行时决定。
+> `readonly`修饰符可作用与字段，作用同`Const`，不同的是`readonly`修饰符作用的变量，其值在程序运行时决定(有内存位置)。
 
-:one:只读字段可以在声明时直接赋值，或者在构造函数中赋值，不能再其他类中对只读字段赋值。
+:one:`readonly`字段可以在声明时直接赋值，或者在构造函数中赋值，不能再其他地方对只读字段赋值。
+
+:two:`readonly`静态字段声明时未初始化，初始化必须在静态构造函数中完成。
 
 ```c#
 internal  static class Test
 {
-    //静态只读字段声明时直接初始化
+    //只读字段声明时可直接初始化
     public readonly static double Pi = 3.14;
-    ////静态字段须在静态构造函数中初始化。
+    //未在声明时初始化，则字段需要在对应构造函数中初始化。
     public readonly static double radius;
 }
 ```
@@ -282,7 +283,7 @@ internal class Car
 }
 static void Main(string[] args)
 {
-    //创建一个对象后字段会有初始值，且对象的属性与初始值一致
+    //创建一个对象后字段会有初始值
     Car car = new Car();
     //对象的初始化，给属性赋值会执行set方法
     //注意给字段赋值不会执行set方法
@@ -296,7 +297,7 @@ static void Main(string[] args)
 
 执行过程：
 
-1. 实例化一个`car`对象，**字段会获得与其类型对应的值**。
+1. 实例化一个`car`对象，字段会有初始值(用户定义的默认值或者自动初始化的值)。
 2. 对象的初始化，给属性赋值会执行`set`方法，给字段赋值。
 3. 调用对象的`Show`方法，内部会访问对象的属性，此时调用属性的`get`方法，取得字段存储的值。
 
@@ -320,95 +321,90 @@ public int Speed
 }
 ```
 
-将上述的`Speed`属性做这样的更改，且在`set`方法上打上断点，给属性赋值时（`car.Speed = -1`），按原逻辑返回的是默认值0,；我们在执行get方法时查看`Speed`属性，则会隐式调用`get`方法，将字段_`speed`值更改为`-100`.
+将上述的`Speed`属性做这样的更改，且在`set`方法上打上断点，给属性赋值时（`car.Speed = -1`），按原逻辑返回的是默认值0;
 
-### 自动属性
+我们在执行`set`方法即将结束时查看`Speed`属性，则会隐式调用`get`方法，将字段_`speed`值更改为`-100`.
+
+### 只读属性
+
+只读属性通常用一个`get`访问器实现 或者将`set`访问器私有化来实现，可在构造函数中初始化字段值。
+
+:red_circle:私有化set访问器，外部无法访问，但类内部可以访问。
+
+```csharp
+internal class Car
+{
+    public Car(int wheel,string type) 
+    {
+        _wheel = wheel;
+        _type = type;
+    }
+
+    private int _wheel;
+
+    public int Wheel
+    {
+        //私有化set访问器
+        get { return _wheel; }
+        private set { _wheel = value; }
+    }
+
+    private string _type;
+
+    public string Type
+    {
+        //仅有get访问器
+        get { return _type; }
+    }
+
+    //set访问器私有化仍在在类内部进行访问
+    private void Change() 
+    {
+        Wheel = 10;
+    }
+
+}
+//Main函数中调用
+ public static void Main(string[] args)
+ {
+     Car car = new Car(4, "轿车");
+     car.Wheel = 5;//set访问器外部无法访问，不可赋值
+ }
+```
+
+### 自动属性与只读自动属性
 
 不需要显示声明一个私有变量，编译器会自动生成一个私有后备字段存储值（必须有`get`方法），适合不需要复杂逻辑处理的属性。
 
 1. 自动属性访问器后可赋一个默认值，用以初始化字段。
-2. 自动实现属性必须要有`get`访问器。
+2. 自动属性必须要有`get`访问器。
+3. 只读自动属性也是用一个`get`访问器 或者将`set`访问器私有化来实现，可在声明时初始化或者在构造函数中初始化字段。
 
 ```csharp
-public class Tractor 
+internal class Tractor
 {
-    public int Wheel { get; set; } = 4;//默认值4
+    public string Name { get; } = "Tractor";//声明时直接初始化
+    public string Color { private set; get; }//私有化访问器
+    public int Wheel { get; }//默认值0
 
-    public string Color { get; set; } = "green";//默认值green
-
-    public int Sates {  get; set; }//默认值0
     public void Show() 
     {
-        Console.WriteLine("this tractor has {0} wheels,it's {1},it has {2} sates",
-                          this.Wheel,this.Color,this.Sates);
+        Console.WriteLine($"名称{Name},颜色{Color},轮子数量{Wheel}");
     }
 }
 //创建对象后，若未给属性赋值，则调用Show方法，读取字段默认值
 ```
 
-### 只读属性与只读自动属性
+外部调用:
 
-只读属性通常用一个`get`访问器实现 或者将`set`访问器私有化来实现，在构造函数中初始化字段值。
-
-:one:只读属性的基本实现
-
-```csharp
-public string Name { get;}//自动只读属性
-private int _wheel;
-public int Wheel { set { _wheel = value; }}//只写
-public string Name { get; private set;}//只读
-```
-
-:two:只读属性在构造函数中初始化
-
-```csharp
-internal class Car
+```c#
+public static void Main(string[] args)
 {
-    public Car(string type,int wheel) 
-    { 
-        //在构造函数内赋值，也可以进行复杂的逻辑处理
-        this._type = type;
-        this._wheel = wheel;
-    }
-    private string _type;
-    public string Type 
-    { 
-        get
-        {
-            //获取属性值时,字段会更改为三轮
-            _type = "三轮";
-            return _type; 
-        }
-    }
-    private int _wheel;
-    public int Wheel 
-    {
-        get { return _wheel; }
-    }
+    Tractor tractor = new Tractor();
+    tractor.Color = "红";//set访问器外部无法访问，不可赋值
+    tractor.Name = "Test";//无法在外部为自动只读属性赋值
+    tractor.Show();
 }
-//Main函数中调用
-static void Main(string[] args)
-{
-    //创建Car类的一个对象，类的实例化
-    Car car = new Car("轿车",4);
-    //在构造函数未执行之前，字段与属性会获得与类型相对应的值
-    Console.WriteLine(car.Type);
-```
-
-:three:自动只读属性初始化
-
-```csharp
- public class Car
- {
-     public Car(string name,int wheel) 
-     {
-         ////执行构造函数之前，字段已有初始值
-         Wheel = wheel;
-     }
-     public string Name { get;} = "Tractor";
-     public int Wheel { get; }
- }
-//Name属性可在有默认值的情况下，也可在构造函数中重新为字段赋值.
 ```
 
 ## 实例构造函数
@@ -421,7 +417,7 @@ static void Main(string[] args)
 
 ------
 
-类当中会有一个默认的无参的构造函数，当你写了一个新的构造函数之后，不论是否有参数，原默认无参构造函数都会被代替。
+:red_circle:类当中会有一个默认的无参的构造函数，当你写了一个新的构造函数之后，不论是否有参数，原默认无参构造函数都会被代替。
 
 ```csharp
 internal class Student
@@ -464,10 +460,10 @@ internal class Student
 }
 ```
 
-在Main中初始化对象，以及调用。注意此时`new`关键字的作用：
+在Main函数中初始化对象。注意此时`new`关键字的作用：
 
 1. 在堆中开辟一个空间
-2. 在空间中创建一个对象，编译器自动加载字段与属性，其值可能是用户定义的初始化值，也可能是编译器提供默认值。
+2. 在空间中创建一个对象，字段的初始化器执行。
 3. 调用对象的构造函数进行初始化。
 
 ```csharp
@@ -523,6 +519,56 @@ internal class Ticket
 }
 ```
 
+## 静态构造函数
+
+:red_circle:静态构造函数通常用来初始化类的静态字段；静态构造函数不得有修饰符，有`static`关键字，不得带参数。
+
+```c#
+static Ticket() 
+{
+	//在构造函数中初始化静态成员
+    //在类实例化前或调用静态成员之前自动调用
+}
+```
+
+C# 中成员的初始化顺序如下：
+
+1. **静态字段初始化**：在类型首次被使用（如调用静态方法、访问静态成员或创建实例）时，静态字段的初始化器会优先执行。
+2. **静态构造函数**：静态字段初始化完成后，静态构造函数（如果存在）会被调用。
+3. **实例字段初始化**：在创建类的实例时，实例字段的初始化器会执行。
+4. **实例构造函数**：实例字段初始化完成后，实例构造函数才会执行。
+
+:bookmark:静态成员初始化只发生一次。
+
+## 对象初始化器
+
+对象初始化时可以由`new`关键字后跟构造函数及参数列表，同时也可以放置一组初始化语句。
+
+``` c#
+public static void Main(string[] args)
+{
+    MyClass myClass = new MyClass()
+    {
+        _x = 10,
+        _y = 20
+    };
+    //简化了手动为字段赋值，相当于
+    myClass._x = 10;
+    myClass._y =20;
+}
+public class MyClass
+{
+    public int _x;
+    public int _y;
+}
+```
+
+:red_circle:对象初始化器实质上是简化了手动给字段或属性赋值。
+
+:one:字段或属性须是外部可访问的；
+
+:two:在构造函数之后执行，可能会重置某些数据成员。
+
 ## this关键字
 
 :one:this代表当前类的对象，主要用来**区分属性与形参或方法中的局部变量。**
@@ -548,6 +594,7 @@ internal class Ticket
             this._distance = distance;
         }
     }
+    //this()中的传递的参数要与其声明的形参一致，意及交给其初始化对象。
     public Ticket(int distance , int hour):this(distance) 
     { 
         this.Hour = hour;
@@ -661,7 +708,7 @@ static void Main(string[] args)
 
 程序结束的时候，析构函数才会被执行，意在帮助我们释放资源。
 
-如果希望程序技术立即释放内存资源，就使用析构函数，不需要则通过GC(Garbage Collection-垃圾回收装置)自动释放资源
+如果希望程序立即释放内存资源，就使用析构函数，不需要则通过GC(Garbage Collection-垃圾回收装置)自动释放资源
 
 ```csharp
 ~类名()
