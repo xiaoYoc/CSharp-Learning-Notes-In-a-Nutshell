@@ -754,24 +754,20 @@ public abstract partial class Animal
 
 # 面向对象之继承
 
->  把重复的成员单独封装到一个类中来作为父类。
+>  把重复的成员单独封装到一个类中来作为父类，子类便可继承公有的父类成员。
 >
-> 子类继承父类的`属性和方法`以及字段，但由于字段的私有性，子类无法访问。
->
-> 没有继承父类的构造函数，但是子类会默认调用父类无参的构造函数，目的是初始化父类成员，让创建的子类对象包含父类的成员。
+> 没有继承父类的构造函数，但是子类会默认调用父类无参的构造函数，目 的是初始化父类成员，让创建的子类对象包含父类的成员。
 >
 > 继承的特性：
 >
 > 1. 单根性：只能由一个父类
-> 2. 传递性：最上层的父类的属性和方法会传递到最下层的子类。
+>2. 传递性：最上层的父类的成员会传递到最下层的子类。
 
+![img](assets/1740049669539-cc55c7a9-373a-41f9-8ab8-4883ef1a0690.jpeg)
 
+## 认识继承
 
-1. ![img](assets/1740049669539-cc55c7a9-373a-41f9-8ab8-4883ef1a0690.jpeg)
-
-1. 简单的认识继承
-
-1. 定义父类`Car`
+:one:定义父类`Car`
 
 ```csharp
 public class Car 
@@ -795,7 +791,7 @@ public class Car
 }
 ```
 
-1. 定义子类`Tractor`
+:two:定义子类`Tractor`
 
 ```csharp
 public class Tractor:Car 
@@ -808,7 +804,7 @@ public class Tractor:Car
 }
 ```
 
-1. `Main`函数中调用
+:three:`Main`函数中调用
 
 ```csharp
 static void Main(string[] args)
@@ -820,7 +816,7 @@ static void Main(string[] args)
 }
 ```
 
-1. 继承的传递性：C继承B,B继承A，C具有B和A的公有属性和方法；先执行最上层的父类构造函数，依次向下执行构造函数，最后才执行自己的构造函数。
+:four:继承的传递性：C继承B,B继承A，C具有B和A的公有属性和方法；先执行最上层的父类构造函数，依次向下执行构造函数，最后才执行自己的构造函数。
 
 ```csharp
 public class Car
@@ -847,7 +843,7 @@ public class WalkingTractor:Tractor
 }
 ```
 
-小知识：不能在子类构造函数中为父类的自动只读属性赋值，因为父类已经实现了逻辑，不希望子类破坏，除非隐藏或重写。
+:bookmark:不能在子类构造函数中为父类的自动只读属性赋值，因为父类已经实现了逻辑，不希望子类破坏，除非隐藏或重写。
 
 了解：`object`类是所有类的基类，如果一个类没有继承其他类，默认继承`object`类。
 
@@ -884,12 +880,70 @@ public class Tractor : Car
 }
 ```
 
+## 继承成员初始化顺序
+
+:bookmark:以下为测试代码：
+
+```c#
+internal class Car
+{
+    public Car() 
+    {
+        Console.WriteLine("父类实例构造函数初始化...");
+    }
+
+    static Car() 
+    {
+        Console.WriteLine("父类静态构造函数初始化...");
+    }
+    private static int _id = Des("父类静态字段");
+    private int _wheel = Des("父类实例字段");
+    public static int Des(string value) 
+    {
+        Console.WriteLine($"{value}在初始化...");
+        return 0;
+    }
+}
+
+internal class Tractor:Car
+{
+    public Tractor()
+    {
+        Console.WriteLine("子类实例构造函数...");
+    }
+    static Tractor()
+    {
+        Console.WriteLine("子类静态构造函数...");
+    }
+    private static int _id = Des("子类静态字段");
+    private int _wheel = Des("子类实例字段");
+    public int ChangeYear {  get; set; }
+}
+```
+
+输出结果：
+
+```c#
+父类静态字段在初始化...
+父类静态构造函数初始化...
+子类静态字段在初始化...
+子类静态构造函数...
+子类实例字段在初始化...
+父类实例字段在初始化...
+父类实例构造函数初始化...
+子类实例构造函数...
+```
+
 ## new关键字
 
 new关键字的作用：
 
-1. 创建对象
-2. 隐藏从父类那里继承的同名成员（不写new同样会隐藏父类成员，不过编译器会进行提示），隐藏的后果是调用不到父类的成员。
+1. 创建对象，初始化并分配内存
+2. 隐藏从父类那里继承的同名成员（即公有成员）（不写new同样会隐藏父类成员，不过编译器会进行提示），隐藏的后果是调用不到父类的成员。
+
+   :one:数据成员：相同类型和名称
+
+   :two:函数成员：签名相同(与返回值无关，函数名和参数列表相同)
 
 ```csharp
 public class Car
@@ -950,12 +1004,12 @@ static void Main(string[] args)
 
 1. 先执行父类的构造函数，初始化父类的成员，确保子类方法可以正确访问父类成员；
 2. 再执行子类的构造函数，初始化子类中成员；
-3. 执行方法时调用的是子类的`Show`方法，`this`遵循就近原则，子类中有`Show`方法就不会调用父类的方法。
+3. 执行方法时调用的是子类的`Show`方法，因父类的`Show`方法被隐藏。
 4. 上述例子中子类构造函数并没有初始化Name属性，所以子类中的`Name`属性值为`null`。
 
-子类中的对象有两个`Name`属性，一个是父类的`Name`,一个是自己的`Name`，字段与方法也同样如此。
+子类中的对象有两个`Name`属性，一个是父类的`Name`,一个是自己的`Name`，方法也同样如此。
 
-可使用`base`访问父类属性，`base.名`代表当前对象调用继承的父类的属性名或方法名。
+可使用`base`访问父类属性，`base.成员名`代表当前对象调用继承的父类公有成员(私有的子类访问不到)。
 
 ```csharp
 public new void Show() 
@@ -969,7 +1023,7 @@ public new void Show()
 
 向上转型，使父类访问子类的属性与方法。
 
-1. 子类可以转换为父类,此时的对象优先访问自己的父类成员，除非实现了多态：
+1. 子类可以转换为父类,此时的对象访问基类成员，除非实现了多态：
 
 1. 子类方法override重写父类虚方法，调用子类的方法
 2. 抽象，接口父类调用子类实现的方法。
@@ -1202,6 +1256,461 @@ internal static class Person
         Console.WriteLine(name);
     }
 }  
+```
+
+# 面向对象之多态
+
+通过父类调用子类对应方法的实现。实现多态方式：虚方法，抽象类，接口。
+
+子类的实例是由基类和子类成员共同组成，若将子类实例转换为基类实例，这样只能访问基类中的成员，除了`override`方法外。
+
+## 虚方法
+
+:one:虚方法可提供默认实现，子类可选择是否重写。
+
+:two:将父类的方法标记为虚方法，使用关键字`virtual`，这个函数可以被子类重写，使用`override`关键字。
+
+:three:要求虚方法和重写方法有:red_circle:相同的签名和返回类型。
+
+```csharp
+public class Car
+{
+    public Car(int id,string name) 
+    {
+        if (id < 0) { id = 0 - id; }
+        this._id = id;
+        this._name = name;
+    }
+    private int _id;
+    public int Id { get { return _id; } }
+    private string _name;
+    public string Name { get { return _name; } }
+    public virtual void Show() 
+    {
+        Console.WriteLine("ID:"+this.Id);//打印ID
+    }
+}
+public class Tractor : Car 
+{
+    public Tractor(int id,string name):base(id,name)  { }
+    public override void Show()
+    {
+        Console.WriteLine("name:"+this.Name);
+    }
+}
+```
+
+子类对象调用`override`方法时，执行的是子类方法中的实现。
+
+若将派生对象转换为基类对象，调用虚方法时，会检查子类的方法是否重新实现，若实现则调用派生类的方法，若派生类未重写则调用默认实现。
+
+:red_circle:在多层覆盖中，调用对象实际类型中`override`实现的最高版本。
+
+```csharp
+static void Main(string[] args)
+{
+    Car car = new Tractor(20, "拖拉机");
+    car.Show();//name:拖拉机，不会打印父类的方法
+}
+```
+
+若在初始化子对象执行父类构造函数时遇到虚方法也一样，也会去检查子类的方法是否重新实现，了解即可,:red_circle:禁止该行为。
+
+```csharp
+public Car(int id,string name) 
+{
+    if (id < 0) { id = 0 - id; }
+    this._id = id;
+    this._name = name;
+    this.Show();//name:拖拉机
+}
+```
+
+重写基类`object`的`ToString`方法。
+
+```csharp
+public class OverString 
+{
+    //object的ToString方法本质上是一个虚方法
+    public override string ToString()
+    {
+        return "Hello";
+    }
+}
+```
+
+:bookmark_tabs:属性重写(了解)
+
+1. 基类中属性有`set`和`get`访问器，普通属性重写时覆盖基类中的一个访问器即可，
+
+2. 自动属性必须覆盖基类中所有的访问器(若不重写`set`访问器，给属性赋值时调用的还是父类的`set`访问器，自己本身的属性永远是系统自动初始化值，这种属性无意义)
+
+```c#
+internal abstract class Animal
+{
+	private int _age;
+	public virtual int Age
+	{
+		get { return _age; }
+		set { _age = value; }
+	}
+	public virtual string Name { get; set; }
+}
+
+internal class Dog : Animal 
+{
+	private string _name;
+	public override string Name
+	{
+		//可实现基类的一个访问器
+		get { return _name; }
+	}
+    //必须实现基类的所有访问器
+	public override int Age { set; get; }
+}
+```
+
+
+
+:bookmark_tabs:虚方法中的多层覆盖
+
+> 在一个继承层次结构中，多个派生类依次覆盖基类的方法
+
+```csharp
+public class Animal
+{
+    public virtual void Bark() 
+    {
+        Console.WriteLine("animal is barking");
+    }
+}
+
+public class Dog:Animal
+{
+    public override void Bark()
+    {
+        Console.WriteLine("dog is bark");
+    }
+}
+
+public class Labrador : Dog
+{
+    public override void Bark()
+    {
+        Console.WriteLine("Labrador is bark");
+    }
+}
+```
+
+1. 基类`Animal`定义一个`bark`的基方法
+2. 第一层覆盖：`Dog`类重写了父类`Bark`方法
+3. 第二层覆盖：Labrador类重写父类`Dog`中`Bark`方法。
+
+```csharp
+static void Main(string[] args)
+{
+    Animal animal = new Animal();
+    Animal dog = new Dog();
+    Animal labrador = new Labrador();
+
+    animal.Bark();//animal is bark
+    dog.Bark();//animal is bark
+    labrador.Bark();// labrador is bark
+}
+```
+
+`Labrador`类中的方法隐藏父类方法:
+
+```c#
+public class Labrador : Dog
+{
+    new public void Bark()
+    {
+        Console.WriteLine("Labrador is bark");
+    }
+}
+
+//调用
+public static void Main(string[] args)
+{
+    Animal animal = new Labrador();
+    //输出的是override最高版本
+    animal.Bark();//dog is bark
+}
+```
+
+若`Labrador`类中的方法没有继续重写:
+
+```c#
+public class Labrador : Dog
+{
+    //相当于继承了Dog类中的override方法，该方法顶替掉了Animal中的虚方法
+}
+
+```
+
+
+
+## 抽象类
+
+当父类中的方法不知道如何实现时，可以将父类写成抽象类，将方法写成抽象方法。由子类实现，所以抽象类不能是密封类
+
+```csharp
+//抽象类与接口无法实例化
+public abstract class Animal
+{
+    public string Name { get; set; }
+    public abstract void Bark();//抽象方法不允许有方法体
+}
+
+public class Dog : Animal 
+{
+    //必须重写
+    public override void Bark()
+    {
+        Console.WriteLine("呜~");
+    }
+}
+```
+
+抽象类不允许实例化，但可以将子类的对象转成父类对象。
+
+```csharp
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        Animal a = new Dog();
+        a.Bark();//执行的是子类重写的方法
+    }
+}
+```
+
+注意一下几点
+
+1. 抽象类不能被实例化。
+2. 抽象成员必须标记为`abstract`,并且不能有任何实现，且抽象成员必须在抽象类中
+3. 子类继承抽象类，必须把所有的抽象成员重写(包括属性的访问器)，除非子类也是一个抽象类。
+4. 在抽象类中不能为抽象只读属性赋值，因为此时属性逻辑尚未实现，不同的子类可能有不同的要求。
+5. 抽象类中可以包含非抽象的实例成员与静态成员，如字段，构造函数等。
+7. 抽象方法和派生类`override`方法返回类型和方法签名要求一致。
+
+```csharp
+//抽象类与接口无法实例化
+public abstract class Animal
+{
+    public Animal(string name,string color) 
+    { 
+        this.Name = name;
+        this.Color = color;
+    }
+    public string Name {  get;  }
+    public string Color {  get; }
+    public abstract void Bark();//抽象方法不允许有方法体
+}
+//抽象类继承抽象类
+public abstract class SmallAnimal:Animal 
+{
+    public SmallAnimal(string name, string color) : base(name, color) { }
+    public abstract int Age { get; }//抽象属性也不允许有方法体
+}
+public class Dog :SmallAnimal
+{
+    public Dog(string name,string color,int age):base(name,color) 
+    {
+        //子类的构造函数中写入逻辑
+        if (age < 0) { age = -age; }
+        this.Age = age;
+    }
+
+    //实现抽象属性
+    public override int Age { get; }
+
+    //必须重写
+    public override void Bark()
+    {
+        Console.WriteLine("呜~");
+        Console.WriteLine(this.Name);
+        Console.WriteLine(this.Color);
+    }
+}
+```
+
+使用多态求矩形的面积和周长以及圆形的面积和周长。
+
+定义一个`Shape`抽象类，有`Area`和`Perimeter抽象`方法。
+
+```csharp
+public abstract class Shape
+{
+    //面积抽象
+    public abstract double Area();
+    //周长抽象
+    public abstract double Perimeter();
+}
+```
+
+圆形子类去实现抽象方法：
+
+```csharp
+public class Circle:Shape
+{
+    public Circle(double r) { this.R = r; }
+    public double R { get; }
+    public override double Area()
+    {
+        double area = Math.PI * R * R;//圆面积
+        return area;
+    }
+    public override double Perimeter()
+    {
+        double perimeter = 2 * Math.PI * R;
+        return perimeter;
+    }
+}
+```
+
+矩形子类去实现抽象方法：
+
+```csharp
+public class Rectangel : Shape
+{
+    public Rectangel(double width,double height) 
+    { 
+        width = width< 0 ? 0 : width;
+        height = height< 0 ? 0 : height;
+        this.Width = width;
+        this.Height = height;
+    }
+    public double Width { get; }//宽
+    public double Height { get; }//高
+    public override double Area()
+    {
+        double area = this.Width * this.Height;
+        return area;
+    }
+
+    public override double Perimeter()
+    {
+        double perimeter = 2 * (this.Width + this.Height);
+        return perimeter;
+    }
+}
+```
+
+:bookmark_tabs:抽象类中的多层覆盖
+
+```csharp
+public abstract class Animal
+{
+    public abstract void Bark();
+}
+
+public class Dog:Animal
+{
+    public override void Bark()
+    {
+        Console.WriteLine("dog is bark");
+    }
+}
+
+public class Labrador : Dog
+{
+    public override void Bark()
+    {
+        Console.WriteLine("Labrador is bark");
+    }
+}
+```
+
+对于抽象类中的多层覆盖，将派生对象转换为父类类型变量，也会找到实际对象方法中`override`的实现的最高版本。
+
+```csharp
+static void Main(string[] args)
+{
+    Animal dog = new Dog();
+    Animal labrador = new Labrador();
+    dog.Bark();//dog is bark
+    labrador.Bark();// labrador is bark
+}
+```
+
+## 接口
+
+接口就是一种规范，规定子类必须实现的方法。
+
+```csharp
+[public] interface I...able
+{
+    //只有函数成员
+    //方法，属性，索引器
+}
+```
+
+1. 接口中的成员不允许添加访问修饰符，默认就是public；
+2. 不能有字段和构造函数，只能有方法且不允许有方法体，自动属性（没有方法体）可存在;
+3. 接口不能被实例化
+4. 接口与接口之间可以继承，并且可以多继承
+5. 接口不能继承于类，类能继承接口
+6. 接口的子类必须实现该接口所有的方法，包括属性的访问器。
+7. 一个类既继承与接口，又继承于类，必须先继承于类（语法）
+
+```c#
+internal interface IFireable
+{
+    double Time { get; set; }
+    void Fire();
+    void MultiFire();
+}
+
+internal class Tank : IFireable
+{
+    private double _time;
+    //错误，必须实现属性所有访问器
+    //public double Time { get { return _time; } }
+
+    public void Fire()
+    {
+        Console.WriteLine("开火");
+    }
+
+    public void MultiFire()
+    {
+        Console.WriteLine("连续开火");
+    }
+}
+```
+
+
+
+### 显式实现接口
+
+解决接口与类中方法重名问题
+
+```csharp
+static void Main(string[] args)
+{
+    IFlyable flyable = new Bird();
+    Bird bird = new Bird();
+    flyable.Fly();//调用自己的fly,被子类实现
+    bird.Fly();// bird is fly
+}
+public interface IFlyable 
+{
+    void Fly();
+}
+public class Bird:IFlyable
+{
+    public void Fly() 
+    {
+        Console.WriteLine("Bird is fly");
+    }
+    //不允许加修饰符，默认priavte
+    void IFlyable.Fly() 
+    {
+        Console.WriteLine(" 接口中的方法");
+    }
+}
 ```
 
 # string
@@ -1623,3 +2132,500 @@ static void Main(string[] args)
 }
 //也可以遍历字符串数组，判断是否==e，弊端只能用于字符
 ```
+
+# 集合
+
+## ArrayList集合
+
+数组弊端：相同类型数据的集合，类型单一，长度不变。
+
+集合：长度任意改变，类型随便。
+
+### list.Add( )
+
+`list.Add(object value)`,添加单个元素，接受一切参数，将子类转化为object类。
+
+```csharp
+    static void Main(string[] args)
+    {
+        //创建一个集合对象
+        ArrayList list = new ArrayList();
+        list.Add(1);
+        list.Add(true);
+        list.Add("str");
+        list.Add(123m);
+        //添加数组
+        list.Add(new int[] { 1, 2, 3, 4, 5 });
+        RePerson p = new RePerson();
+        //添加对象
+        list.Add(p);
+        for (int i = 0;i<list.Count; i++)
+        {
+            Console.WriteLine(list[i]);
+            //对于实例会调用ToString()方法打印其命名空间.类名，
+            //数组返回System.Int32[]，对象p返回study.RePerson
+        }
+    }
+}
+public class RePerson 
+{
+    public void Print() { Console.WriteLine("人类"); }
+}
+```
+
+我们将对象输出到控制台，默认调用`ToString()方法`，打印这个对象所在类的命名空间。
+
+使用里氏转换，进行输出。
+
+```csharp
+    static void Main(string[] args)
+    {
+        //创建一个集合对象
+        ArrayList list = new ArrayList();
+        list.Add(1);
+        list.Add(true);
+        list.Add("str");
+        list.Add(123m);
+        //添加数组
+        list.Add(new int[] { 1, 2, 3, 4, 5 });
+        RePerson p = new RePerson();
+        //添加对象
+        list.Add(p);
+        for (int i = 0;i<list.Count; i++)
+        {
+            //里氏转换:obj转换为int[]
+            if (list[i] is int[])
+            {
+                int[] arr = (int[])list[i];
+                for (int j = 0; j < arr.Length; j++)
+                {
+                    Console.WriteLine(arr[j]);
+                }
+            }
+            else if (list[i] is RePerson)
+            {
+                //里式转换 object 转换为RePerson
+                ((RePerson)list[i]).Print();
+            }
+            else 
+            {
+                Console.WriteLine(list[i]);
+            }
+        }
+    }
+}
+public class RePerson 
+{
+    public void Print() { Console.WriteLine("人类"); }
+}
+```
+
+### list.AddRange( )
+
+添加集合使用`AddRange()`方法。
+
+```csharp
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        ArrayList list = new ArrayList();
+        list.AddRange(new int[] { 1, 23, 3, 3 });
+        list.Add(new RePerson());//study.RePerson
+        for (int i = 0; i < list.Count; i++)
+        {
+            Console.WriteLine(list[i]);
+        }
+    }
+}
+public class RePerson 
+{
+    public void RePrint() { Console.WriteLine('P'); }
+}
+```
+
+### 其他方法
+
+| 增       | 删                    | 改          | 查       |
+| -------- | --------------------- | ----------- | -------- |
+| Add      | clear,Remove,RemoveAt | insert      | Contains |
+| AddRange | RemoveRange           | insertRange |          |
+
+```csharp
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        ArrayList list = new ArrayList();
+        list.Add(true);
+        list.AddRange(new int[] { 1, 23, 3, 3 });
+        //list.Clear(); 移除所有元素
+        //list.Remove(true);移除单个元素，写谁删谁
+        //list.RemoveAt(1);根据索引删除元素
+        //list.RemoveRange(0, 2);根据下标移除一定范围的元素
+        //list.Sort();升序排列
+        //list.Reverse();反转元素
+        // list.Insert(1, '男');指定位置插入元素
+        //list.InsertRange(0, new int[] { 10, 8 });指定位置插入集合
+        // bool b = list.Contains(true);判断是否包含某该元素
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            Console.WriteLine(list[i]);
+        }
+    }
+}
+```
+
+### ArrayList集合长度问题
+
+#### Add( )与AddRange( )长度
+
+`Add`方法是将数组作为一个元素添加，而`AddRange`方法式将数组元素依次加入到`List`对象中
+
+```csharp
+static void Main(string[] args)
+{
+    ArrayList list = new ArrayList();
+    list.Add(true);
+    Console.WriteLine(list.Count);//1
+    list.AddRange(new int[] { 1, 23, 3, 3 });
+    Console.WriteLine(list.Count);//5
+    list.Add(new int[] { 1, 2 });//6
+    Console.WriteLine(list.Count); 
+}
+```
+
+#### 长度可变原理
+
+每次集合 中实际包含的元素个数（`count`）超过了可以包含元素的个数（capacity）时，集合就会向内存申请多一倍空间，保证集合长度够用。
+
+### 练习
+
+1. 创建一个集合，里面添加一些数字，求平均值与和。
+
+```csharp
+static void Main(string[] args)
+{
+    ArrayList list = new ArrayList();
+    list.Add(1.0);
+    list.AddRange(new int[] {1,23,4,4 });
+    double sum = 0;
+    for (int i = 0; i < list.Count; i++)
+    {
+        if (list[i] is int)
+        {
+            sum += (int)list[i];
+            //转化为double类型
+            //double类是Object类的子类，强制转换
+        }
+        else if (list[i] is double)
+        {
+            //转化为double
+            sum += (double)list[i];
+        }
+    }
+    Console.WriteLine(sum);
+    Console.WriteLine(sum/list.Count);
+}
+```
+
+1. 写一个长度为10的集合，要求在里面存放10个数字（0-9），但是要求所有数字不重复。
+
+```csharp
+static void Main(string[] args)
+{
+    Random r = new Random();
+    ArrayList list = new ArrayList();
+    for (int i = 0; i < 10; i++)
+    {
+        int num = r.Next(0,10);//0-9
+        if (!list.Contains(num)) 
+        {
+            list.Add(num);
+        }
+        else 
+        {
+            //这里是重复的入口，i-1去除无用的次数
+            i--;
+        }
+    }
+}
+```
+
+## Hashtable集合
+
+键值对集合,根据键找值。`键值对对象 [键] = [值]`，键必须唯一，值可以重复。
+
+```csharp
+ht.Add(object key,object value)
+```
+
+向键值对中添加数据一：
+
+```csharp
+static void Main(string[] args)
+{
+    Hashtable ht = new Hashtable();
+    ht.Add(1, 2);
+    ht.Add(2, 3);
+    ht.Add(false, 3);
+    ht.Add("name", "占山");
+    foreach (var item in ht.Keys)//键集合
+    {
+        Console.WriteLine("键是--{0},值是--{1}", item, ht[item]);
+    }
+}
+```
+
+方式二：
+
+```csharp
+Hashtable ht = new Hashtable();
+ht.Add("name", "占山");
+ht[6] = true;//另一种添加数据方式
+ht["name"] = "替换占山";
+//判断内部如果没有该键，即添加，若有则替换值
+```
+
+### 方法
+
+```csharp
+ht.Add(object key , object value);//添加
+ht.ContainsKey(object key);//判断是否包含，返回布尔值
+ht.Clear();//清空集合所有键值
+ht.Remove(object key)//根据键去移除
+Hashtable ht = new Hashtable();
+ht.Add("name", "占山");
+ht[6] = true;//另一种添加数据方式
+ht[1] = 2;
+if (!ht.Contains(1))
+{
+    ht.Add(1, 3);
+}
+else 
+{
+    Console.WriteLine("包含了1键");
+}
+```
+
+## 泛型集合
+
+指定类型的ArrayList集合。`List<T> list = new List<T>();`类型固定，长度任意。
+
+```csharp
+static void Main(string[] args)
+{
+    //泛型集合
+    List <int> list = new List<int>();
+    //方法与ArraryList一致
+    list.Add(0);
+    list.AddRange(new int[] { 2, 3, 4 });
+    list.Insert(0, 10);
+    list.InsertRange(1, new int[] { 2, 4 });
+    list.RemoveRange(0, 1);
+}
+```
+
+泛型集合可以转换为数组，数组也可以转换为泛型集合。
+
+```csharp
+//泛型集合转数组
+List <int> list = new List<int>();
+int[] arr = list.ToArray();
+//数组转泛型集合
+int[] arr = new int[2];
+List<int> list = arr.ToList();
+```
+
+## 装箱与拆箱
+
+装箱：将值类型转换为引用类型。
+
+拆箱：将引用类型转换为值类型。
+
+```csharp
+static void Main(string[] args)
+{
+    int num = 10;//值类型
+    object obj = num;//装箱，把值类型转换为引用类型
+    num = (int)obj;//拆箱
+}
+```
+
+区别：
+
+```csharp
+static void Main(string[] args)
+{
+    Stopwatch sw = new Stopwatch();
+    sw.Start();
+    ArrayList list = new ArrayList();
+    for (int i = 0; i <= 10000000; i++) 
+    {
+        list.Add(i);
+        //list.Add(object value),存在装箱
+    }
+    sw.Stop();
+    Console.WriteLine(sw.Elapsed);//总时间1.28s
+}
+
+static void Main(string[] args)
+{
+    Stopwatch sw = new Stopwatch();
+    sw.Start();
+    List <int>  list = new List <int>();
+    for (int i = 0; i <= 10000000; i++) 
+    {
+        list.Add(i);//不存在装箱
+    }
+    sw.Stop();
+    Console.WriteLine(sw.Elapsed);//总时间0.09s
+}
+```
+
+装箱拆箱会损耗内存，代码中应避免装箱与拆箱。
+
+发生装箱与装箱：看这两种类型是否存在继承关系，没有继承关系，不会有装箱与拆箱操作，有继承关系才有可能发生装箱与拆箱。
+
+```csharp
+static void Main(string[] args)
+{
+    string str = "123";//引用类型
+    int num = int.Parse(str);//引用类型转值类型
+}
+```
+
+## Dictionary字典集合
+
+# 泛型
+
+使用占位符如`T`来代表某种类型，编译期间决定其具体类型
+
+# 委托
+
+委托_`Delegate`：是一种引用类型变量，可以看作包含有序的方法列表对象。
+
+```c#
+ //委托类型
+ delegate void MyDel(string vlaue);
+ public class Program
+ {
+     private void PrintLow(string value) 
+     {
+         Console.WriteLine($"Low-{value}");
+     }
+
+     private void PrintHeight(string value)
+     {
+         Console.WriteLine($"Height_{value}");
+     }
+     public static void Main(string[] args)
+     {
+         Program program = new Program();
+         //随机数对象
+         Random random = new Random();
+         int num = random.Next(99);
+         //初始化委托对象，用来管理方法
+         MyDel del = num>50 ? new MyDel(program.PrintHeight):new MyDel(program.PrintLow);
+         del(num.ToString());
+     }
+ }
+```
+
+创建委托对象还可以通过 `MyDel del =program.PrintHeight `方式创建，方法和委托类型之间存在类型转换。
+
+在类内部定义委托：
+
+```c#
+ class Button
+ {
+     //声明委托类型
+     public delegate void ButtonClick();
+     //声明委托类型的变量
+     public ButtonClick but = null;
+
+     public void Click() 
+     {
+         //调用委托管理的方法
+        but?.Invoke();//空值运算符
+     }
+
+     public void GameStart() 
+     {
+         Console.WriteLine("游戏开始");
+     }
+ }
+ public class Program
+ {
+     public static void Main(string[] args)
+     {
+         Button button = new Button();
+         //初始化委托变量，并添加一个方法
+         button.but = new Button.ButtonClick(button.GameStart);
+         button.Click();//执行委托方法
+     }
+ }
+```
+
+## 多播委托
+
+当一个委托由多个委托对象通过`+`运算符或`+=`运算符创建，则会生成一个全新的委托，其调用列表是`=`右边委托的调用列表的副本组合。
+
+```c#
+//定义委托类型
+public delegate int CaculateNum(int a,int b);
+public static void Main(string[] args)
+{
+    CaculateNum delA = Add;
+    CaculateNum delB = Mutiplay;
+    CaculateNum delC = delA + delB;
+    Console.WriteLine(delC(1,2));
+    //依次执行调用列表中的方法
+    //a+b=3
+    //a*b=2
+    //2，返回值为最后一个方法的返回值
+}
+
+public static int Add(int a,int b)
+{
+    Console.WriteLine($"a+b={a+b}");
+    return a + b;
+}
+public static int Mutiplay(int a,int b)
+{
+    Console.WriteLine($"a*b={a * b}");
+    return a * b;
+}
+```
+
+:book:通过`+=`运算符创建委托对象
+
+```c#
+public static void Main(string[] args)
+{
+    CaculateNum delA = Add;
+    delA += Mutiplay;//创建一个全新的委托对象
+    delA += Add;
+}
+```
+
+委托对象存在不可变性，使用`+=`运算符实际上是在内存上重新开辟空间，将新对象的引用地址赋给变量。
+
+:book:通过`-=`操作符移除调用列表中的方法。
+
+1. 从调用列表最后开始搜索，移除第一个与方法匹配的实例。
+2. 调用空委托会抛出异常，若调用列表为空，则委托对象为null。
+
+:book:委托返回值
+
+委托的返回值永远是最后一个方法，通过` Delegate[] GetInvocationList()`方法可获取当前委托中存放的子委托。
+
+```c#
+foreach(CaculateNum item in delA.GetInvocationList()) 
+{
+    //读取相关返回值
+}
+```
+
+`foreach`语句会将每一个`Degelate`转换为`CaculateNum`类型。
