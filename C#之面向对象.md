@@ -41,6 +41,7 @@ B --> 属性
 B-->方法
 B-->索引器
 B-->析构函数
+B-->事件
 ```
 
 :bookmark:语法规范
@@ -171,6 +172,8 @@ Console.WriteLine(car2._type);//飞机
 
 ## 成员常量
 
+成员常量：编译期进行初始化，声明时必须初始化，值不作更改。
+
 ```c#
  public static void Main(string[] args)
  {
@@ -219,7 +222,7 @@ public class Car
 
 > `readonly`修饰符可作用与字段，作用同`Const`，不同的是`readonly`修饰符作用的变量，其值在程序运行时决定(有内存位置)。
 
-:one:`readonly`字段可以在声明时直接赋值，或者在构造函数中赋值，不能再其他地方对只读字段赋值。
+:one:`readonly`字段可以在声明时直接赋值，或者在构造函数中赋值，不能在其他地方对只读字段赋值。
 
 :two:`readonly`静态字段声明时未初始化，初始化必须在静态构造函数中完成。
 
@@ -540,6 +543,25 @@ C# 中成员的初始化顺序如下：
 
 :bookmark:静态成员初始化只发生一次。
 
+```c#
+//测试代码
+static Car() 
+{
+    Console.WriteLine("静态构造函数");
+}
+public Car() { Console.WriteLine("实例构造函数"); }
+public string _name = Test("实例字段");
+public static string _brand = Test("静态字段");
+
+public static string Test(string value) 
+{
+    Console.WriteLine(value);
+    return "";
+}
+```
+
+
+
 ## 对象初始化器
 
 对象初始化时可以由`new`关键字后跟构造函数及参数列表，同时也可以放置一组初始化语句。
@@ -549,6 +571,7 @@ public static void Main(string[] args)
 {
     MyClass myClass = new MyClass()
     {
+        //初始化语句
         _x = 10,
         _y = 20
     };
@@ -659,7 +682,6 @@ static void Main(string[] args)
 >
 > 索引器没有名称，用`this`去指代当前名称。
 >
-> 索引器必须是实例
 
 ```c#
 public struct Color
@@ -701,8 +723,6 @@ static void Main(string[] args)
     Console.WriteLine(demo[Color._red]);
 }
 ```
-
-
 
 ## 析构函数
 
@@ -1021,8 +1041,6 @@ public new void Show()
 
 ## 里氏转换
 
-向上转型，使父类访问子类的属性与方法。
-
 1. 子类可以转换为父类,此时的对象访问基类成员，除非实现了多态：
 
 1. 子类方法override重写父类虚方法，调用子类的方法
@@ -1270,7 +1288,7 @@ internal static class Person
 
 :two:将父类的方法标记为虚方法，使用关键字`virtual`，这个函数可以被子类重写，使用`override`关键字。
 
-:three:要求虚方法和重写方法有:red_circle:相同的签名和返回类型。
+:three:要求虚方法和重写方法有:red_circle:相同的签名(参数与返回类型)。
 
 ```csharp
 public class Car
@@ -1720,19 +1738,18 @@ public class Bird:IFlyable
 当给字符串重新赋值时，老值并没有消失，而是在堆中开辟一块空间存储新值。
 
 ```csharp
-static void Main(string[] args)
-{
-    //堆中开辟空间存储1，s1在栈内存储引用地址
-    string s1 = "1";
-    //堆中重新开辟空间存储"2",s1中原引用地址被替换掉，新地址指向"2"
-    s1 = "2";
-    Console.WriteLine(s1);//2
-}
+string s1 = "s1";
+//s1,s2此时指向同一块内存空间
+string s2 = s1;
+//堆中重新开辟空间存储"ss1",s1中原引用地址被替换掉，新地址指向"ss1"
+s1 = "ss1";
+Console.WriteLine(s1);//ss1
+Console.WriteLine(s2);//s1
 ```
 
 ## 字符串的数组特性
 
-可以将`string`类型看作是`char`类型的一个**只读数组**，根据索引访问字符串某个元素。
+可以将`string`类型看作是一个**只读数组**，根据索引访问字符串某个元素。
 
 ```csharp
 string s = "adcd";
@@ -1749,7 +1766,7 @@ string s = "adcd";
 char[] chas = s.ToCharArray();//返回char类型数组
 //第一个元素变为A
 chas[0] = 'A';
-s = new string(chas);//通过string类实例化，将字符数组转化为字符串
+s = new string(chas);//将string类实例化，将字符数组转化为字符串
 Console.WriteLine(s);//Adcd
 ```
 
@@ -1818,7 +1835,9 @@ string s = Console.ReadLine();
 Console.WriteLine(s.Length);
 ```
 
-### ToUpper/ToLower_转化大写/小写
+### ToUpper/ToLower
+
+用来返回字符串的大写/小写副本。
 
 两个学员输入喜欢的课程，相同则输出相同，不同则输出不同。
 
@@ -1878,12 +1897,12 @@ static void Main(string[] args)
 参数1分隔符数组，有字串或字符类型，参数2是`StringSplitOptions`枚举类型，可用来判断是否需要空字符串。
 
 ```csharp
-string s = "a b   cdf _ + = , _";
-//去除字符串中的空格，_,+，=
-//参数1为分隔数组，参数2枚举值指定是否需要空字符串
-char[] chars = {' ' ,'+',',','=','_'};
-string[] strArr = s.Split(chars, StringSplitOptions.RemoveEmptyEntries);
-//{a,b,cdf}
+//分隔原理：依次将分隔符替换为|，若|在最前端或最后端，将""添加到最前端或最后端
+//若存在||，中间有""
+string str = "a cs adb";
+// ||cs||db
+//即"",",cs"db
+ string[] s = str.Split(new char[] { 'a',' '});
 ```
 
 从字符串2008-08-08分隔出年月日。
@@ -2132,6 +2151,51 @@ static void Main(string[] args)
 }
 //也可以遍历字符串数组，判断是否==e，弊端只能用于字符
 ```
+
+# Object
+
+`object`类是所有类的基类。
+
+:one:`string ToString()`：将当前对象转换为字符串，默认打印当前对象的全名(`namespace+类型全名`)
+
+```c#
+int[] arr = { 1, 2 };
+Console.WriteLine(arr.ToString());//System.Int32[]
+```
+
+可进行重写（快捷键：`CTRL+.`）,用途：调试时打印对象信息。
+
+:two:`System.Type GetType()`:用于获取当前对象的类型信息
+
+`Type`类型常用属性
+
+1. `string FullName`,获取`namespace+类型`
+2. `string Name`，获取类型
+3. ` bool IsValueType`,是否时值类型
+4. `bool IsClass`,是否是引用类型
+
+```c#
+string s = "";
+Console.WriteLine(s.GetType().FullName);
+Console.WriteLine(s.GetType().Name);
+Console.WriteLine(s.GetType().IsValueType);
+Console.WriteLine(s.GetType().IsClass);
+```
+
+:three:`bool Equals()`,用于判断两个对象是否相等，与`==`一致。
+
+比较原则：值类型比较值，引用类型比较地址，字符串比较字符；可对`Equal()`方法进行重写。
+
+```c#
+public override bool Equals(object obj)
+{
+    Car other = obj as Car;
+    if(other == null) return false;
+    return other.Id == Id && other.Name == Name;
+}
+```
+
+
 
 # 集合
 
@@ -2453,6 +2517,8 @@ static void Main(string[] args)
 }
 ```
 
+![image-20250502112500704](assets/image-20250502112500704.png)
+
 区别：
 
 ```csharp
@@ -2498,134 +2564,5 @@ static void Main(string[] args)
 
 ## Dictionary字典集合
 
-# 泛型
 
-使用占位符如`T`来代表某种类型，编译期间决定其具体类型
 
-# 委托
-
-委托_`Delegate`：是一种引用类型变量，可以看作包含有序的方法列表对象。
-
-```c#
- //委托类型
- delegate void MyDel(string vlaue);
- public class Program
- {
-     private void PrintLow(string value) 
-     {
-         Console.WriteLine($"Low-{value}");
-     }
-
-     private void PrintHeight(string value)
-     {
-         Console.WriteLine($"Height_{value}");
-     }
-     public static void Main(string[] args)
-     {
-         Program program = new Program();
-         //随机数对象
-         Random random = new Random();
-         int num = random.Next(99);
-         //初始化委托对象，用来管理方法
-         MyDel del = num>50 ? new MyDel(program.PrintHeight):new MyDel(program.PrintLow);
-         del(num.ToString());
-     }
- }
-```
-
-创建委托对象还可以通过 `MyDel del =program.PrintHeight `方式创建，方法和委托类型之间存在类型转换。
-
-在类内部定义委托：
-
-```c#
- class Button
- {
-     //声明委托类型
-     public delegate void ButtonClick();
-     //声明委托类型的变量
-     public ButtonClick but = null;
-
-     public void Click() 
-     {
-         //调用委托管理的方法
-        but?.Invoke();//空值运算符
-     }
-
-     public void GameStart() 
-     {
-         Console.WriteLine("游戏开始");
-     }
- }
- public class Program
- {
-     public static void Main(string[] args)
-     {
-         Button button = new Button();
-         //初始化委托变量，并添加一个方法
-         button.but = new Button.ButtonClick(button.GameStart);
-         button.Click();//执行委托方法
-     }
- }
-```
-
-## 多播委托
-
-当一个委托由多个委托对象通过`+`运算符或`+=`运算符创建，则会生成一个全新的委托，其调用列表是`=`右边委托的调用列表的副本组合。
-
-```c#
-//定义委托类型
-public delegate int CaculateNum(int a,int b);
-public static void Main(string[] args)
-{
-    CaculateNum delA = Add;
-    CaculateNum delB = Mutiplay;
-    CaculateNum delC = delA + delB;
-    Console.WriteLine(delC(1,2));
-    //依次执行调用列表中的方法
-    //a+b=3
-    //a*b=2
-    //2，返回值为最后一个方法的返回值
-}
-
-public static int Add(int a,int b)
-{
-    Console.WriteLine($"a+b={a+b}");
-    return a + b;
-}
-public static int Mutiplay(int a,int b)
-{
-    Console.WriteLine($"a*b={a * b}");
-    return a * b;
-}
-```
-
-:book:通过`+=`运算符创建委托对象
-
-```c#
-public static void Main(string[] args)
-{
-    CaculateNum delA = Add;
-    delA += Mutiplay;//创建一个全新的委托对象
-    delA += Add;
-}
-```
-
-委托对象存在不可变性，使用`+=`运算符实际上是在内存上重新开辟空间，将新对象的引用地址赋给变量。
-
-:book:通过`-=`操作符移除调用列表中的方法。
-
-1. 从调用列表最后开始搜索，移除第一个与方法匹配的实例。
-2. 调用空委托会抛出异常，若调用列表为空，则委托对象为null。
-
-:book:委托返回值
-
-委托的返回值永远是最后一个方法，通过` Delegate[] GetInvocationList()`方法可获取当前委托中存放的子委托。
-
-```c#
-foreach(CaculateNum item in delA.GetInvocationList()) 
-{
-    //读取相关返回值
-}
-```
-
-`foreach`语句会将每一个`Degelate`转换为`CaculateNum`类型。
