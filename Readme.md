@@ -1,6 +1,6 @@
 本文档只讨论基础概念，其余部分点击跳转。
 
-:one: [面向对象篇章](C#之面向对象.md)
+:one: [面向对象篇章](面向对象.md)
 
 :two:[高级特性](高级特性.md)（未更新完成）
 
@@ -8,9 +8,24 @@
 
 # 初识
 
-`.NetFramWork `框架是`.Net `平台不可或缺的一部分，提供了稳定的运行环境保证我们基`.Net` 平台开发的应用能够稳定运行。
+`.NetFramWork `框架是`.Net `平台不可或缺的一部分，提供了稳定的运行环境保证我们基`.Net` 平台开发的应用能够稳定运行；
 
-![img](assets/1740793541771-96d61b0e-2512-4c05-9646-5baacdb56e47.jpeg)
+与`.NetCore`的区别在于后者可以跨平台。
+
+![image-20250519185205776](assets/image-20250519185205776.png)
+
+:bookmark:强类型语言与弱类型语言：
+
+1. 强类型语言：`Java`,`c#`,`c++`
+
+2. 弱类型语言：`php`,`python`,`javascript`
+
+   强类型语言是使用变量之前必须声明其类型的语言.
+
+   ```c#
+   int a = 0;//int整数类型
+   ```
+
 
 `C#`程序执行机制分为编译期和运行期两个阶段。
 
@@ -63,19 +78,17 @@
 
 ## 第一个示例
 
-标点符号用英文，简单语句结束用分号。`{}`包围起来的`0`条或`n`条语句叫块，块后面不能跟分号。
+标点符号用英文，简单语句结束用分号。`{}`包围起来的`0`条或`n`条语句叫块。
 
 ```csharp
 using System;
-//工作空间 ，门牌号
+//工作空间 ，相当于文件夹
 namespace worklzb
 {
     //类型
     class lzb
     {
-        /// 应用程序的主入口点。 <summary>
-        /// 函数方法
-        /// </summary>
+        /// 应用程序的主入口点，必须存在
         static void Main()
         {
             Console.WriteLine("我的世界");//向屏幕输出文字我的世界
@@ -92,6 +105,12 @@ namespace worklzb
 | Console.Write( )     | 将字符串打印到屏幕                                           |
 | Console.ReadLine( )  | 返回用户输入的内容 ，string类型                              |
 | Console.ReadKey( )   | 暂停窗口，直到用户输入内容。参数为true时，不显示用户输入内容。 |
+
+:bookmark:空格，换行符，`Tab`，都被编译器忽略。
+
+```c#
+Console.   WriteLine();//空格
+```
 
 ## 注释
 
@@ -123,15 +142,23 @@ namespace worklzb
 
 ## 变量类型
 
-变量类型包括预定义类型和自定义类型。
+变量类型包括预定义类型和自定义类型，`Object`类型是所有类型的基类。
 
-:one:预定义类型
+```mermaid
+flowchart TD
+A(Object)--> B[预定义类型]
+A --> C(自定义类型)
+```
+
+
+
+:one:预定义类型:微软内部定义好的类型，直接进行实例化
 
 ```mermaid
 flowchart TD
 A(预定义类型)--> B[(简单类型)]
 A --> C(string)
-A --> D(Object)
+A --> DateTime
 B-->E(数值类型)
 E --> 整数类型
 E --> 浮点类型
@@ -147,13 +174,13 @@ F-->bool
 F --> char
 ```
 
-:two:自定义类型
+:two:自定义类型：需要用户定义类型的结构，先声明类型然后实例化(分配内存空间)，最后初始化(存放数据)。
 
 ```mermaid
 flowchart TD
 A(自定义类型)--> 结构struct
 A --> 枚举enum
-A --> 集合类型
+A --> 数组array
 A --> 类类型calss
 A --> 接口interface
 A--> 委托delegate
@@ -163,14 +190,14 @@ A--> 委托delegate
 
 :one:整数类型
 
-:red_circle:有符号指的是可存放正负数；位数指的是存放二进制数字长度；不能赋值小数。
+:red_circle:有符号指的是可存放正负数；无符号：无负数。位数指的是存放二进制数字长度；不能赋值小数。
 
-| 整数类型 | 备注           |
-| -------- | -------------- |
-| long     | 64位有符号整数 |
-| int      | 32位有符号整数 |
-| short    | 16位有符号整数 |
-| `byte`   | 8位无符号整数  |
+| 整数类型 | 备注           | 整数类型 | 备注           |
+| -------- | -------------- | -------- | -------------- |
+| long     | 64位有符号整数 | `ulong`  | 64位无符号整数 |
+| int      | 32位有符号整数 | `uint`   | 32位无符号整数 |
+| short    | 16位有符号整数 | `ushort` | 16位无符号整数 |
+| `sbyte`  | 8位有符号整数  | `byte`   | 8位无符号整数  |
 
 :two:浮点数
 
@@ -207,14 +234,21 @@ char cha = 'a';//单引号，且不能为空
 char cha = ''//空字符,错误
 ```
 
+获取变量类型可使用`type of`操作符。
+
+```c#
+Console.WriteLine(typeof(Ticket)); 
+//命名空间.类型名
+```
+
 ## 引用类型与值类型
 
 内存中存储数据内存分为三块，堆栈以及静态存储区域,三者都是用来存储数据。
 
 :red_circle:静态存储区域用来存储静态数据。
 
-1. 栈的空间小，但读取速度快；
-2. 堆的空间大，但读取速度慢；
+1. 栈的空间小，但读取速度快，由操作系统管理；
+2. 堆的空间大，分配速度快，释放速度慢，由垃圾回收机制`GC`管理；
 
 ```mermaid
 flowchart TD
@@ -223,14 +257,17 @@ A --> C[(引用类型)]
 B --> 简单类型
 B --> struct
 B --> enum
-C --> 集合
+C --> deleagte
+C --> denamic
 C --> 类类型
 C-->string
-C-->接口
+C-->interface
 C-->Object
 ```
 
 值类型只需要一段单独的内存，值是存储在内存的栈(`stack`)中；而引用类型则需要两段内存，第一段存储实际的数据，在内存的堆中存储，第二段是一个引用（内存地址），指向堆中的位置。
+
+:red_circle:值类型作为成员使用数据存放在堆中。
 
 ![image-20250330114743619](assets/image-20250330114743619.png)
 
@@ -246,6 +283,8 @@ int b = a;
 b = 20;//将原栈中存储的值用20替换掉
 Console.WriteLine(a);//10
 ```
+
+![image-20250519193741887](assets/image-20250519193741887.png)
 
 ### 引用类型
 
@@ -272,16 +311,17 @@ Console.WriteLine(arr1[0]);//100
 
 ## 命名规范
 
-:one: 变量名称要有意义
+:one: 变量名称(标识符)要有意义
 
-:two: 不能与关键字冲突。
+:two: 不能与关键字冲突，微软内部定义的有特殊意义的:large_blue_diamond: 单词。
 
-:three:以字母，`_`,`@`开头，后面跟任意`数字`，`字母`，`下划线_`。
+:three:以字母，`_`,`@`开头，后面跟任意`数字`，`字母`，`下划线_`;`@`符号的作用是转移关键字。
 
 ```csharp
 string 1num = 1; //错误
 string num_1 = 2; //正确
 string a = 2;//无意义
+int @int = 0;//@符号转义关键字，了解，不推荐
 ```
 
 :four:大小写敏感
@@ -305,12 +345,12 @@ int Num = 1;//二者不一致
 
 
 
-声明变量：意在指定数据类型以及名称，告诉编译器它的数据类型，给它分配多大的内存空间，以及定义数据结构。
+声明变量：意在指定数据类型以及名称(内存地址别名)，告诉编译器它的数据类型，在何处分配空间，给它分配多大的空间，以及定义数据结构。
 
 ```csharp
 // 数据类型 变量名
-int a;//未定义,不能直接使用
-string str; //未定义
+int a;//未定义,已分配空间，但不能直接使用
+string str; //未定义，只分配栈空间，堆中未分配内存，不能直接使用
 bool b = false;//声明且初始化
 int d, e, f, g;//连续声明变量,要求变量类型一致
 ```
@@ -324,7 +364,7 @@ int a = 100, b = 0, c = 20,d;
 
 声明变量`a`,并将值100赋值给`a`。底层是在内存中开辟一个存储整数的空间，并将100存放其中。
 
-:red_circle:自动初始化:某些类型的变量未进行初始化，但系统编译时会提供默认值(引用类型为`null`,值类型为`0`,布尔类型为`false`)，某些则不会提供默认值(即未定义，使用该变量前必须显示初始化)。
+:red_circle:自动初始化:定义在某些位置的变量未进行初始化，但系统编译时会提供默认值(引用类型为`null`,值类型为`0`,布尔类型为`false`)，某些则不会提供默认值(即未定义，使用该变量前必须显示初始化)。
 
 * 类、结构字段以及数组元素会自动初始化
 * 函数中的变量，形参不会自动初始化。
@@ -333,7 +373,7 @@ int a = 100, b = 0, c = 20,d;
 
 C#是一门强类型语言，在代码中必须对每一个变量的类型有个明确的定义，`var`是推断类型（匿名类型），根据值推断变量类型。
 
-* 只能用于变量，不能用于字段
+* 只能用于局部变量，不能用于字段，形参
 * 类型确定后不能更改
 
 ```csharp
@@ -720,16 +760,14 @@ string telNumber = "001-12345";
 Console.Write("我叫{1},我今年{2}岁了，性别{3},电话号码{0}",telNumber,name,age,sex);
 ```
 
-格式化保留2位小数，按照`{索引:0.00}`格式写即可。
+:bookmark:格式化数字字符串
 
-```csharp
-double bigNum = 7;
-int smallNum = 3;
-Console.WriteLine("大数是{0},小数是{1:0.00}",bigNum,smallNum);
-//大数是7,小数是3.00
+```c#
+Console.WriteLine($"{500:c}");//金额
+Console.WriteLine($"{500:f}");//默认两位小数
+Console.WriteLine($"{500:0.00}");//两位小数
+Console.WriteLine($"{500:f1}");//一位，f2两位，以此类推
 ```
-
-
 
 ### 转义符
 
@@ -810,9 +848,7 @@ string s1 = (s ?? "str");
 Console.WriteLine(s1);
 ```
 
-
-
-### $_文本内使用变量
+### $_插值运算符
 
 ```c#
  int month = 3;
@@ -825,8 +861,6 @@ Console.WriteLine(s1);
 ```c#
 string name = $"{"this day is cold"}";
 ```
-
-
 
 # 枚举
 
@@ -2641,6 +2675,8 @@ Array.Reverse(numArr);//对数组进行反转
 
 忌讳方法里面提示用户输入，因为`Conosle.WriteLine()`只有在控制台中存在，不能在其他地方使用。
 
+![image-20250518025343462](assets/image-20250518025343462.png)
+
 ```csharp
 [public] static 返回值类型 方法名（[形参列表]）
 {
@@ -2776,6 +2812,8 @@ public static void Change(int[] arr,int num)
 ### 引用参数ref
 
 `ref`参数,系统不会在栈中为形参开辟空间，而是将形参视为实参的别名，指向同一内存位置。
+
+![image-20250518214119995](assets/image-20250518214119995.png)
 
 ```csharp
 static void Main(string[] args)
@@ -3014,9 +3052,9 @@ public static bool ImitateTryParse(string s, out int num)
 
 注意事项:
 
-:one:如果依次传递参数，则方法内部会自行声明一个数组，形参保存其引用。如果数组元素是引用类型，在方法内部修改会影响外部的变量。
+:one:如果依次传递参数，则方法内部会自行声明一个数组。如果数组元素是引用类型，在方法内部修改会影响外部的变量。
 
-:two:如果传递的是一个数组，即为值参数，形参和实参指向同一对象。
+:two:如果传递的是一个一维数组，即为值参数，形参和实参指向同一对象。
 
 ```csharp
 static void Main(string[] args)
@@ -3063,7 +3101,7 @@ public static int ArrMax(params int[] arr)
 
 ### 命名参数
 
-以任意顺序填写参数，格式`形参:实参值或表达式`
+一般情况下，形参与实参的位置是一一对应的，使用命名参数可以按任意顺序填写参数，格式`形参:实参值或表达式`
 
 ```c#
  public static void Main(string[] args)
@@ -3078,7 +3116,7 @@ public static int ArrMax(params int[] arr)
 
 ### 可选参数
 
-表明某个参数是可选的，需在方法声明中提供默认值。可选参数只能是值类型，字符串与`null`，且为值参数(不能与`ref,out,params`连用)。
+表明某个参数是可选的，需在方法声明中提供默认值。可选参数只能是值类型，字符串与默认值`=null`的引用类型，且为值参数(不能与`ref,out,params`连用)。
 
 ```c#
 public static void Example(int a,int b ,int c= 2,params string[] strs){}
@@ -3108,6 +3146,7 @@ public static void Test(int a, int b =0, int c = 0,params string[] strings) {}
 
 1. 参数个数相同，但是类型不能相同；
 2. 参数类型一样，但是个数不相同；
+3. 存在参数修饰符
 
 重载的作用是把功能类似的方法整合到一起，方便使用。
 
@@ -3118,7 +3157,7 @@ public static void Test(int a, int b =0, int c = 0,params string[] strings) {}
 ```csharp
 static void Main(string[] args)
 {
-    //调用Connect方法，会有四种不同输入参数提示
+    //调用Connect方法，会有五种不同输入参数提示
     Connect(1, 3);
 }
 //构建重载方法
@@ -3143,13 +3182,42 @@ public static int Connect(int a,int b,int c)
 { 
     return a + b + c;
 }
+//类型5：ref关键字
+public static int Connect(int a ,ref int b)
+{ 
+     b = a;
+     return a + b;
+}
 ```
 
-## 认识递归
+## 递归
 
-栈帧：调用方法的时候，内存从栈顶分配内存，用来分配参数的内存或其他数据管理项。
+栈帧：调用方法的时候，内存从栈顶为方法分配一块内存，其中保存方法的参数或其他数据管理项。
 
 方法调用时，整个栈帧都会进栈，退出方法时，整个栈帧从栈顶弹出，符合后进先出原则。
+
+```c#
+public static void Main(string[] args)
+{
+    MethodA(1, 2);
+}
+static void MethodA(int a,int b) 
+{
+    Console.WriteLine("进入方法A");
+    MethodB(a,b);
+    Console.WriteLine("退出方法A");
+
+}
+static void MethodB(int a,int b) 
+{
+    Console.WriteLine("进入B方法");
+    Console.WriteLine("退出B方法");
+}
+```
+
+![image-20250519195935404](assets/image-20250519195935404.png)
+
+递归：方法自己调用自己。
 
 ```c#
 public static void Main(string[] args)
