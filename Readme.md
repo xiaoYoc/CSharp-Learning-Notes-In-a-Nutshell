@@ -223,12 +223,12 @@ A--> 委托delegate
 
 :three:其他
 
-| 类型   | 关键字 | 备注                                     |
-| ------ | ------ | ---------------------------------------- |
-| 字符串 | string | 存放0~多个字符文本，用双引号包裹起来     |
-| 单字符 | char   | 仅能存放一个字符，不能为空，用单引号包裹 |
-| 布尔值 | bool   | true或false                              |
-| 枚举   | enum   | 用户自定义的数据类型,默认用Int数据存储。 |
+| 类型   | 关键字 | 备注                                                         |
+| ------ | ------ | ------------------------------------------------------------ |
+| 字符串 | string | 存放0~多个字符文本，用双引号包裹起来                         |
+| 单字符 | char   | 仅能存放一个字符，不能为空，用单引号包裹,本质上是 16 位 Unicode 整数值 |
+| 布尔值 | bool   | true或false                                                  |
+| 枚举   | enum   | 用户自定义的数据类型,默认用Int数据存储。                     |
 
 ```csharp
 byte a = 255;//最大255，2的8次方-1
@@ -1155,7 +1155,7 @@ switch (strState)
 
 ### 隐式类型转换
 
-要求转换的变量类型兼容，且是小类型转大类型，如Int转double.【因为double类型变量可赋值整数】。
+要求转换的变量类型兼容，且是小类型转大类型，如Int转double,`char`转int。
 
 :one:如果一个操作数是`double`类型，则表达式值自动转换为`double`类型。
 
@@ -1168,6 +1168,8 @@ int b = 1;
 double num = a * b * 1.000;
 Console.WriteLine(num);//double类型，输出35
 Console.WriteLine("{0:0.00}",num);//保留两位小数输出35.00
+int a = '1';
+Console.WriteLine(a);//49
 ```
 
 :two:将整数赋值给`double`类型，float`类型，或者将`float`类型赋值给`double`类型，会进行隐式转换。
@@ -2415,7 +2417,7 @@ for (int i = 2; i <=100; i++)
 
 # 结构
 
-一次性声明多个不同类型的字段。
+数据和函数的集合，用来表示数据关系的集合。
 
 使用规范：
 
@@ -3676,3 +3678,144 @@ public static void Res(int[] arr)
      return name += strs[strs.Length - 1];
  }
 ```
+
+# 其他
+
+## 控制台相关
+
+:bookmark:属性
+
+| 属性                                                  | 释义         |
+| ----------------------------------------------------- | ------------ |
+| `public static ConsoleColor ForegroundColor{set;get}` | 设置文字颜色 |
+| `public static ConsoleColor BackgroundColor{set;get}` | 背景颜色     |
+| `public static bool CursorVisible{set;get}`           | 设置光标显隐 |
+
+| 方法                                                       | 释义                             |
+| ---------------------------------------------------------- | -------------------------------- |
+| ` public static void Clear()`                              | 清空                             |
+| `public static void SetWindowSize(int width, int height)`  | 设置屏幕宽度                     |
+| `public static void SetBufferSize(int width, int height)`  | 设置缓冲区大小，可视文本区域大小 |
+| ` public static void SetCursorPosition(int left, int top)` | 设置光标位置，视觉上`1y=2x`      |
+
+:red_circle:需先设置窗口大小，再设置缓冲区大小；缓冲区大小不能小于窗口大小；窗口大小不能大于控制台最大尺寸。
+
+控制台坐标：
+
+![image-20250608142927332](assets/image-20250608142927332.png)
+
+:red_circle:设置背景颜色
+
+```c#
+Console.BackgroundColor = ConsoleColor.Green;
+//设置背景颜色后需要clear一次，才能将整个背景改变。
+Console.Clear();
+```
+
+------
+
+![image-20250608154942108](assets/image-20250608154942108.png)
+
+按`W,S.A,D`键，移动方块。
+
+```c#
+public class Block
+{
+    public Block()
+    {
+        //初始化
+        Console.SetWindowSize(80, 20);
+        Console.SetBufferSize(80, 20);
+        Console.CursorVisible = false;//隐藏光标
+        //设置背景
+        Console.BackgroundColor = ConsoleColor.Cyan;
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+    }
+    //方块位置
+    public int x = 10;
+    public int y = 5;
+    //更新方块位置
+    public void Update()
+    {
+        Console.SetCursorPosition(x, y);
+        Console.Write("■");
+    }
+    //根据用户输入，更新方块坐标
+    public void ChangePosition(char c)
+    {
+        Console.SetCursorPosition(x, y);//重置光标位置
+        Console.Write("  ");//擦除先前的方块
+        switch (c)
+        {
+            case 'W':
+                y--;
+                if (y <= 0) y = 0;
+                break;
+            case 'S':
+                y++;
+                if (y >= Console.BufferHeight -1) y = Console.BufferHeight-1;
+                break;
+            case 'A':
+                x-=2;//中文占两个字符
+                if (x <= 0) x = 0;
+                break;
+            case 'D':
+                x += 2;
+                if (x >= Console.BufferWidth-2) x = Console.BufferWidth-2;
+                break;
+        }
+    }
+}
+```
+
+## 随机数
+
+```c#
+Random random = new Random();
+int i = random.Next();//生成一个非负数的随机数
+i = random.Next(100);//生成0~99的随机数
+i = random.Next(5,100);//生成5~99的随机数
+```
+
+------
+
+用随机数模拟打小怪的过程。
+
+```c#
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Random rnd = new Random();
+        int attack = 0;
+        int hp = 20;
+        while (true)
+        {
+            attack = rnd.Next(8,12);//攻击力
+            AttackMonster(attack,ref hp);
+            if(hp == 0)
+            {
+                Console.WriteLine("怪兽死了");
+                break;
+            }
+        }
+    }
+    public static void AttackMonster(int attack,ref int hp)
+    {
+        if(hp ==0 )
+        {
+            Console.WriteLine("结束");
+            return;
+        }
+        if(attack <= 10) Console.WriteLine("怪兽不掉血");
+        if(attack > 10) 
+        {
+            hp -= attack - 10;
+            if(hp> 0) Console.WriteLine($"怪兽掉了{attack - 10}滴学，还有{hp}滴血");
+            if (hp <= 0) hp = 0;
+        }
+    }
+}
+```
+

@@ -1,0 +1,106 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\beginorendsecene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\beginorendsecene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\gamesecene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\gamesecene.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\iseceneupdate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\iseceneupdate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Game.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Game.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\Game.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Game.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\Game.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAkwCgAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-08T01:08:39.884Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GameSecene.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\GameSecene.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\GameSecene.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\GameSecene.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\GameSecene.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-08T05:42:13.746Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "BeginOrEndSecene.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\BeginOrEndSecene.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\BeginOrEndSecene.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\BeginOrEndSecene.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\BeginOrEndSecene.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-08T03:25:20.039Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ISeceneUpdate.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\ISeceneUpdate.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\ISeceneUpdate.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\ISeceneUpdate.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u573A\u666F\\ISeceneUpdate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-08T01:11:26.826Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Program.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\Program.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Program.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-08T01:06:33.183Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

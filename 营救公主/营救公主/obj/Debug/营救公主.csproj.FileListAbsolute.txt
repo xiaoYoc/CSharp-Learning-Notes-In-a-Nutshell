@@ -1,0 +1,7 @@
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\bin\Debug\营救公主.exe.config
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\bin\Debug\营救公主.exe
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\bin\Debug\营救公主.pdb
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\obj\Debug\营救公主.csproj.AssemblyReference.cache
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\obj\Debug\营救公主.csproj.CoreCompileInputs.cache
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\obj\Debug\营救公主.exe
+D:\LZBapplication\VSinstall\笔记\C#\营救公主\营救公主\obj\Debug\营救公主.pdb

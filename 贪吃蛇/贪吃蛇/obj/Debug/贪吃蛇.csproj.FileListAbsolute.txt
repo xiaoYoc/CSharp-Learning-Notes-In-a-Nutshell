@@ -1,0 +1,7 @@
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\bin\Debug\贪吃蛇.exe.config
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\bin\Debug\贪吃蛇.exe
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\bin\Debug\贪吃蛇.pdb
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\obj\Debug\贪吃蛇.csproj.AssemblyReference.cache
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\obj\Debug\贪吃蛇.csproj.CoreCompileInputs.cache
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\obj\Debug\贪吃蛇.exe
+D:\LZBapplication\VSinstall\笔记\C#\贪吃蛇\贪吃蛇\obj\Debug\贪吃蛇.pdb
