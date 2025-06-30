@@ -3,8 +3,44 @@
   "WorkspaceRootPath": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\snack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\snack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\food.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\food.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\drawobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\drawobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\idraw.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\idraw.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u573A\u666F\\gamerunning.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u573A\u666F\\gamerunning.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\snackcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\snackcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|d:\\lzbapplication\\vsinstall\\\u7B14\u8BB0\\c#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\wap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\wap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\wall.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\wall.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E9A60CBF-E196-492B-9FD1-1D51885A4342}|\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7.csproj|solutionrelative:\u8D2A\u5403\u86C7\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,15 +55,131 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Snack.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Snack.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Snack.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Snack.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Snack.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAA1wB4AAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T12:15:36.186Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Food.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Food.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Food.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Food.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Food.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAowB8AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-30T12:22:07.244Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Program.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\Program.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Program.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-30T12:18:06.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "SnackComponent.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\SnackComponent.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\SnackComponent.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\SnackComponent.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\SnackComponent.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-30T10:49:32.045Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DrawObject.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\DrawObject.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\DrawObject.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\DrawObject.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\DrawObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAoAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T15:19:16.601Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Wall.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wall.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wall.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wall.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wall.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T11:59:48.879Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Wap.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wap.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wap.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wap.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\Wap.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T11:16:38.811Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IDraw.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\IDraw.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\IDraw.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\IDraw.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u6E38\u620F\u8D44\u6E90\\IDraw.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T11:04:23.203Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Game.cs",
               "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Game.cs",
               "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\Game.cs",
               "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\Game.cs",
               "RelativeToolTip": "\u8D2A\u5403\u86C7\\Game.cs",
-              "ViewState": "AgIAACAAAAAAAAAAAAAuwC8AAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAwE8AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-08T01:08:39.884Z",
-              "IsPinned": true,
+              "WhenOpened": "2025-06-29T05:22:25.215Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GameRunning.cs",
+              "DocumentMoniker": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u573A\u666F\\GameRunning.cs",
+              "RelativeDocumentMoniker": "\u8D2A\u5403\u86C7\\\u573A\u666F\\GameRunning.cs",
+              "ToolTip": "D:\\LZBapplication\\VSinstall\\\u7B14\u8BB0\\C#\\\u8D2A\u5403\u86C7\\\u8D2A\u5403\u86C7\\\u573A\u666F\\GameRunning.cs",
+              "RelativeToolTip": "\u8D2A\u5403\u86C7\\\u573A\u666F\\GameRunning.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAwwCIAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-29T06:08:53.057Z",
               "EditorCaption": ""
             }
           ]

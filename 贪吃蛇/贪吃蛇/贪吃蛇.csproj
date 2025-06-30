@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2E4CCC38-864D-41F0-9FCD-DDA491BABA17}</ProjectGuid>
+    <ProjectGuid>{E9A60CBF-E196-492B-9FD1-1D51885A4342}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>贪吃蛇</RootNamespace>
     <AssemblyName>贪吃蛇</AssemblyName>
@@ -44,14 +44,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game.cs" />
-    <Compile Include="游戏场景\BeginOrEndSecene.cs" />
-    <Compile Include="游戏场景\GameSecene.cs" />
-    <Compile Include="游戏场景\ISeceneUpdate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="场景\GameEnd.cs" />
+    <Compile Include="场景\GameRunning.cs" />
+    <Compile Include="场景\GameStart.cs" />
+    <Compile Include="场景\GameStartOrEnd.cs" />
+    <Compile Include="场景\ISceneUpdate.cs" />
+    <Compile Include="游戏资源\Food.cs" />
+    <Compile Include="游戏资源\Position.cs" />
+    <Compile Include="游戏资源\DrawObject.cs" />
+    <Compile Include="游戏资源\IDraw.cs" />
+    <Compile Include="游戏资源\Snack.cs" />
+    <Compile Include="游戏资源\SnackComponent.cs" />
+    <Compile Include="游戏资源\Wall.cs" />
+    <Compile Include="游戏资源\Wap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

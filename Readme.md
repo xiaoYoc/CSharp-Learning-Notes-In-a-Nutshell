@@ -2671,10 +2671,10 @@ for(int i = 0;i<intArr.Length; i++)
 }//for循环遍历结束
 ```
 
-:four:数组元素顺序进行反转。`{"我","是","好人"}`反转成`{"好人","是","我"}`。
+:four:数组元素顺序进行反转。`{"我","是","T0"}`反转成`{"T0","是","我"}`。
 
 ```csharp
- string[] strArr = { "我", "是", "好人" };
+ string[] strArr = { "我", "是", "T0" };
  string temp = null;
  for (int i = 0; i < strArr.Length/2; i++) 
  {
@@ -2717,28 +2717,35 @@ string[] strArr = new string[10];
 
 ## 二维数组
 
-> 二维数组采用行+列的形式存放，可通过[行标,列标]的形式访问数组元素。
+> 二维数组采用行+列的形式存放，可通过[行标,列标]的形式访问数组元素，常用来创建矩阵。
+
+![image-20250618192514428](assets/image-20250618192514428.png)
 
 ```c#
 //定义一个n行m列的二维数组
 int[,] arr = new int[2, 3];//动态初始化 ，默认数据填充
 //静态初始化
-int[,] arrs = new int[,] { { 1, 2 }, { 3, 4 } };//2行2列
-int[,] arrs1 = new int[2, 4] { {1,2,4,5 },{5,6,6,7 } };//2行4列
-int[,] arrs2 = {{1,2},{3,4}};
+int[,] arrs = new int[,] { { 1, 2 }, 
+                          { 3, 4 } };//2行2列
+int[,] arrs1 = new int[2, 4] { {1,2,4,5 },
+                              {5,6,6,7 } };//2行4列
+int[,] arrs2 = {{1,2},
+                {3,4}};
 ```
 
-`arr.GetLength(int index)`获取当前数组的行与列；`GetLength(0)`代表第一个维度，获取行；`GetLength(1)`代表第二个维度，获取列。
+`arr.GetLength(int index)`获取当前数组的行与列；`GetLength(0)`代表第一个维度，获取行数量；`GetLength(1)`代表第二个维度，获取列数量。
 
 ```c#
-int[,] arrs = { { 1, 2, 4 }, { 4, 5, 6 } ,{ 66,77,0} };
+int[,] arrs = { { 1, 2, 4 }, 
+               { 4, 5, 6 } ,
+               { 66,77,0} };
 
 for (int i = 0; i < arrs.GetLength(0); i++)
 {
     //迭代列
     for (int j = 0; j < arrs.GetLength(1); j++)
     {
-        Console.WriteLine(arrs[i,j]);
+        Console.WriteLine(arrs[i,j]);//按照内存中的顺序依次打印
     }
 }
 ```
@@ -2752,14 +2759,53 @@ public static void Main(string[] args)
 
     foreach (int a in arrs) 
     {
-        Console.WriteLine(a);
+        Console.WriteLine(a);//结果同上
     }
 }
 ```
 
-## 锯齿数组
+创建一个二维数组，元素为0或1，要求将含有1的行列中的元素全部置为1.
 
-锯齿数组：数组内部存储数组。
+![image-20250618212323228](assets/image-20250618212323228.png)
+
+```c#
+public static void Main(string[] args)
+{
+    int[,] arr = new int[,] { { 0, 0, 0, 0, 0 },
+                             { 0, 0, 0, 0, 0 },
+                             { 0, 0, 1, 0, 0 },
+                             { 0, 0, 0, 0, 0 },
+                             { 0, 0, 0, 0, 0 }
+    };
+    //用bool数组记录行列中是否含1
+    bool[] hang = new bool[5];
+    bool[] lie = new bool[5];
+    for (int i = 0; i < arr.GetLength(0); i++)
+    {
+        for (int j = 0; j < arr.GetLength(1); j++)
+        {
+            if (arr[i,j] ==1  && hang[i] == false ) hang[i] = true;
+            if (arr[i,j] == 1 && lie[j] == false) lie[j] = true;
+            Console.Write(arr[i,j]+"\t");
+        }
+        Console.WriteLine("");
+    }
+    Console.WriteLine("********************************************");
+    for (int i = 0;i < arr.GetLength(0);i++)
+    {
+        for(int j = 0;j < arr.GetLength(1);j++)
+        {
+            if (hang[i] == true || lie[j] == true) arr[i, j] = 1;
+            Console.Write(arr[i,j]+"\t");
+        }
+        Console.WriteLine("");
+    }
+}
+```
+
+## 锯齿数组（非重点）
+
+锯齿数组：数组内部存储数组，类型要求一致。
 
 ```c#
 public static void Main(string[] args)
@@ -2770,7 +2816,11 @@ public static void Main(string[] args)
     strArrs[1] = new string[] { "a", "b" };
     //装有二维数组的数组
     int[][,] arrs = new int[3][,];
-    arrs[0] = new int[,] { { 1, 2 }, { 3, 4 } };
+    arrs[0] = new int[,] 
+    { 
+        { 1, 2 }, 
+        { 3, 4 } 
+    };
 }
 ```
 
@@ -2834,8 +2884,6 @@ for (int i = 0; i < arr.Length-1; i++)
     }
 }
 ```
-
-
 
 # 程序调试
 

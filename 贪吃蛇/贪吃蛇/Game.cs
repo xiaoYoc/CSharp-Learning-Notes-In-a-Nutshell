@@ -3,62 +3,81 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using 贪吃蛇.场景;
 
 namespace 贪吃蛇
 {
-    /// <summary>
-    /// 游戏场景类型枚举
-    /// </summary>
-    public enum E_SeceneType
+    public enum Progress
     {
-        Start,//游戏开始
-        Game,//游戏中
-        End//游戏结束
+        Begin,
+        Running,
+        End
     }
     public class Game
     {
-        //游戏窗口宽度
-        private int width = 120;
-        //游戏窗口高度
-        private int height = 35;
-        //当前游戏场景
-        public ISeceneUpdate nowSecene;
+        /// <summary>
+        /// 界面宽度
+        /// </summary>
+        public const int W = 80;
+        /// <summary>
+        /// 界面高度
+        /// </summary>
+        public const int H = 20;
 
-        //初始化控制台
-        public Game()
+
+        public static ISceneUpdate NowScene { set; get; }
+
+        public Game() 
         {
-            Console.CursorVisible = false;//隐藏光标
-            Console.SetWindowSize(width, height);
-            Console.SetBufferSize(width, height);//缓冲区设置
-            ChangeSecene(E_SeceneType.Start);
+            Console.SetWindowSize(W, H);
+            Console.SetBufferSize(W, H);
+            //隐藏鼠标
+            Console.CursorVisible = false;
+            ChangeScene(Progress.Begin);//进入开始界面
         }
-        //游戏主循环
-        public void Start()
+        /// <summary>
+        /// 游戏主循环
+        /// </summary>
+        public void MainLoop() 
         {
             while (true)
             {
-                nowSecene?.Update();//
+                NowScene?.update();
             }
         }
         /// <summary>
-        /// 更新游戏场景
+        /// 切换场景
         /// </summary>
-        /// <param name="type">游戏场景枚举值</param>
-        public void ChangeSecene(E_SeceneType type)
+        /// <param name="pro">游戏进程</param>
+        public static void ChangeScene(Progress pro) 
         {
-            Console.Clear();
-            switch (type)
+            switch (pro)
             {
-                case E_SeceneType.Start:
-                    nowSecene = new BeginOrEndSecene();
+                case Progress.Begin:
+                    NowScene = new GameStart();
                     break;
-                case E_SeceneType.Game:
-                    nowSecene = new GameSecene();
+                case Progress.Running:
+                    NowScene = new GameRunning();
                     break;
-                case E_SeceneType.End:
-                    nowSecene = new BeginOrEndSecene();
+                case Progress.End:
+                    //游戏结束界面
+                    NowScene = new GameEnd();
                     break;
             }
+        }
+        /// <summary>
+        /// 指定位置填入内容
+        /// </summary>
+        /// <param name="x">x坐标</param>
+        /// <param name="y">y坐标</param>
+        /// <param name="content">内容</param>
+        /// <param name="color">文字颜色</param>
+        public static void WriteContent(int x,int y,string content,ConsoleColor color = ConsoleColor.White) 
+        {
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = color;
+            Console.Write(content);
+            Console.ForegroundColor = ConsoleColor.White;//重置颜色
         }
     }
 }
