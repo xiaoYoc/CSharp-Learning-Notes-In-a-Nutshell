@@ -2,7 +2,7 @@
 
 :one: [面向对象篇章](面向对象.md)
 
-:two:[高级特性](高级特性.md)（未更新完成）
+:two:[高级特性](高级特性.md)（完成,反射特性未作深究）
 
 :three: [WPF](WPF.md)（未更新完成）
 
@@ -281,6 +281,8 @@ C-->interface
 C-->Object
 ```
 
+:bookmark:按`F12`查看类的内部，如果是`struct`是值类型，`class`为引用类型。
+
 值类型只需要一段单独的内存，值是存储在内存的栈(`stack`)中；而引用类型则需要两段内存，第一段存储实际的数据，在内存的堆中存储，第二段是一个引用（内存地址），指向堆中的位置。
 
 :red_circle:值类型作为成员使用数据存放在托管堆中。
@@ -492,18 +494,64 @@ num = 20;//错误，赋值号左边必须是变量...
 
 常量在内存中没有存储位置，编译时编译器会将常量替换为具体的值。
 
-## 可空类型
+## 可空类型`Nullable<T>`
 
-> 将值类型赋值为`null`
+> 将可以将值类型赋值为`null`，表示无效数据。
 
 ```c#
-double? num = null;
+int? num = null;
+//内部编译为 Nullable<int> x = new Nullable<int>()的结构体
 //HasValue属性判断是否有值
-//null代表值为空
+//null代表无效数据
 if (num.HasValue) 
 {
     //执行相关
 }
+```
+
+:bookmark: 可空类型内存结构：
+
+![image-20250716195011028](assets/image-20250716195011028.png)
+
+- 有两个只读属性：`bool HasValue` 和 `T Value`。
+
+- 当赋值为 `null` 时：`HasValue = false`，`Value` 被设为 `default(T)`（如 `int` 的 `0`）但**不可访问**（访问会抛异常)
+
+  ```c#
+  int? p= null;
+  Console.WriteLine(p.Value);//报错：可空类型变量必须要有一个值
+  ```
+
+:red_circle:注意与引用类型中`null`引用的区别：引用类型赋值为 `null` 表示未引用任何内存对象。
+
+:bookmark: 可空类型与值类型间存在转换。
+
+```c#
+int? p= 2;
+p += 2;//数字2隐式转换为int?类型
+Console.WriteLine(p == 4);////数字4隐式转换为int?类型
+int num = (int)p;//强制转换
+```
+
+如果某个操作数为空，则返回值为空.
+
+```c#
+int? p= null;
+p += 2;
+Console.WriteLine(p == null);//True
+```
+
+:bookmark:安全获取数据
+
+| 签名                  | 释义                                               |
+| --------------------- | -------------------------------------------------- |
+| `GetValueOrDefault()` | 检索当前 `Nullable `对象的值，或基础类型的默认值。 |
+
+```c#
+int? p= null;
+Console.WriteLine(p.GetValueOrDefault());//默认值0
+p = 20;
+Console.WriteLine(p.GetValueOrDefault());//对象的值20
 ```
 
 # 运算符
@@ -935,14 +983,26 @@ if(s != null)
 }
 ```
 
+数组也可以使用空值运算符
+
+```c#
+int[] arr = null;
+//arr?[0]返回null
+Console.WriteLine(arr?[0]);
+```
+
 ### 空值合并符??
 
-如果`??`左操作数的值不为 `null`，则 返回该值；否则会计算右操作数并返回其结果。
+如果`??`左操作数的值不为 `null`，则 返回该值；否则会计算右操作数并返回其结果（三目运算符的简写）。
 
 ```c#
 string s = null;
 string s1 = (s ?? "str");
 Console.WriteLine(s1);
+//可空类型
+int? p= 2;
+int num = p ?? 4;//通过访问 p.Value 直接获取 int 值
+Console.WriteLine(num);//2
 ```
 
 ### $_插值运算符
@@ -2360,7 +2420,7 @@ for (int i = 1; i <=100; i++)
 foreach (var item in collection)
 {
     //item 元素
-    //collection集合
+    //collection集合，该对象实现了迭代器
     //遍历集合中的每一项
 }
 //item的类型
@@ -2420,7 +2480,27 @@ for (int i = 2; i <=100; i++)
 //此种方法，质数2未参与判断
 ```
 
-## 循环体内声明变量（重要）
+## 块中的变量声明（重要）
+
+:bookmark:栈内存管理拓展：其根据栈指针管理内存
+
+```c#
+void Method()
+{
+    // 栈指针位置：1000
+    { // 进入作用域
+        int a = 1;  // 分配在1000-1003
+        // 栈指针：1004
+    } // 离开作用域
+    // 栈指针回退到1000，但1000-1003的内容未被清除
+    
+    { // 新作用域
+        int b = 2;  // 可能分配到相同的1000-1003
+    }
+}
+```
+
+:bookmark:基于栈指针的概念，理解循环中的变量
 
 ```c#
 for (...) 
@@ -2430,15 +2510,25 @@ for (...)
     DateTime time = DateTime.Now;
     LargeStruct s = new LargeStruct();
 }
+//注意其等价于
+{
+    int i = 0;
+    while (i < 10)
+    {
+        ...
+        i++;
+    }
+}
 ```
 
 头部变量`i`仅声明一次，每次循环时，会替换变量`i`存储的旧值，到循环结束后，变量`i`的声明周期结束，无法访问；其栈内存**延迟至方法执行完毕时**，随整个栈帧弹栈统一回收。（不考虑闭包）
 
-循环体内部声明的变量，每次迭代都会重新声明一个新变量，可能会复用上一次的内存地址，覆盖写入，替换原来的旧值。
+循环体内部声明的变量，每次迭代都会重新声明一个新变量，可能会复用上一次的内存地址(栈指针回退)，覆盖写入，替换原来的旧值。
 
-内部值类型变量，非极端情况下(递归，过大数据)不会造成栈溢出。
+内部值是类型变量，非极端情况下(递归，过大数据)不会造成栈溢出。
 
 ```c#
+//引用类型迭代
 for (...) 
 {
     // 引用类型声明
@@ -4032,5 +4122,26 @@ public class Program
         }
     }
 }
+```
+
+## 代码的省略写法
+
+```c#
+ public class Program
+ {
+     int _num;
+     public int Num 
+     {
+         get => _num;//省略return,=>代表{}
+         set => _num = value;
+     }
+     static void Main()
+     {
+         //仅一句代码时可省略{}
+         if(true) Console.WriteLine("a");  
+     }
+     public void Show() => Console.WriteLine("show");//=>代表{}
+     public int Add(int a, int b) => a + b;//省略return
+ }
 ```
 
