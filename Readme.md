@@ -3076,7 +3076,7 @@ static void Main(string[] args)
 :one:传参（形参与实参）
 
 1. 形参：形式上的参数，要求调用方法时传递参数的类型与数量一致，与实参互不影响。
-2. 一般情况下二者都在内存内开辟空间。
+2. 二者都在栈中分配空间。
 
 :two:使用静态字段来模拟全局变量
 
@@ -3105,7 +3105,7 @@ public static int GetNumber(int a)
 
 方法的默认参数类型为值参数，系统在栈上给形参分配内存，并将实参的值复制给形参。实参为值类型，形参保存一份副本，实参为引用类型，形参保存引用，指向同一个对象。
 
-![image-20250521232359201](assets/image-20250521232359201.png)
+![image-20250724184209133](assets/image-20250724184209133.png)
 
 ```c#
 static void Main(string[] args)
@@ -3133,7 +3133,7 @@ public static void Change(int[] arr,int num)
 
 `ref`参数,栈帧分配空间，存储实参变量的地址，简单理解就是将形参视为实参的别名，指向同一内存位置。
 
-![image-20250521232714210](assets/image-20250521232714210.png)
+![image-20250724184439748](assets/image-20250724184439748.png)
 
 ```csharp
 static void Main(string[] args)
@@ -3465,8 +3465,8 @@ public static void Test(int a, int b =0, int c = 0,params string[] strings) {}
 参数不同：
 
 1. 参数个数相同，但是类型不同；
-2. 参数个数不相同；
-3. 参数顺序不同
+2. 参数个数相同，参数顺序不同
+3. 参数个数不相同；
 4. 数量、类型、顺序一致，但存在参数修饰符
 
 重载的作用是把功能类似的方法整合到一起，方便使用。
