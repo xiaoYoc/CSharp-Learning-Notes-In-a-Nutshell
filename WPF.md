@@ -1,11 +1,13 @@
-# `wpf`架构
+# `wpf`概述
 
-## `DIP`
+## 系统`DPI`与`wpf`单位
 
-> **DPI（Dots Per Inch，每英寸点数）** 是衡量物理设备（如显示器、打印机）**输出精度**的度量单位，表示在**1英寸的长度**
->
-> **内能显示或打印的点（像素）数量**
->
+要在屏幕上布局一个窗口，Windows必须假设屏幕每英寸有多少点（或像素）（dpi）。
+
+`winform`使用像素作为长度单位,通常假设系统每英寸有96像素，并据此编写代码。但如果将用户设置从96dpi更改为120dpi：在96dpi下长度为1英寸（即96像素）的东西，在120dpi下变成了0.8英寸长.
+
+![image-20250825195329313](assets/image-20250825195329313.png)
+
 > 在 WPF (Windows Presentation Foundation) 中，**DIP（Device Independent Pixel，设备无关像素）** 是核心的度量单位，用
 >
 > 于确保应用程序在不同分辨率的显示设备上保持一致的视觉尺寸和布局。
@@ -16,30 +18,12 @@
 
    - **1 DIP = 1/96 英寸**（无论物理设备的分辨率或 DPI 如何）。
    - 这是一个虚拟像素单位，与物理屏幕的像素密度无关。
-
 2. **设计目的**：
 
    - 解决传统像素（Physical Pixel）在不同 DPI 屏幕上显示尺寸不一致的问题。
    - 例如：
      - 在 96 DPI 的屏幕上：`96 DIP = 1 英寸`。
-     - 在 192 DPI（高分辨率）的屏幕上：`96 DIP` 会自动缩放为 `192 物理像素`，**仍占 1 英寸**。
-
-3. **工作原理**：
-
-   - WPF 自动根据系统 DPI 缩放比例将 DIP 转换为物理像素。
-
-     ```
-     物理像素 = DIP × (系统DPI / 96)
-     ```
-
-   - 示例：
-
-     - 系统 DPI 为 150% (144 DPI) 时：
-       `96 DIP × (144/96) = 144 物理像素`。
-
-4. **在代码中的应用**：
-
-   - WPF 中所有控件尺寸（`Width`, `Height`）、边距（`Margin`）、字体大小（`FontSize`）默认使用 DIP 单位。
+     - 在 192 DPI（高分辨率）的屏幕上：`96 DIP` 仍为1英寸，但占据 192 物理像素。
 
 ## 通过控制台创建`WPF`
 
@@ -361,8 +345,6 @@ flowchart TD
 | MouseMove | 当鼠标指针在元素上移动时发生           |
 | Click     | 当在元素上单击鼠标时发生               |
 
-
-
 # `XAML`
 
 :bookmark:使用控制台应用程序创建UI面板，必须手动创建对象，且需要明确哪些对象包含哪些对象。
@@ -469,9 +451,9 @@ xmlns[:可选映射前缀] = "命名空间"
 
 :one: 使用无参数构造函数创建对象。
 
-:two: 使用`XAML`元素的`content`部分，设置类对象的默认内容属性。
+:two: 使用`XAML`元素的内容部分，赋值给类对象的默认内容属性。
 
-:three: 将对象的其他属性设置为`XAML`特征中分配的值。
+:three: 将`XAML`特征中的值赋值给对象的其他属性。
 
 ### 元素语法
 
@@ -479,17 +461,15 @@ xmlns[:可选映射前缀] = "命名空间"
 
 ![image-20250810114408062](assets/image-20250810114408062.png)
 
-### 元素属性
-
-设置对象的其他属性，可以通过使用属性语法来实现。
+设置对象的其他属性，可以通过特性语法来实现。
 
 ![image-20250810114606901](assets/image-20250810114606901.png)
 
-:one: 属性必须放置在开始标签内，紧随元素名称之后。它们不能出现在内容区域或结束标签中。
+:one: 特性必须放置在开始标签内，紧随元素名称之后。它们不能出现在内容区域或结束标签中。
 
-:two: 属性的语法由一个标识符组成，该标识符是属性名称，后面跟着一个等号，然后是一个用一对双引号或单引号括起来的字符串。
+:two: 特性语法由一个标识符组成，该标识符会映射到对象的属性名称，后面跟着一个等号，然后是用一对双引号括起来的字符串。
 
-:three: 一个元素可以有任意数量的属性，这些属性必须用空格分隔——不能用逗号。
+:three: 一个元素可以有任意数量的特性，这些特性必须用空格分隔——不能用逗号。
 
 ### 空元素
 
@@ -537,9 +517,21 @@ flowchart TD
 </StackPanel>
 ```
 
-### 属性的元素语法
+对于布局控件
 
-若设置的属性是复杂的对象或几何，可以采用元素属性语法：
+```xaml
+<StackPanel>
+    <Button/>
+    <Button/>
+    <Button/>
+</StackPanel>
+```
+
+默认内容属性为`public System.Windows.Controls.UIElementCollection Children { get; }`,实际编译过程中会执行`public virtual int Add(System.Windows.UIElement element)`方法，将每一个元素添加到集合`UIElementCollection`中。
+
+### 属性元素语法
+
+若设置的属性是复杂的对象或几何，可以采用属性元素语法：
 
 ![image-20250810124104686](assets/image-20250810124104686.png)
 
@@ -562,11 +554,29 @@ flowchart TD
 </StackPanel>
 ```
 
+再比如在按钮中加个图片，`public object Content { get; set; }`属性是个`object`类型，所以它可以接受任何类型。
+
+![image-20250820233707691](assets/image-20250820233707691.png)
+
+```xaml
+<StackPanel>
+    <Button HorizontalAlignment="Left" Margin="5"
+            Click="Btn_Click">
+        <Button.Content>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Res/searc.ico" Width="15" Margin="0 0 5 0"/>
+                <Label Content="按钮"/>
+            </StackPanel>
+        </Button.Content>
+    </Button>
+</StackPanel>
+```
+
 ### 附加属性
 
 附加属性是一种特殊的属性类型，它在某个类中定义，但在另一个类中使用
 
-把按钮放在`Grid`的某个单元格内，注意此时的`Row`属性是`Grid`的属性，`Button内部没有该属性`。
+把按钮放在`Grid`的某个单元格内，注意此时的`Row`属性是`Grid`的属性，`Button`内部没有该属性。
 
 ![image-20250810145754421](assets/image-20250810145754421.png)
 
@@ -604,7 +614,7 @@ Button btn = new Button();
 
 ![image-20250810152320365](assets/image-20250810152320365.png)
 
-`wpf`命名空间定义所有 WPF 核心控件和类，`xaml`命名空间提供 `xaml` 语言本身的特性和指令
+`wpf`命名空间定义所有 WPF 核心控件和类，`xaml`命名空间提供 `xaml` 语言本身的特性和指令，使用时需添加别名
 
 ```mermaid
 classDiagram
@@ -676,7 +686,7 @@ public class MyButton :Button
 
 无论哪种方式，一旦对象被构建并设置其属性，XAML解析器就会调用`ProvideValue()`方法，将返回的值赋给目标属性。
 
-:bookmark:自定义扩展类
+:bookmark:自定义扩展类(了解)
 
 ```c#
 public class MyTime : MarkupExtension
@@ -762,13 +772,13 @@ public class MyTime : MarkupExtension
 
 ![image-20250810195154191](assets/image-20250810195154191.png)
 
-:bookmark: 父容器给子元素分配的空间称之为布局槽，子元素默认会占满整个布局槽;同时子元素也会相应布局槽：
+:bookmark: 父容器给子元素分配的空间称之为布局槽，子元素默认会占满整个布局槽.
 
 :one: 通过 `Width`/`Height` 或内容尺寸决定**实际占用大小**（但不超过布局槽）
 
 :two: 通过 `HorizontalAlignment`/`VerticalAlignment` 决定**在槽内的对齐位置**
 
-:bookmark:为何子元素会沾满整个容器槽?
+:bookmark:为何子元素会占满整个布局槽?
 
 :red_circle:默认拉伸对齐：WPF元素的默认`HorizontalAlignment`和`VerticalAlignment`值为`Stretch`。这导致子元素自动扩展以填充父级分配的空间.
 
@@ -778,7 +788,7 @@ public class MyTime : MarkupExtension
 
 ## 约束元素的大小
 
-`Width 和 Height`:设置实际宽度或高度。
+`Width 和 Height`:设置元素在布局槽中的实际宽度或高度。
 
 `MinWidth, MaxWidth, MinHeight和 MaxHeight`:设置一个范围，实际宽度或高度必须保持在这个范围内，而不是设置固定的宽
 
@@ -852,7 +862,7 @@ public class MyTime : MarkupExtension
 
 内边距是在元素内部添加的额外空间，位于内容和元素的外部边框之间。
 
-外边距是在元素外部添加的额外空间，元素边界与其**容器布局插槽**的距离。
+外边距是在元素外部添加的额外空间，元素外部边框与布局槽边界的距离。
 
 ![image-20250810204936620](assets/image-20250810204936620.png)
 
@@ -876,6 +886,18 @@ public class MyTime : MarkupExtension
 ```
 
 ![image-20250810204149789](assets/image-20250810204149789.png)
+
+关于`margin`的另一个例子：
+
+```xaml
+<Grid>
+    <Button Width="100" Height="100"  Margin="130">anniu</Button>
+</Grid>
+```
+
+![](assets/image-20250826063559348.png)
+
+`margin`根据左上右下顺序进行调整，随着margin增大，元素逐渐被`margin`挤占掉
 
 ## `Panel`
 
@@ -1234,6 +1256,40 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 ```
 
 ![image-20250811193123007](assets/image-20250811193123007.png)
+
+### `Canvas`
+
+![image-20250821223838299](assets/image-20250821223838299.png)
+
+使用相对于四个角之一的坐标,将每个元素放置在特定的位置。
+
+设置水平位置属性为Canvas.Left或Canvas.Right，不能同时使用两者。
+
+设置垂直位置属性为Canvas.Top或Canvas.Bottom，不能同时使用两者。
+
+当Canvas调整大小时：Canvas中的元素保持实际大小；它们不会调整以适应新的画布大小。只有当与其关联的角移动时，项目才会改变位置。在这种情况下，项目也会移动，以保持相对于该角的位置不变。
+
+![image-20250821224013659](assets/image-20250821224013659.png)
+
+元素重叠
+
+当两个对象在Canvas上占据相同区域时，以下两点决定了哪个将显示在前、哪个将在后：
+
+1. 如果一个对象的`Panel.ZIndex`属性值高于另一个对象，它将显示在前。
+2. 如果两个对象的`Panel.ZIndex`属性值相同，那么最后添加到Canvas的对象将显示在前。
+3. 默认情况下，Canvas上的任何元素`Panel.ZIndex`值为0。
+
+![image-20250821224948668](assets/image-20250821224948668.png)
+
+```xaml
+<Canvas>
+    <Rectangle Canvas.Left="50" Width="50" Height="50" 
+               Panel.ZIndex="1"
+               Fill="Orange"/>
+    <Rectangle Canvas.Left="75" Canvas.Top="25"
+               Width="50" Height="50" Fill="AliceBlue"/>
+</Canvas>
+```
 
 ### `UniformGrid`
 
@@ -2242,7 +2298,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 通过`DependencyProperty.Register()`方法在`wpf`属性系统中注册，用于标识属性系统中一个特定的依赖属性。
 
-`DependencyObject` 类的对象通过`GetValue()`和`SetValue()`获取和设置特定依赖属性值。
+`DependencyObject` 类的对象通过`GetValue()`和`SetValue()`获取和设置特定依赖属性值。:red_circle:执行 `SetValue` 的对象就是值存储的地方。
 
 虽然类可以使用从 `DependencyObject`继承的 `GetValue 和SetValue `方法访问依赖属性，但我们应该创建一个调用这些方法的CLR属性包装器，更方便的获取设置依赖属性。
 
@@ -2312,6 +2368,61 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
  }
 ```
 
+## 附加属性
+
+附加属性是特殊的依赖属性。和普通依赖属性的差异如下：
+
+常规依赖属性有一个CLR属性包装器。
+
+而附加属性有两种静态方法：GetXXX和SetXXX，其中XXX是依赖属性标识符的名称，不带Property后缀。
+
+这些方法调用目标对象的GetValue和SetValue方法。
+
+目标对象必须派生自DependencyObject，以便GetXXX和SetXXX方法可以调用其GetValue和SetValue方法。
+
+附加属性通过静态方法`RegisterAttached`注册，而不是通过`Register`方法
+
+**附加属性允许一个类定义属性，但这些属性的值存储在目标对象（子元素）自身的实例中，而不是存储在定义该属性的类中。**
+
+![image-20250823204131887](assets/image-20250823204131887.png)
+
+```xaml
+<StackPanel>
+    <TextBlock Text="?" Name="text"/>
+</StackPanel>
+```
+
+`C#`
+
+```c#
+public class IntStorage : DependencyObject { }
+public partial class MainWindow : Window
+{
+    //依赖属性标识符
+    public static readonly DependencyProperty? CountProperty;
+
+    static MainWindow()
+    {
+        //在属性系统中注册附加属性
+        CountProperty = DependencyProperty.RegisterAttached("Count",typeof(int), typeof(MainWindow));
+    }
+    public MainWindow()
+    {
+        InitializeComponent();
+        //修改文本值
+        IntStorage intStorage = new IntStorage();
+        SetCount(intStorage, 10);
+        //找到实例内部存储依赖属性的值
+        text.Text =GetCount(intStorage).ToString();
+    }
+
+    public static int GetCount(IntStorage ints) => (int)ints.GetValue(CountProperty);
+
+    public static void SetCount(IntStorage ints, int value) => ints.SetValue(CountProperty, value);
+
+}
+```
+
 # 数据绑定
 
 > 建立数据源与`UI`元素的自动关联，实现：
@@ -2337,7 +2448,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 保持同步的数据元素必须是属性。一个属性称为源属性，另一个称为目标属性.
 
-:bookmark:语法
+:bookmark:绑定语法
 
 ![image-20250815182335186](assets/image-20250815182335186.png)
 
@@ -2346,6 +2457,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 * `ElementName` 属性指定了目标属性要绑定的源对象。
 *  `Path` 属性指定绑定源对象的某哪属性。
 *  目标属性必须是一个依赖属性。
+*  如果只绑定了源对象，而未指定路径，那么
 
 ![image-20250815181831876](assets/image-20250815181831876.png)
 
@@ -2377,11 +2489,11 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 `displayText.SetBinding(ContentProperty, binding)`会创建一个`BindingExpression`对象，类似于桥梁的作用。
 
-* 数据源实现INPC → 触发事件 → BindingExpression → 更新UI依赖属性
+* 数据源实现INPC 或为依赖属性→ 触发事件 → BindingExpression → 更新UI依赖属性
 
 * UI依赖属性改变 → 属性系统通知 → BindingExpression → 反射调用setter
 
-  :red_circle:数据源确保实现 `INotifyPropertyChanged`事件 ，这样值改变时才会触发事件通知BindingExpression对象
+  :red_circle:数据源确保实现 `INotifyPropertyChanged`接口 ，这样值改变时才会触发事件通知BindingExpression对象
 
 ![image-20250815184814220](assets/image-20250815184814220.png)
 
@@ -2398,6 +2510,8 @@ graph LR
     style C fill:#fcf,stroke:#333
     style B fill:#9f9,stroke:#333
 ```
+
+除了使用`ElementName`绑定数据源外，还是可以使用`Source`属性绑定静态资源作为数据源。
 
 ### 使用`CLR`属性进行数据绑定
 
@@ -2590,7 +2704,7 @@ public partial class MainWindow : Window
 }
 ```
 
-`ViewModel`
+`Model`
 
 ```c#
 class PersonViewModel : INotifyPropertyChanged
@@ -2728,5 +2842,516 @@ private void Button_Click(object sender, RoutedEventArgs e)
 }
 ```
 
-## `DataContext`
+## 数据转换
+
+数据转换是我们编写的一个特殊类，它拦截源和目标之间的数据，并且可以根据想要的方式对其进行操作。数据转换器类必须使用 `ValueConversion` 特性，并且必须实现IValueConverter接口。该接口包含两个方法—Convert (源→UI)和 ConvertBack（UI → 源）
+
+![image-20250818212246217](assets/image-20250818212246217.png)
+
+用xaml实现一个 TextBox/Slider 窗口，其中TextBox 始终显示两位小数。
+
+```xaml
+<StackPanel>
+    <TextBox Margin="10">
+        <TextBox.Text>
+            <Binding ElementName="slider" Path="Value">
+                <Binding.Converter> <!--绑定转换类-->
+                    <local:TwoWayConverter/>
+                </Binding.Converter>
+            </Binding>
+        </TextBox.Text>
+    </TextBox>
+    <Slider Margin="10" Value="5" TickPlacement="BottomRight" Name="slider"/>
+</StackPanel>
+```
+
+```c#
+// type of source,type of target
+[ValueConversion(typeof(double), typeof(string))]
+public class TwoWayConverter : IValueConverter
+{
+    //源→UI
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        double num = (double)value;
+        return num.ToString("F2");
+    }
+    // UI → 源
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        double.TryParse(value.ToString(), out double num);
+        return num;
+    }
+}
+```
+
+## 一个元素上多个绑定
+
+多个属性被绑定的元素被称为多重绑定元素。
+
+窗口顶部包含一个 Label ，下方有两个 ComboBoxes。顶部的 ComboBox 包含一系列字体家族，并绑定到Label标签的 FontFamily 属性上。第二个 ComboBox 包含一组 FontWeight，并绑定到Label标签的FontWeight 属性上。
+
+![image-20250818221329162](assets/image-20250818221329162.png)
+
+```xaml
+<StackPanel>
+    <Label Content="My Text" FontFamily="{Binding SelectedValue.Content,ElementName=fontBox}"
+           FontWeight="{Binding SelectedValue,ElementName=weightBox}"/>
+    <ComboBox Name="fontBox" SelectedIndex="0" Margin="5,0,5,2 ">
+        <ComboBoxItem>Arial</ComboBoxItem>
+        <ComboBoxItem>Courier New</ComboBoxItem>
+    </ComboBox>
+    <ComboBox Name="weightBox" SelectedIndex="0" Margin="5,0,5,2">
+        <ComboBoxItem>Normal</ComboBoxItem>
+        <ComboBoxItem>Bold</ComboBoxItem>
+    </ComboBox>
+</StackPanel>
+```
+
+## 绑定对象集合到`ItemsControls`
+
+从对象集合中一次绑定一个对象到控件。
+
+| 特性         | **Items 属性**              | **ItemsSource 属性**                    |
+| :----------- | :-------------------------- | :-------------------------------------- |
+| **类型**     | `ItemCollection` (直接集合) | `IEnumerable` (数据源)                  |
+| **绑定支持** | ❌ 不支持数据绑定            | ✅ 支持数据绑定                          |
+| **可修改性** | ✅ 可直接添加/删除项         | ❌ 只读（需修改源集合）                  |
+| **动态更新** | ❌ 手动更新                  | ✅ 自动更新（使用 ObservableCollection） |
+
+```xaml
+<StackPanel>
+    <StackPanel>
+        <!--要让ComboBox知道在显示中使用哪个属性，将DisplayMemberPath设置为该属性的名称-->
+        <ComboBox ItemsSource="{Binding}" DisplayMemberPath="Name" SelectedIndex="0"/>
+    </StackPanel>
+</StackPanel>
+```
+
+```c#
+ public MainWindow()
+ {
+     InitializeComponent();
+     Person[] pers = new Person[]
+     {
+         new Person("小李",30),
+         new Person("*",28),
+         new Person("李",60)
+     };
+     //数据源
+     this.DataContext = pers;
+ }
+```
+
+# 路由与事件
+
+## 事件
+
+Windows编程是事件驱动的，在程序运行时，它可以随时被用户操作或系统操作（如按钮点击、按键）中断。当这种情况发生时，程序需要处理该事件，然后继续执行。如果希望程序在特定事件发生时执行某些任务，必须编写一个方法，称为事件处理程序，以便在事件发生时调用它。
+
+事件是一个.NET对象，其中包含一个引用列表，指向与之关联的事件处理程序。系统负责检测事件何时发生。当事件发生时，所有与该事件关联的事件处理程序按顺序被调用。
+
+```xaml
+<StackPanel>
+    <Button Name="myName" Padding="10" Content="Click Me"
+            Click="myName_Click"
+            MouseEnter="myName_MouseEnter"
+            MouseLeave="myName_MouseLeave"/>
+</StackPanel>
+```
+
+鼠标指针进入按钮区域时，`MouseEnter`事件被触发，该方法将按钮文本更改为“鼠标悬停”。
+
+当鼠标指针离开按钮区域时，MouseLeave事件被触发，该方法将按钮文本恢复为“点击我”。
+
+当按钮被点击时，Click事件被触发，该方法将按钮文本设置为“已点击”或“再次点击”
+
+```c#
+ private void myName_Click(object sender, RoutedEventArgs e)
+ {
+     myName.Content = (myName.Content.ToString() == "clicked" || myName.Content.ToString() == "clicked again") ? "clicked again" : "clicked";
+ }
+
+ private void myName_MouseEnter(object sender, MouseEventArgs e)
+ {
+     myName.Content = "mouse over";//鼠标悬停
+ }
+
+ private void myName_MouseLeave(object sender, MouseEventArgs e)
+ {
+     myName.Content = "click me";
+ }
+```
+
+## 路由
+
+WPF添加了一种新类型的事件对象，称为路由事件，它单单处理添加事件处理程序的元素，还发送到元素树中的其他元素。
+
+WPF对其路由事件使用三种不同的路由策略：
+
+:one: 直接路由:类似于标准CLR事件行为。当事件在一个元素上被触发时，WPF仅在触发事件的元素上检查事件处理程序。
+
+:two: 冒泡路由:首先检查事件被触发的元素，然后沿着元素树向上传播，直到顶层的元素。在每个后续被触发事件的元素上，如果该元素有对应的事件处理程序，则调用该处理程序。
+
+:three: 隧道路由:从元素树的顶部开始，逐级向下工作，在每个元素上触发事件，直到到达最初触发事件的元素。按照惯例，内置的WPF隧道事件名称以前缀`Preview`开头。
+
+在许多情况下，WPF使用事件时，它不是引发单个路由事件，而是使用一对路由事件——首先引发隧道事件，然后引发冒泡事件。这样做的原因是它为你提供了在更高级别处理事件的机会，而不是在事件引发的地方处理事件。
+
+从顶部开始路由并向下隧道传播，允许你在更高层次创建一个事件处理器，该处理器接管事件处理，条件允许可以阻止它进一步向下传播。
+
+第一个参数相同与CLR事件相同，但第二个参数是RoutedEventArgs或RoutedEventArgs的子类类型
+
+![image-20250819210059884](assets/image-20250819210059884.png)
+
+一个RoutedEventArgs对象有四个属性，这些属性携带了从路由事件中获取的重要信息事件：
+
+1. Source:这是引发事件的对象的引用，并且可能包含处理事件所需的信息。
+2. Handled:如果你想阻止事件的传递，可以将此属性设置为true，默认值是false。
+
+
+
+### 冒泡路由示例
+
+创建一个窗口，左侧,右侧各有一个区域。在左侧区域，我们将触发和处理事件，输出显示在右侧区域，可以看到哪些事件被触发，以及它们的触发顺序。右侧还有一个按钮，用于清除结果。
+
+![image-20250819210523011](assets/image-20250819210523011.png)
+
+```xaml
+<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+    <Border Name="myBorder" BorderThickness="10"
+            BorderBrush="BurlyWood" MouseUp="myBorder_MouseUp">
+        <Label Name="myLabel" Padding="10" MouseUp="myLabel_MouseUp">
+            <Image Name="car" Source="Res/searc.ico" Stretch="Uniform"
+                   MouseUp="car_MouseUp" Width="100" Height="100"/>
+        </Label>
+    </Border>
+    <StackPanel>
+        <Button Name="clear" Padding="10,3" Click="clear_Click">
+            Clear
+        </Button>
+        <TextBlock Name="tb" Margin="5,5,0,0"></TextBlock>
+    </StackPanel>
+</StackPanel>
+```
+
+```c#
+private void myBorder_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "border sees it \n";
+}
+
+private void car_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "Images sees it\n";
+}
+
+private void clear_Click(object sender, RoutedEventArgs e)
+{
+    tb.Text = "";
+}
+
+private void myLabel_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "label sees it\n";
+}
+```
+
+当在元素上触发冒泡事件时，该事件会沿着树向上传递，任何具有该事件事件处理器的元素都会执行它
+
+![image-20250819210752756](assets/image-20250819210752756.png)
+
+### 隧道
+
+添加隧道路由扩展上节的代码
+
+![image-20250819212117169](assets/image-20250819212117169.png)
+
+```xaml
+<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+    <Border Name="myBorder" BorderThickness="10"
+            BorderBrush="BurlyWood" 
+            MouseUp="myBorder_MouseUp"
+            PreviewMouseUp="myBorder_PreviewMouseUp">
+        <Label Name="myLabel" Padding="10" 
+               MouseUp="myLabel_MouseUp"
+               PreviewMouseUp="myLabel_PreviewMouseUp">
+            <Image Name="car" Source="Res/searc.ico" Stretch="Uniform"
+                   MouseUp="car_MouseUp" 
+                   PreviewMouseUp="car_PreviewMouseUp"
+                   Width="100" Height="100"/>
+        </Label>
+    </Border>
+    <StackPanel>
+        <Button Name="clear" Padding="10,3" Click="clear_Click">
+            Clear
+        </Button>
+        <TextBlock Name="tb" Margin="5,5,0,0"></TextBlock>
+    </StackPanel>
+</StackPanel>
+```
+
+```c#
+private void myBorder_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "border sees it \n";
+}
+
+private void car_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "Images sees it\n";
+}
+
+private void clear_Click(object sender, RoutedEventArgs e)
+{
+    tb.Text = "";
+}
+
+private void myLabel_MouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "label sees it\n";
+}
+
+private void myBorder_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "Tunneling: border sees it \n";
+}
+
+private void myLabel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "Tunneling: label sees it\n";
+}
+
+private void car_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+{
+    tb.Text += "Tunneling: Images sees it\n";
+}
+```
+
+
+
+## 命令
+
+命令架构由以下组件组成
+
+![image-20250819225805829](assets/image-20250819225805829.png)
+
+命令源对象触发命令的执行：命令源通常是UI输入元素，如Button或输入手势。
+
+命令对象表示要执行的操作，包括操作应启用条件的条件，以及表示命令的输入手势列表。但它实际上并不包含执行操作的代码！
+
+命令目标是命令操作的对象：命令绑定将命令与目标连接起来。
+
+### 内置命令
+
+命令源具有Command和CommandTarget属性，这些属性可以分别存储对命令对象和目标对象的引用。
+
+命令绑定与数据绑定的区别
+
+```mermaid
+flowchart TD
+    A[XAML 解析器遇到Binding 表达式] --> B[创建 Binding 基础对象]
+
+    B --> C{判断绑定目标属性类型}
+
+    C --> |目标属性是内容属性| D[数据绑定流程]
+    C --> |目标属性是命令目标属性| E[命令目标绑定流程]
+
+    subgraph D [数据绑定]
+        D1[设置绑定路径<br>如 Path=UserName] --> D2[运行时绑定引擎工作] --> D3[建立持续数据流通道] --> D4[关注: 值是什么?]
+    end
+
+    subgraph E [命令目标绑定]
+        E1[设置元素名称<br>如 ElementName=cutFrom] --> E2[运行时绑定引擎工作] --> E3[解析UI元素引用] --> E4[关注: 目标是谁?]
+    end
+
+    D4 --> F[实现数据同步]
+    E4 --> G[指定命令接收者]
+
+    F --> H[技术相同: 都使用 Binding 对象和数据绑定引擎]
+    G --> H
+```
+
+![image-20250819230921014](assets/image-20250819230921014.png)
+
+程序的界面由一个StackPanel组成，包含两个TextBox和两个Button。剪切按钮是剪切命令的源，第一个TextBox是命令的目标。粘贴按钮是粘贴命令的源，第二个TextBox是命令的目标。
+
+```xaml
+ <StackPanel>
+     <TextBox Name="cutFrom"></TextBox>
+     <TextBox Name ="pasteTo"></TextBox>
+     <StackPanel Orientation="Horizontal">
+         <!--command要执行的命令-->
+         <!--命名目标是cutFrom-->
+         <Button Width="50"
+                 Command="ApplicationCommands.Cut" 
+                 CommandTarget="{Binding ElementName=cutFrom}">cut</Button>
+         <!--粘贴源-->
+         <Button Width="50"
+                 Command="ApplicationCommands.Paste"
+                 CommandTarget="{Binding ElementName=pasteTo}">
+             Paste
+         </Button>
+     </StackPanel>
+ </StackPanel>
+```
+
+# 资源
+
+`WPF`中`resource`指代两种不同类型的事物：
+
+* 第一种资源类型指的是程序使用但不是程序代码创建的项。例如，从代码外部提供的图像或图标。
+* `WPF`中描述存储在对象字典中并在代码的各个位置使用的. NET代码对象。这些通常与XAML标记相关联，但也用于隐藏代码。他们也被称为逻辑资源、对象资源或XAML资源。
+
+## 资源字典
+
+`WPF`提供了一个名为 ResourceDictionary的字典类。
+
+* `ResourceDictionary` 类实现了一个字典，你可以将任何类型的对象引用放入其中，并使用任何类型的键。
+* 对象始终以 object类型的引用形式存储，因此从字典中检索它们后，你必须将它们转换
+  回原始类型。
+
+控件从FrameworkElement类继承Resources属性。
+
+![image-20250819055349016](assets/image-20250819055349016.png)
+
+使用`c#`代码创建资源
+
+```xaml
+<StackPanel x:Name="sp">
+    <Button Content="find resource" Name="btn"/>
+</StackPanel>
+```
+
+```c#
+public MainWindow()
+{
+    InitializeComponent();
+    //向StackPanel的 Resources 属性添加了一个Brush 对象。字符串“ background”是稍后用于查找 Brush对象的键。
+    sp.Resources.Add("background",Brushes.AliceBlue);
+    //FindResource方法来搜索资源并将结果给按钮的Background 属性。
+    //搜索的结果必须强制转换回 Brush 类型
+    btn.Background = (Brush)btn.FindResource("background");
+    //该方法从当前元素开始，沿着元素树向上搜索，查询每个元素的 Resources 属性
+    //如果找到资源，则返回其引用。否则，抛出异常
+}
+```
+
+如果 `FindResource `方法到达元素树的顶部并且没有找到资源，它们在放弃之前会尝试两个地方—— `Application` 对象和系统资源
+
+![image-20250819061535428](assets/image-20250819061535428.png)
+
+:bookmark: 使用`XAML`来存储和检索资源的值
+
+![image-20250819062025219](assets/image-20250819062025219.png)
+
+```xaml
+<StackPanel>
+    <StackPanel.Resources>
+        <!--设置键-->
+        <SolidColorBrush x:Key="background" Color="#f5f5f5"/>
+    </StackPanel.Resources>
+    <!--查找键-->
+    <Button Content="find resource" Background="{StaticResource background}"/>
+</StackPanel>
+```
+
+:bookmark:使用静态资源定义一个渐变画刷
+
+![image-20250819063201313](assets/image-20250819063201313.png)
+
+```xaml
+<Window.Resources>
+    <LinearGradientBrush x:Key="brush" StartPoint="0 0" EndPoint="1 1">
+        <!--Offset 属性定义了渐变中颜色停止点的位置-->
+        <GradientStop Offset="0" Color="red"/>
+        <GradientStop Offset="1" Color="Green"/>
+    </LinearGradientBrush>
+</Window.Resources>
+<!--StaticResource指令检索资源，一次性加载-->
+<StackPanel Background="{StaticResource brush}">
+</StackPanel>
+```
+
+## 静态资源与动态资源
+
+从`ResourceDictionary`以`StaticResource`读取对象时，其引用会被分配给属性一次。如果资源库中的引用发生变化，该变化不会传播到持有原始引用的属性。
+
+使用DynamicResource读取对象时，如果引用地址发生变化，持有旧引用的属性会自动更新。
+
+:red_circle: 区别：资源系统负责管理对象的引用，而数据绑定系统负责处理对象内部属性的变化通知。
+
+| 特性                 | StaticResource                           | DynamicResource                          |
+| :------------------- | :--------------------------------------- | :--------------------------------------- |
+| **主要作用**         | 获取数据源引用                           | 获取数据源引用                           |
+| **引用获取时机**     | XAML加载时一次性获取                     | XAML加载时获取并建立监听                 |
+| **监听内容**         | 不监听任何变化                           | 只监听资源键对应对象的整体替换           |
+| **性能**             | 较高（无运行时监听开销）                 | 较低（需要维护资源监听）                 |
+| **适用场景**         | 资源不会改变时                           | 资源可能被整体替换时（如主题切换）       |
+| **与属性更新的关系** | 无关，属性更新依赖INotifyPropertyChanged | 无关，属性更新依赖INotifyPropertyChanged |
+| **UI更新机制**       | 依赖数据源的INotifyPropertyChanged实现   | 依赖数据源的INotifyPropertyChanged实现   |
+
+```xaml
+<Window.Resources>
+    <LinearGradientBrush x:Key="brush" StartPoint="0 0" EndPoint="1 1">
+        <GradientStop Color="White" Offset="0"/>
+        <GradientStop Color="Wheat" Offset="1"/>
+    </LinearGradientBrush>
+</Window.Resources>
+<StackPanel Background="{DynamicResource brush}">
+    <Button Content="btn1" Background="{DynamicResource brush}"/>
+    <Button Content="btn2" Background="{StaticResource brush}"/>
+    <Button Click="Button_Click" Content="Change Color"/>
+</StackPanel>
+```
+
+替换资源后，`btn2`颜色不变，其余绑定动态资源的 颜色都改变。
+
+```c#
+  private void Button_Click(object sender, RoutedEventArgs e)
+  {
+      this.Resources["brush"] = Brushes.Gray;
+  }
+```
+
+## 程序集资源
+
+**程序集资源 (Assembly Resources)**：它们不是通过代码生成的，而是像图片、音频、视频这类事先做好的文件，然后添加到项目中供程序使用。
+
+| 特性         | 嵌入资源 (Build Action = `Resource`) | 松散文件 (Build Action = `Content`)            |
+| :----------- | :----------------------------------- | :--------------------------------------------- |
+| **部署**     | 只需一个.exe文件，简单               | 需同时部署.exe和资源文件                       |
+| **更新**     | 需重新编译程序                       | 直接替换资源文件即可                           |
+| **文件大小** | .exe文件较大                         | .exe文件小，总体积可能更大                     |
+| **适用场景** | 图片不多、不常更换、希望部署简单     | 资源很多、需要动态更换（如主题）、在线更新资源 |
+
+:one: 嵌入资源
+
+这是最常用、最简单的方式。图片会被打包进最终的 `.exe` 可执行文件里。
+
+选择的属性值**：**`资源`Resource
+
+1. 在“解决方案资源管理器”中右键点击你的图片文件。
+2. 选择“属性”。
+3. 在属性窗口中，找到“**生成操作**”这一行。
+4. 点击右侧的下拉菜单，从列表中选择“**资源**”。
+
+**❗特别注意：**
+
+- 绝对不要选择它下面的“**嵌入的资源**”（英文：`Embedded Resource`）。这是给旧技术 Windows Forms 使用的，在 WPF 中引用路径会非常麻烦。
+
+:two:  作为单独文件 (松散文件)
+
+图片不会打包进exe，而是作为单独的文件，和exe一起发布。
+
+选择的属性值**：**`内容Content`
+
+1. 同上，打开图片文件的“属性”窗口。
+2. 将“**生成操作**”设置为“**内容**”。
+3. 此外，还需要设置它的“**复制到输出目录**”属性。
+   - 选择“**始终复制**”：每次编译时都会复制一次。
+   - 选择“**如果较新则复制**”：只有图片文件被修改过才会复制。
+
+
+
+
 
