@@ -1314,7 +1314,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 </UniformGrid>
 ```
 
-# 内容和控件
+# 控件与图片
 
 ![image-20250811215533606](assets/image-20250811215533606.png)
 
@@ -1326,7 +1326,8 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 ```xaml
 <StackPanel Background="AliceBlue">
-    <Image Source ="D:\LZBapplication\VSinstall\sharpcode\MyWpf\MyWpf\Resources\searc.ico"  Width="200" HorizontalAlignment="Left"/>
+    <Image Source ="D:\LZBapplication\VSinstall\sharpcode\MyWpf\MyWpf\Resources\searc.ico"  
+           Width="200" HorizontalAlignment="Left"/>
 </StackPanel>
 ```
 
@@ -1338,7 +1339,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 :one: 内容控件只允许单个内容元素（除了`HeaderedContentControl`）。
 
-:two: 标签内容赋值给 Content 属性，该属性接受类型为 object的元素。
+:two: 标签之间内容默认赋值给 Content 属性，该属性接受类型为 object的元素。
 
 ![image-20250811225053627](assets/image-20250811225053627.png)
 
@@ -1435,7 +1436,9 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 `ToolTip`:一个长方形的小弹出窗口,用户将指针悬停在一个控件上时显示有关该控件用途的简短说明,无法独立创建。
 
-该属性继承于`FramworkElement`，几乎所有控件都能使用。
+该类在`ContentControl`中声明，但只能作为其余控件的属性来使用。
+
+`ToolTip`属性从`FramworkElement`继承而来，几乎所有控件都能使用。
 
 ```xaml
 <Button Content="按钮">
@@ -1462,7 +1465,8 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 ```xaml
 <Button Content="close" Width="60" Height="20" Margin="4">
-    <Button.ToolTip>
+    <!-- ToolTipService.InitialShowDelay首次显示的时间 -->
+    <Button.ToolTip ToolTipService.InitialShowDelay="0">
         <ToolTip> <!-- 继承于ContentControl-->
             <StackPanel>
                 <TextBlock FontWeight="Bold"
@@ -1476,38 +1480,6 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
     </Button.ToolTip>
 </Button>
 ```
-
-
-
-### Border
-
-> 在另一个元素四周绘制边框和/或背景。
->
-> [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0) 只能有一个子级。 若要显示多个子元素，需要在父 [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0)内放置一个附加[Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0)元素。 然后，可以在该 [Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0) 元素中放置子元素。
->
-> 如果要在内容周围显示边框，必须将元素放在父 [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0) 元素中。
-
-![image-20250806222232439](assets/image-20250806222232439.png)
-
-```c#
-<Grid>
-    <Border Background="AliceBlue" Width="200" Height="30" CornerRadius="10"
-            BorderThickness="1"
-            >
-        <Button Content="按钮" Width="200" Height=" 20" BorderBrush="Transparent"
-                Background="Transparent" 
-                Click="Button_Click">
-        </Button>
-    </Border>
-</Grid>
-```
-
-| 常用属性                                         |                                                              |
-| ------------------------------------------------ | ------------------------------------------------------------ |
-| `public Brush BorderBrush { get; set; }`         | 设置外部边框颜色                                             |
-| `public CornerRadius CornerRadius { get; set; }` | 圆角                                                         |
-| `public bool IsCancel { get; set; }`             | 指示 [Button](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.button?view=windowsdesktop-9.0) 是否是一个取消按钮, 用户可以通过按 ESC 键来激活 Cancel 按钮。 |
-| `public bool IsDefault { get; set; }`            | 是否是一个确认按钮, 用户可以通过按 `Enter` 键来激活确认按钮。 |
 
 ### `RadioButton`与`CheckBox`
 
@@ -2168,9 +2140,35 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 
 
-
-
 ## 其他控件
+
+### Border
+
+> 在另一个元素四周绘制边框和/或背景。
+>
+> [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0) 只能有一个子级。 若要显示多个子元素，需要在父 [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0)内放置一个附加[Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0)元素。 然后，可以在该 [Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0) 元素中放置子元素。
+>
+> 如果要在内容周围显示边框，必须将元素放在父 [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0) 元素中。
+
+![image-20250806222232439](assets/image-20250806222232439.png)
+
+```c#
+<Grid>
+    <Border Background="AliceBlue" Width="200" Height="30" CornerRadius="10"
+            BorderThickness="1"
+            >
+        <Button Content="按钮" Width="200" Height=" 20" BorderBrush="Transparent"
+                Background="Transparent" 
+                Click="Button_Click">
+        </Button>
+    </Border>
+</Grid>
+```
+
+| 常用属性                                         |                  |
+| ------------------------------------------------ | ---------------- |
+| `public Brush BorderBrush { get; set; }`         | 设置外部边框颜色 |
+| `public CornerRadius CornerRadius { get; set; }` | 圆角             |
 
 ### `TextBox`
 
@@ -2292,17 +2290,19 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 ## 依赖属性架构
 
-依赖属性架构基于两个类——`DependencyProperty` 和 `DependencyObject`。
+依赖属性架构基于两个类——`DependencyProperty`（标识符） 和 `DependencyObject`（存储值和使用值的主体）。
 
- `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性或元数据，如默认值，属性更改回调。
-
-通过`DependencyProperty.Register()`方法在`wpf`属性系统中注册，用于标识属性系统中一个特定的依赖属性。
+ `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性以及元数据，如默认值，属性更改回调等。通过`DependencyProperty.Register()`方法在`wpf`属性系统中注册，用于标识依赖属性系统中一个特定的依赖属性。
 
 `DependencyObject` 类的对象通过`GetValue()`和`SetValue()`获取和设置特定依赖属性值。:red_circle:执行 `SetValue` 的对象就是值存储的地方。
 
-虽然类可以使用从 `DependencyObject`继承的 `GetValue 和SetValue `方法访问依赖属性，但我们应该创建一个调用这些方法的CLR属性包装器，更方便的获取设置依赖属性。
+:bookmark: `why need to Register in the property system❔︎`
+
+依赖属性需要注册的核心原因，正是为了将其托管给WPF的属性系统，让属性系统来接管其完整的生命周期——包括存储、取值、赋值以及最重要的变更通知等
 
 ![image-20250814181547981](assets/image-20250814181547981.png)
+
+虽然可以使用从 `DependencyObject`继承的 `GetValue 和SetValue `方法访问依赖属性，但我们应该创建一个调用这些方法的CLR属性包装器，更方便的获取或设置依赖属性。
 
 :bookmark: 使用依赖属性创建多边形
 
@@ -2367,6 +2367,39 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
      }
  }
 ```
+
+------
+
+:bookmark: `SetValue`过程
+
+```mermaid
+flowchart TD
+A[调用 DependencyObject.SetValue<br>为依赖属性赋值] --> B[属性系统内部处理<br>（Coerce强制, Validate验证, 比较值变化）];
+B --> C{值是否发生改变?};
+C -- 否 --> Z[流程结束];
+C -- 是 --> D[将新值存入<br>当前对象实例的本地存储];
+D --> E[当前对象实例通知<br>全局属性系统“属性X已变更”];
+E --> F[全局属性系统广播变更事件];
+F --> G[绑定、样式、动画等<br>监听者响应变更];
+F --> H[调用注册的PropertyChangedCallback];
+G & H --> Z;
+```
+
+
+
+:bookmark:`GetValue`过程
+
+```mermaid
+flowchart TD
+A[调用 DependencyObject.GetValue<br>获取依赖属性值] --> B[当前对象实例检查<br>自身的本地值存储];
+B --> C{是否在本地存储中<br>找到了为该属性设置的值?};
+C -- 是 --> D[返回该本地存储的值];
+C -- 否 --> E[向全局属性系统查询<br>该依赖属性的元数据（如默认值）];
+E --> F[返回默认值];
+D & F --> G[流程结束];
+```
+
+
 
 ## 附加属性
 
@@ -2513,11 +2546,15 @@ graph LR
 
 除了使用`ElementName`绑定数据源外，还是可以使用`Source`属性绑定静态资源作为数据源。
 
+## 绑定的方式
+
 ### 使用`CLR`属性进行数据绑定
 
 `CLR` 属性在 `.NET` 类中定义的普通属性，这些属性具有 `get` 和 `set` 访问，我们可以在数据绑定中使用这些普通的 `CLR` 属性，但默认情况下不可能实现自动的 UI 通知，除非创建了通知机制。
 
-![image-20250817195324038](assets/image-20250817195324038.png)
+未实现通知接口则UI不会更新：
+
+![image-20250827195511614](assets/image-20250827195511614.png)
 
 ```xaml
  <Grid>
@@ -2591,6 +2628,8 @@ public partial class MainWindow : Window,INotifyPropertyChanged//源更新通报
 
 ### 使用依赖属性进行绑定
 
+![image-20250817195324038](assets/image-20250817195324038.png)
+
 ```c#
 public partial class MainWindow : Window
 {
@@ -2630,7 +2669,7 @@ public partial class MainWindow : Window
 * 当系统找到一个没有 `Source` 属性而设置的 `Binding `元素对象时，它会开始沿着元素树向上搜索具有`DataContext`属性的元素。如果找到，它将使用该值作为绑定的源。
 
 ```c#
-//Model,数据源
+//ViewModel,视图模型
 public class Person : INotifyPropertyChanged
 {
     private string name ="la";
@@ -2704,7 +2743,7 @@ public partial class MainWindow : Window
 }
 ```
 
-`Model`
+`ViewModel`
 
 ```c#
 class PersonViewModel : INotifyPropertyChanged
@@ -2761,6 +2800,41 @@ class PersonViewModel : INotifyPropertyChanged
 
 > `ItemsControl` 需要显式设置 `ItemsSource`来指定数据源来生成内容集合，即使 `DataContext` 可用且包含数据集合，系统也不会自动将 `DataContext` 应用到 ItemsSource 属性
 
+从对象集合中一次绑定一个对象到控件。
+
+| 特性         | **Items 属性**              | **ItemsSource 属性**                    |
+| :----------- | :-------------------------- | :-------------------------------------- |
+| **类型**     | `ItemCollection` (直接集合) | `IEnumerable` (数据源)                  |
+| **绑定支持** | ❌ 不支持数据绑定            | ✅ 支持数据绑定                          |
+| **可修改性** | ✅ 可直接添加/删除项         | ❌ 只读（需修改源集合）                  |
+| **动态更新** | ❌ 手动更新                  | ✅ 自动更新（使用 ObservableCollection） |
+
+```xaml
+<StackPanel>
+    <StackPanel>
+        <!--要让ComboBox知道在显示中使用哪个属性，将DisplayMemberPath设置为该属性的名称-->
+        <ComboBox ItemsSource="{Binding}" DisplayMemberPath="Name" SelectedIndex="0"/>
+    </StackPanel>
+</StackPanel>
+```
+
+```c#
+ public MainWindow()
+ {
+     InitializeComponent();
+     Person[] pers = new Person[]
+     {
+         new Person("小李",30),
+         new Person("*",28),
+         new Person("李",60)
+     };
+     //数据源
+     this.DataContext = pers;
+ }
+```
+
+
+
 ```mermaid
 flowchart TB
     subgraph 集合级别
@@ -2778,7 +2852,129 @@ flowchart TB
     C & H --> I[完整UI更新]
 ```
 
+------
 
+:bookmark:示例
+
+![image-20250827220919647](assets/image-20250827220919647.png)
+
+```xaml
+<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding}">
+    <DataGrid.Columns>
+        <DataGridTextColumn Header="姓氏" Binding="{Binding FirstName}"/>
+        <DataGridTextColumn Header="名字" Binding="{Binding LastName}"/>
+        <DataGridTextColumn Header="单位" Binding="{Binding Department}"/>
+    </DataGrid.Columns>
+</DataGrid>
+```
+
+后台`cs`
+
+```c#
+public partial class MainWindow : Window
+{
+    public ObservableCollection<Employee> Employees { get; set; }
+    public MainWindow()
+    {
+        InitializeComponent();
+        Employees = new ObservableCollection<Employee>();
+        Employees.Add(new Employee { FirstName = "Kunal", LastName = "Chowdhury",
+                                    Department = "Software Division" });
+        Employees.Add(new Employee { FirstName = "Michael", LastName = "Washington",
+                                    Department = "Software Division" });
+        Employees.Add(new Employee { FirstName = "John", LastName = "Strokes", 
+                                    Department = "Finance Department" });
+        this.DataContext = Employees;
+    }
+}
+```
+
+`ViewModel`
+
+```c#
+public class Employee :ViewModelBase
+{
+	private string? _firstName;
+	public string? FirstName
+	{
+		get { return _firstName; }
+		set => SetField(ref _firstName, value);
+	}
+    private string? _lasttName;
+    public string? LastName
+    {
+        get { return _lasttName; }
+        set => SetField(ref _lasttName, value);
+    }
+	private string? _department;
+
+	public string? Department
+	{
+		get { return _department; }
+		set => SetField(ref _department, value);
+    }
+
+}
+```
+
+:small_red_triangle:`ViewModelBase`(重要，所有viewModel的基类)
+
+```c#
+public class ViewModelBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// 值改变立即通知
+    /// </summary>
+    /// <param name="propertyName">属性名称</param>
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    //辅助方法
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
+    }
+}
+```
+
+### 静态绑定
+
+![image-20250827234443045](assets/image-20250827234443045.png)
+
+```xaml
+<Window.Resources>
+    <SolidColorBrush x:Key="col" Color="red"/>
+</Window.Resources>
+<Label Background="{x:Static SystemColors.AccentColorBrush}"
+   Content="Kunal Chowdhury"
+   FontSize="25"
+   Foreground="{StaticResource col}"
+   Width="300" Height="60"
+   Padding="10" Margin="10"/>
+```
+
+:bookmark:`x:static`
+
+`x:Static` 是 `WPF `中的一种标记扩展，用于在 `XAML` 中引用静态成员（静态属性、字段、常量或枚举值）。它允许你将代码中的静态值直接绑定到 `XAML` 中的属性。:red_circle:`x:Static` 用于获取静态值的初始值,没有监听属性更改的机制。
+
+`{StaticResource}` 用于访问在 `XAML`中自定义的资源（颜色、画笔、转换器等）
+
+```xaml
+<!-- 引用静态属性 -->
+<TextBlock Text="{x:Static local:MyClass.StaticProperty}"/>
+
+<!-- 引用枚举值 -->
+<Button Visibility="{x:Static Visibility.Collapsed}"/>
+
+<!-- 引用系统常量 -->
+<Border Width="{x:Static SystemParameters.HorizontalScrollBarWidth}"/>
+```
 
 ## 绑定方向
 
@@ -2885,6 +3081,36 @@ public class TwoWayConverter : IValueConverter
 }
 ```
 
+![image-20250827224810016](assets/image-20250827224810016.png)
+
+```xaml
+<Window.Resources>
+    <convert:ConvertDecimal x:Key="decimal"/>
+</Window.Resources>
+<Grid>
+    <TextBlock FontSize="{Binding ElementName=font,Path=Value,Converter={StaticResource decimal}}"
+               Margin="4"  FontFamily="Arial"
+               HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Run Text="Font Size:"/>
+        <Run Text="{Binding Value,ElementName=font, Converter={StaticResource decimal}}"/>
+    </TextBlock>
+    <Slider x:Name="font" VerticalAlignment="Bottom" 
+            Maximum="40" Value="20" LargeChange="1"/>
+</Grid>
+```
+
+```c#
+public class ConvertDecimal : IValueConverter
+{
+    //源到目标
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        string str = string.Format("{0:0}", (double)value);
+        return int.Parse(str);
+    }
+}
+```
+
 ## 一个元素上多个绑定
 
 多个属性被绑定的元素被称为多重绑定元素。
@@ -2906,41 +3132,6 @@ public class TwoWayConverter : IValueConverter
         <ComboBoxItem>Bold</ComboBoxItem>
     </ComboBox>
 </StackPanel>
-```
-
-## 绑定对象集合到`ItemsControls`
-
-从对象集合中一次绑定一个对象到控件。
-
-| 特性         | **Items 属性**              | **ItemsSource 属性**                    |
-| :----------- | :-------------------------- | :-------------------------------------- |
-| **类型**     | `ItemCollection` (直接集合) | `IEnumerable` (数据源)                  |
-| **绑定支持** | ❌ 不支持数据绑定            | ✅ 支持数据绑定                          |
-| **可修改性** | ✅ 可直接添加/删除项         | ❌ 只读（需修改源集合）                  |
-| **动态更新** | ❌ 手动更新                  | ✅ 自动更新（使用 ObservableCollection） |
-
-```xaml
-<StackPanel>
-    <StackPanel>
-        <!--要让ComboBox知道在显示中使用哪个属性，将DisplayMemberPath设置为该属性的名称-->
-        <ComboBox ItemsSource="{Binding}" DisplayMemberPath="Name" SelectedIndex="0"/>
-    </StackPanel>
-</StackPanel>
-```
-
-```c#
- public MainWindow()
- {
-     InitializeComponent();
-     Person[] pers = new Person[]
-     {
-         new Person("小李",30),
-         new Person("*",28),
-         new Person("李",60)
-     };
-     //数据源
-     this.DataContext = pers;
- }
 ```
 
 # 路由与事件
