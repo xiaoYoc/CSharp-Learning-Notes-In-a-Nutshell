@@ -2288,21 +2288,45 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 # 依赖属性
 
+> 与普通`CLR`属性相比，依赖属性将其值托管给属性系统管理，包括取值、赋值以及最重要的变更通知等，当然实际值仍存在于各自的实例中。
+
 ## 依赖属性架构
-
-依赖属性架构基于两个类——`DependencyProperty`（标识符） 和 `DependencyObject`（存储值和使用值的主体）。
-
- `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性以及元数据，如默认值，属性更改回调等。通过`DependencyProperty.Register()`方法在`wpf`属性系统中注册，用于标识依赖属性系统中一个特定的依赖属性。
-
-`DependencyObject` 类的对象通过`GetValue()`和`SetValue()`获取和设置特定依赖属性值。:red_circle:执行 `SetValue` 的对象就是值存储的地方。
-
-:bookmark: `why need to Register in the property system❔︎`
-
-依赖属性需要注册的核心原因，正是为了将其托管给WPF的属性系统，让属性系统来接管其完整的生命周期——包括存储、取值、赋值以及最重要的变更通知等
 
 ![image-20250814181547981](assets/image-20250814181547981.png)
 
-虽然可以使用从 `DependencyObject`继承的 `GetValue 和SetValue `方法访问依赖属性，但我们应该创建一个调用这些方法的CLR属性包装器，更方便的获取或设置依赖属性。
+依赖属性架构基于两个类——`DependencyProperty` 和 `DependencyObject`。
+
+ `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性以及元数据，如默认值，属性更改回调等。
+
+通过`DependencyProperty.Register()`方法可在`wpf`属性系统中注册一个依赖属性，被注册过的依赖属性都会被分配一个全局唯一的索引（`GlobalIndex`）。
+
+`DependencyObject` 类的对象有`GetValue()`和`SetValue()`两个方法，用于中获取和设置依赖属性值。
+
+:bookmark: 值是如何存储的?`GlobalIndex`又是如何与之关联的？
+
+值是存储在**每个 `DependencyObject` 实例内部**的一个类型为 `EffectiveValueEntry` 的结构体数组中，每个元素包含`GlobalIndex`和`value`属性，这个`PropertyIndex`存储的就是属性系统分配的全局唯一索引，更加方便我们进行查找。
+
+
+
+```mermaid
+flowchart LR
+    A[数组 _effectiveValues] --> B[索引0]
+    A --> C[索引1]
+    A --> D[...]
+    A --> E[索引N]
+    
+    B --> F[EffectiveValueEntry]
+    C --> G[EffectiveValueEntry]
+    E --> H[EffectiveValueEntry]
+    
+    F --> I[PropertyIndex=1001<br>Value=100]
+    G --> J[PropertyIndex=1005<br>Value=Hello]
+    H --> K[PropertyIndex=1010<br>Value=true]
+```
+
+
+
+虽然可以使用从 `DependencyObject`继承的 `GetValue 和SetValue `方法访问依赖属性，但我们应该创建一个调用这些方法的CLR属性，更方便的获取或设置依赖属性。
 
 :bookmark: 使用依赖属性创建多边形
 
@@ -2320,7 +2344,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
  {
      //依赖属性标识
      public static readonly DependencyProperty SidesProperty;
-     //CLR属性包装器，简化设置和读取属性
+     //依赖属性
      public int Sides
      {
          //通过依赖属性标识符设置值或者读取值
@@ -2332,12 +2356,12 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
          //定义元数据
          FrameworkPropertyMetadata md = new FrameworkPropertyMetadata();
          md.PropertyChangedCallback = OnSidesChange;
+         //将Sides与SiderProperty关联，用于xaml文档中绑定，样式等需要解析字符串的场景
          SidesProperty = DependencyProperty.Register("Sides",
-        //Sides，依赖属性名称，应该要与属性包装器名称一致
-        //WPF框架内部通过这个字符串名称来关联依赖属性和其CLR包装器
+        //Sides，应该要与属性包装器名称一致
              typeof(int), //依赖属性返回值
              typeof(MainWindow),//所属类，依赖哪个类
-             md);//元数据，存储依赖属性的其他特性。
+             md);//元数据，依赖属性的其他特性。
      }
      
      private static void OnSidesChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -2370,19 +2394,24 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 ------
 
-:bookmark: `SetValue`过程
+以下是`SetValue`和`GetValue`u过程，目前仅作了解，不再深入。
+
+:bookmark: `SetValue`:
 
 ```mermaid
 flowchart TD
-A[调用 DependencyObject.SetValue<br>为依赖属性赋值] --> B[属性系统内部处理<br>（Coerce强制, Validate验证, 比较值变化）];
-B --> C{值是否发生改变?};
-C -- 否 --> Z[流程结束];
-C -- 是 --> D[将新值存入<br>当前对象实例的本地存储];
-D --> E[当前对象实例通知<br>全局属性系统“属性X已变更”];
-E --> F[全局属性系统广播变更事件];
-F --> G[绑定、样式、动画等<br>监听者响应变更];
-F --> H[调用注册的PropertyChangedCallback];
-G & H --> Z;
+    A[调用 DependencyObject.SetValue<br>为依赖属性赋值] --> B[属性系统内部处理<br>Coerce强制, Validate验证, 比较值变化]
+    B --> C{值是否发生改变？}
+    C -->|否| Z[流程结束]
+    C -->|是| D{值 = 默认值？}
+    D -->|是| E[删除实例数组中的EffectiveValueEntry元素]
+    D -->|否| F[将新值存入实例数组的EffectiveValueEntry元素]
+    E --> G[更新实例的_effectiveValues数组]
+    F --> G
+    G --> H[全局属性系统广播变更事件]
+    H --> I[绑定、样式、动画等<br>监听者响应变更]
+    I --> J[调用注册的PropertyChangedCallback]
+    J --> Z
 ```
 
 
@@ -2391,31 +2420,29 @@ G & H --> Z;
 
 ```mermaid
 flowchart TD
-A[调用 DependencyObject.GetValue<br>获取依赖属性值] --> B[当前对象实例检查<br>自身的本地值存储];
-B --> C{是否在本地存储中<br>找到了为该属性设置的值?};
-C -- 是 --> D[返回该本地存储的值];
-C -- 否 --> E[向全局属性系统查询<br>该依赖属性的元数据（如默认值）];
-E --> F[返回默认值];
-D & F --> G[流程结束];
+    A[调用 GetValue（MyDpProperty）] --> B[属性系统以GlobalIndex为键<br>查询实例的_effectiveValues数组每个结构体元素]
+    B --> C{在数组元素中存在值？}
+    C -->|是| D[检查值优先级<br>动画 > 本地值 > 样式 > 默认值]
+    D --> E{存在更高优先级值？}
+    E -->|是| F[返回优先级值]
+    E -->|否| G[返回存储的值]
+    C -->|否| H[返回元数据中定义的默认值]
+    F --> I[流程结束]
+    G --> I
+    H --> I
 ```
-
-
 
 ## 附加属性
 
 附加属性是特殊的依赖属性。和普通依赖属性的差异如下：
 
-常规依赖属性有一个CLR属性包装器。
-
-而附加属性有两种静态方法：GetXXX和SetXXX，其中XXX是依赖属性标识符的名称，不带Property后缀。
-
-这些方法调用目标对象的GetValue和SetValue方法。
+常规依赖属性有一个CLR属性包装器。而附加属性有两种静态方法：GetXXX和SetXXX，其中XXX是依赖属性标识符的名称，不带Property后缀。这些方法调用目标对象的GetValue和SetValue方法。
 
 目标对象必须派生自DependencyObject，以便GetXXX和SetXXX方法可以调用其GetValue和SetValue方法。
 
 附加属性通过静态方法`RegisterAttached`注册，而不是通过`Register`方法
 
-**附加属性允许一个类定义属性，但这些属性的值存储在目标对象（子元素）自身的实例中，而不是存储在定义该属性的类中。**
+**附加属性即使用`GetXXX和SetXXX`方法，将值存储在子元素中，每个子元素互不干扰。**
 
 ![image-20250823204131887](assets/image-20250823204131887.png)
 
@@ -2445,7 +2472,7 @@ public partial class MainWindow : Window
         //修改文本值
         IntStorage intStorage = new IntStorage();
         SetCount(intStorage, 10);
-        //找到实例内部存储依赖属性的值
+        //找到依赖属性系统内部存储依赖属性的值
         text.Text =GetCount(intStorage).ToString();
     }
 
