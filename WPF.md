@@ -2288,7 +2288,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 # 依赖属性
 
-> 与普通`CLR`属性相比，依赖属性将其值托管给属性系统管理，包括取值、赋值以及最重要的变更通知等，当然实际值仍存在于各自的实例中。
+> `wpf`中依赖属性与普通`CLR`属性一致都是用来管理方法的，将获取值的方法与设置值的方法整合到属性包装器中。但依赖属性将其值托管给属性系统管理，包括取值、赋值以及最重要的变更通知等，当然实际值仍存在于各自的实例中。
 
 ## 依赖属性架构
 
@@ -2296,11 +2296,11 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 依赖属性架构基于两个类——`DependencyProperty` 和 `DependencyObject`。
 
- `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性以及元数据，如默认值，属性更改回调等。
+:one: `DependencyProperty` 类的实例被称为依赖属性标识符。它并不表示属性值——而是关于属性的特性以及元数据，如默认值，属性更改回调等。
 
-通过`DependencyProperty.Register()`方法可在`wpf`属性系统中注册一个依赖属性，被注册过的依赖属性都会被分配一个全局唯一的索引（`GlobalIndex`）。
+:two: 通过`DependencyProperty.Register()`方法可在`wpf`属性系统中注册一个依赖属性，被注册过的依赖属性会被分配一个全局唯一的索引（`GlobalIndex`）。
 
-`DependencyObject` 类的对象有`GetValue()`和`SetValue()`两个方法，用于中获取和设置依赖属性值。
+:three: `DependencyObject` 类的对象有`GetValue()`和`SetValue()`两个方法，用于中获取和设置依赖属性值。
 
 :bookmark: 值是如何存储的?`GlobalIndex`又是如何与之关联的？
 
@@ -2688,12 +2688,20 @@ public partial class MainWindow : Window
 
 ### 绑定对象
 
-当多个绑定使用同一个源对象时，你可以为元素指定一个 DataContext 。
+当多个绑定使用同一个源对象时，你可以为元素指定一个 DataContext 。从 `FrameworkElement` 派生的每个类都有一个 `DataContext` 属性。
 
-从 `FrameworkElement` 派生的每个类都有一个 `DataContext` 属性:
+再使用`DataContext`属性之前，我们有必要了解WPF查找绑定源的优先级：
 
-* 在绑定元素树中的元素上设置 DataContext 属性，并引用源对象。
-* 当系统找到一个没有 `Source` 属性而设置的 `Binding `元素对象时，它会开始沿着元素树向上搜索具有`DataContext`属性的元素。如果找到，它将使用该值作为绑定的源。
+1. `ElementName` - 直接指定元素名称
+2. `Source` - 直接指定源对象
+3. `RelativeSource` - 相对于当前元素的源
+4. `DataContext` - 元素的数据上下文（默认）
+
+:small_red_triangle:**当一个控件同时设置了DataContext和在Binding中指定了Source（或其他绑定源属性）时，绑定会优先使用在Binding中明确指定的源，而忽略DataContext。**
+
+换句话说：**明确指定的绑定源属性（Source/ElementName/RelativeSource）的优先级高于继承的DataContext**。
+
+如果在某元素未查找到绑定源，它会开始沿着元素树向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
 
 ```c#
 //ViewModel,视图模型
@@ -3226,8 +3234,6 @@ WPF对其路由事件使用三种不同的路由策略：
 1. Source:这是引发事件的对象的引用，并且可能包含处理事件所需的信息。
 2. Handled:如果你想阻止事件的传递，可以将此属性设置为true，默认值是false。
 
-
-
 ### 冒泡路由示例
 
 创建一个窗口，左侧,右侧各有一个区域。在左侧区域，我们将触发和处理事件，输出显示在右侧区域，可以看到哪些事件被触发，以及它们的触发顺序。右侧还有一个按钮，用于清除结果。
@@ -3413,20 +3419,79 @@ flowchart TD
  </StackPanel>
 ```
 
+### 自定义命令
+
+
+
+> 标准命令模板
+
+```c#
+public class DelegateCommand : ICommand
+{
+    //WPF控件（如按钮）订阅此事件，但实际订阅被转发给命令管理器(CommandManager)去管理。
+    //当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件，
+    //进而调用所有关联命令的CanExecute方法，从而更新命令状态
+    public event EventHandler? CanExecuteChanged
+    {
+        add { CommandManager.RequerySuggested += value; }
+        remove {  CommandManager.RequerySuggested -= value;}
+    }
+
+    private Action<object?> _execute;
+
+    private Func<object?,bool>? _canExecute;
+    public DelegateCommand(Action<object?> execute,Func<object?,bool>? canExecute = null) 
+    {
+        //参数为null，扔错误
+        ArgumentNullException.ThrowIfNull(execute);
+        _execute = execute;
+        _canExecute = canExecute;
+    }
+    //命令状态：可以执行不
+    public bool CanExecute(object? parameter) =>_canExecute == null || _canExecute(parameter);
+    //执行具体操作
+    public void Execute(object? parameter) => _execute.Invoke(parameter);
+}
+```
+
+```mermaid
+flowchart TD
+    A[用户交互操作<br>鼠标/键盘等输入] --> B[CommandManager 检测交互]
+    B --> C[触发 RequerySuggested 事件]
+    C --> D[所有关联命令收到通知]
+    D --> E[调用各命令的 CanExecute 方法]
+    E --> F[更新UI命令状态<br>如按钮启用/禁用]
+    
+    G[用户触发命令执行<br>如点击按钮] --> H[立即调用 CanExecute 检查]
+    H --> I{CanExecute 返回 true?}
+    I -->|是| J[调用 Execute 方法执行命令]
+    I -->|否| K[命令不执行]
+    J --> L[命令逻辑执行完成]
+```
+
+
+
 # 资源
 
 `WPF`中`resource`指代两种不同类型的事物：
 
 * 第一种资源类型指的是程序使用但不是程序代码创建的项。例如，从代码外部提供的图像或图标。
-* `WPF`中描述存储在对象字典中并在代码的各个位置使用的. NET代码对象。这些通常与XAML标记相关联，但也用于隐藏代码。他们也被称为逻辑资源、对象资源或XAML资源。
+* 第二种资源是`WPF`中描述存储在对象字典中并在代码的各个位置使用的. NET代码对象。这些通常与XAML标记相关联，但也用于隐藏代码。他们也被称对象资源。
+
+对象资源可以在应用程序中的不同地方**重复使用**，例如：
+
+* 颜色、画刷（Brushes）
+* 样式（Styles）
+* 控件模板（ControlTemplates）、数据模板（DataTemplates）
+* 几何图形、动画
+* 甚至自定义的业务对象
 
 ## 资源字典
 
 `WPF`提供了一个名为 ResourceDictionary的字典类。
 
-* `ResourceDictionary` 类实现了一个字典，你可以将任何类型的对象引用放入其中，并使用任何类型的键。
-* 对象始终以 object类型的引用形式存储，因此从字典中检索它们后，你必须将它们转换
-  回原始类型。
+* `ResourceDictionary` 类实现了一个字典，你可以将任何类型的对象引用放入其中，并提供任何类型的键。
+* 对象始终以 object类型的引用形式存储，因此从字典中检索它们后，你必须将它们转换回原始类型。
 
 控件从FrameworkElement类继承Resources属性。
 
@@ -3456,7 +3521,40 @@ public MainWindow()
 
 如果 `FindResource `方法到达元素树的顶部并且没有找到资源，它们在放弃之前会尝试两个地方—— `Application` 对象和系统资源
 
+
+
 ![image-20250819061535428](assets/image-20250819061535428.png)
+
+:bookmark:资源优先级
+
+```mermaid
+flowchart TD
+    A[WPF 资源<br>按定义位置与作用域划分]
+
+    A --> B[系统级资源<br>System Resources]
+    A --> C[应用程序级资源<br>Application.Resources<br>App.xaml]
+    A --> D[窗口/页级资源<br>Window.Resources / Page.Resources]
+    A --> E[元素级资源<br>（本地资源）<br>Element.Resources]
+
+    subgraph F [作用域关系]
+        direction RL
+        G[系统资源<br>全局可用]
+        H[应用程序资源<br>全局可用]
+        I[窗口资源<br>窗口内可用]
+        J[元素资源<br>元素及子元素内可用]
+        
+        J -- 覆盖 --> I
+        I -- 覆盖 --> H
+        H -- 覆盖 --> G
+    end
+
+    B ---> G
+    C ---> H
+    D ---> I
+    E ---> J
+```
+
+
 
 :bookmark: 使用`XAML`来存储和检索资源的值
 
@@ -3465,10 +3563,10 @@ public MainWindow()
 ```xaml
 <StackPanel>
     <StackPanel.Resources>
-        <!--设置键-->
+        <!--设置键，等效于Add方法，向字典对象中添加键值对-->
         <SolidColorBrush x:Key="background" Color="#f5f5f5"/>
     </StackPanel.Resources>
-    <!--查找键-->
+    <!--根据键检索资源，一次性加载-->
     <Button Content="find resource" Background="{StaticResource background}"/>
 </StackPanel>
 ```
@@ -3522,13 +3620,25 @@ public MainWindow()
 </StackPanel>
 ```
 
-替换资源后，`btn2`颜色不变，其余绑定动态资源的 颜色都改变。
+验证☑️替换资源后，`btn2`颜色不变，其余绑定动态资源的 颜色都改变。
 
 ```c#
   private void Button_Click(object sender, RoutedEventArgs e)
   {
       this.Resources["brush"] = Brushes.Gray;
   }
+```
+
+验证☑️属性更新依赖INotifyPropertyChanged，与资源类型无关
+
+```xaml
+<StackPanel>
+    <StackPanel.Resources>
+        <viewmodel:TestData Experience="5" x:Key="tes"/>
+    </StackPanel.Resources>
+    <TextBox Text="{Binding Experience, Source={StaticResource tes}}"/>
+    <Slider Value="{Binding Experience, Source={StaticResource tes}}"></Slider>
+</StackPanel>
 ```
 
 ## 程序集资源
@@ -3568,6 +3678,511 @@ public MainWindow()
 3. 此外，还需要设置它的“**复制到输出目录**”属性。
    - 选择“**始终复制**”：每次编译时都会复制一次。
    - 选择“**如果较新则复制**”：只有图片文件被修改过才会复制。
+
+# 样式
+
+```
+WPF 外观系统
+│
+├── 样式 (Style)
+│   │
+│   ├── 设置器 (Setter): 设置控件的标准属性 (如: Background, FontSize)
+│   │
+│   └── 模板设置器 (Template Setter): 设置控件的 Template 属性
+│       │
+│       └── 控件模板 (ControlTemplate): 彻底重新定义控件的视觉结构和行为
+│
+└── 数据模板 (DataTemplate): 定义数据的可视化方式，与样式平行
+```
+
+
+
+简单来说，**样式就是一组属性的集合**。它允许您将多个属性设置（如 `Background`, `FontSize`, `Margin` 等）打包成一个可重用的单元，然后一次性应用到多个控件上。
+
+**核心目的**：保持UI外观的一致性并减少重复代码（XAML和C#代码）。
+
+**样式的关键组成部分：**
+
+- `TargetType`：指定这个样式可以应用到哪种类型的控件上（如 `Button`, `TextBlock`）。
+- `Setters`：核心部分，是一个集合，里面包含了你要设置的属性和其目标值。
+- `Resources`：样式通常被定义为资源，以便复用。
+- `Triggers`：允许样式在特定条件（如鼠标悬停、获得焦点）下改变属性值，提供动态交互效果。
+
+定义和应用样式有两种方式——命名样式和目标样式。
+
+:one: 命名样式:你在声明样式时为其指定一个名称。然后，你使用该样式的名称将样式显式应用于选定的元素。
+
+:two: 目标样式:你在声明样式时为其指定一个目标类型。然后，该样式将自动应用于该类型的元素。
+
+在目标对象上设置属性可能会覆盖样式上的Style设置。
+
+## 命名样式
+
+```xaml
+<Window.Resources>
+    <Style x:Key ="buttonStyle">
+        <Setter Property="Button.Height" Value="20"/>
+        <Setter Property="Button.Background" Value ="Aqua"/>
+        <Setter Property="Button.Width" Value ="40"/>
+        <Setter Property="Button.Margin" Value="20"/>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button Style="{StaticResource buttonStyle}">按钮</Button>
+</StackPanel>
+```
+
+* 使用`x:Key`属性来命名一个样式。与任何资源一样，键可以是任何类型，但它通常是字符串。
+* 样式的名称应以后缀`Style`结尾。
+* Style属性值使用称为Setter的元素来设置。Setter需要两个属性`Property`和`Value`。
+  * Property属性指定应设置目标元素的哪个属性，指定的属性必须是一个依赖属性。对于命名样式，当分配给Setter的Property属性时，仅提供属性名称是不够的——你还需要包含一个类名。
+* `Value`用于设置目标属性的值。对于复杂值，需要使用属性元素语法。
+
+![image-20250829222026658](assets/image-20250829222026658.png)
+
+命名样式的`Setter`中，必须使用带有属性名称的类名。然而，类名不必是属性的精确类；它也可以是派生类的类名。（最后找到的就是同一个依赖属性）
+
+![image-20250829222144923](assets/image-20250829222144923.png)
+
+![image-20250829223303950](assets/image-20250829223303950.png)
+
+```xaml
+<Window.Resources>
+    <Style x:Key="buttonStyle">
+        <Setter Property="Control.FontSize" Value="16"/>
+        <Setter Property="Control.FontFamily" Value="Arial"/>
+        <Setter Property="Control.FontWeight" Value ="Bold"/>
+    </Style>
+</Window.Resources>
+<GroupBox Header=" Some Buttons" BorderBrush="AliceBlue" Margin="5"
+          Style="{StaticResource buttonStyle}">
+    <StackPanel Margin="5">
+        <Button>button1</Button>
+        <Button>button2</Button>
+    </StackPanel>
+</GroupBox>
+```
+
+## 目标样式
+
+目标样式设计用于仅应用于一种类型的目标元素。在样式声明中：
+
+将TargetType属性设置为要应用样式的元素的精确类型。样式将不会应用于指定类型的派生类型元素。
+
+不要设置x:Key属性。设置x:Key属性会阻止目标样式自动应用。
+
+![image-20250829230012591](assets/image-20250829230012591.png)
+
+```xaml
+    <!-- 目标样式将自动仅应用于Button元素。 -->
+ <Window.Resources>
+     <Style TargetType="Button">
+         <Setter Property="FontSize" Value="16"/>
+         <Setter Property="FontFamily" Value="Arial"/>
+         <Setter Property="FontWeight" Value ="Bold"/>
+     </Style>
+ </Window.Resources>
+ <GroupBox Header=" Some Buttons" BorderBrush="AliceBlue" Margin="5">
+     <StackPanel Margin="5">
+         <Button>
+             <StackPanel>
+                 <TextBlock Text="文本"/>
+                 <TextBox Text="文本"/>
+             </StackPanel>
+         </Button>
+         <Button>button2</Button>
+     </StackPanel>
+ </GroupBox>
+```
+
+虽然目标样式将自动仅应用于Button元素，但是`TextBox`等元素也应用了目标样式，这是因为继承了父类的依赖属性（注意不是所有的依赖属性都可以继承）以下为简要介绍
+
+```mermaid
+flowchart TD
+    A[父元素设置可继承属性] --> B[属性值沿视觉树向下传递]
+
+    B --> C{子元素遇到以下类型属性?}
+
+    C --> D[字体与文本属性<br>FontSize, FontFamily等]
+    C --> E[数据上下文<br>DataContext]
+    C --> F[布局与渲染属性<br>FlowDirection, Cursor等]
+    C --> G[资源<br>ResourceDictionary]
+    C --> H[变换属性<br>RenderTransformOrigin]
+    C --> I[输入属性<br>InputScope, AllowDrop]
+
+    D --> J[🎨 控制视觉外观]
+    E --> K[🔗 MVVM模式基石]
+    F --> L[🔄 影响布局行为]
+    G --> M[📚 资源查找]
+    H --> N[📐 渲染变换]
+    I --> O[⌨️ 影响输入行为]
+
+    J & K & L & M & N & O --> P[子元素接收继承值<br>除非显式设置本地值覆盖]
+
+    P --> Q[实现UI一致性<br>与高效开发]
+```
+
+
+
+:bookmark:命名样式与目标样式的区别
+
+命名样式具有以下特征：
+
+* 声明使用`x:Key`属性来命名样式,可以应用于多种类型的元素。
+
+* `Property`需要使用类名，不必是精确类。
+* 使用StaticResource标记扩展来显式地应用命名样式到它所应用的元素的Style属性上。
+
+目标样式具有以下特征：
+
+* 使用TargetType属性，给出样式应用的确切类型。
+* 样式不能使用x:Key属性。
+* 设置器不需要类名。
+* 样式将自动应用**定义该样式的资源字典的作用域内**的所有匹配类型的元素。
+
+## `EventSetter`
+
+每个Setter在Setters集合的Style中可以设置一个依赖属性的值。有时可能需要在后台代码处理某些事件。为此，WPF提供了EventSetter元素。
+
+`EventSetters`允许您将事件处理程序附加到样式。如果应用样式的元素接收到给定的事件，它将调用给定的事件处理程序。EventSetter元素有两个属性，`Event和Handler`，分别表示事件名称和事件处理程序名称。
+
+示例：每次移动鼠标数量+1
+
+![image-20250830095002155](assets/image-20250830095002155.png)
+
+```xaml
+<Window.Resources>
+    <Style TargetType="Button">
+        <Setter Property="FontFamily" Value="宋体"/>
+        <Setter Property="FontSize" Value="15f"/>
+        <Setter Property="Background" Value="#f5f5f5"/>
+        <Setter Property="Foreground" Value="Red"/>
+        <!--设置事件处理器-->
+        <EventSetter Event="MouseEnter" Handler="Button_MouseEnter"/>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button>
+        <TextBlock>
+            <Run Text="值为 "/>
+            <Run Text="{Binding Times}"/>
+        </TextBlock>
+    </Button>
+</StackPanel>
+```
+
+后台代码：
+
+```c#
+ public partial class MainWindow : Window
+ {
+      private TestData? testData;
+
+     //public ObservableCollection<Employee> Employees { get; set; }
+     public MainWindow()
+     {
+         InitializeComponent();
+         testData = new TestData();//ViewModel
+         this.DataContext = testData;
+     }
+
+     private void Button_MouseEnter(object sender, MouseEventArgs e)
+     {
+         //此处直接更改数据源，更加方便
+        if(testData != null) testData.Times++;
+     }
+ }
+```
+
+## 样式中的集合
+
+![image-20250830100510490](assets/image-20250830100510490.png)
+
+样式类中有三个重要的集合：
+
+| 集合名称           | 主要作用                                            |
+| ------------------ | --------------------------------------------------- |
+| **Setters 集合**   | 设置目标元素的属性值，定义控件的基础外观样式        |
+| **Triggers 集合**  | 提供条件样式，根据特定状态或条件动态改变元素外观    |
+| **Resources 集合** | 存储对象资源，供样式中的Setters和Triggers使用和共享 |
+
+![image-20250830101711582](assets/image-20250830101711582.png)
+
+```xaml
+<Window.Resources>
+    <Style TargetType="Button">
+        <!--样式内部资源，仅样式内部使用-->
+        <Style.Resources>
+            <!--渐变画刷-->
+            <LinearGradientBrush x:Key="line" StartPoint="0 0" EndPoint="1 1">
+                <GradientStop Color="Red" Offset="0"/>
+                <GradientStop Color="Gray" Offset="1"/>
+            </LinearGradientBrush>
+        </Style.Resources>
+
+        <Style.Setters>
+            <Setter Property="Background" Value="{StaticResource line}"/>
+        </Style.Setters>
+        
+        <Style.Triggers>
+            <!--触发器-->
+        </Style.Triggers>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button Content="按钮"/>
+</StackPanel>
+```
+
+## 属性触发器`Property Trigger`
+
+`Property Trigger`是一种条件样式，其中条件基于特定依赖属性的值。当该属性具有某个值时，样式会被应用。如果该属性不再具有该值，样式会立即停止应用，并且元素恢复到其非触发时的外观。
+
+属性触发器由以下组件组成：
+
+* 一个依赖属性(Property)，它被监控是否获取特定值。
+* 当被监控的属性具有指定值时应用的Setter集合。
+
+![image-20250830102313326](assets/image-20250830102313326.png)
+
+![image-20250830102917180](assets/image-20250830102917180.png)
+
+```xaml
+<Window.Resources>
+    <Style TargetType="Button">
+        <Style.Setters>
+            <Setter Property="FontStyle" Value="Italic"/>
+        </Style.Setters>
+        
+        <Style.Triggers>
+            <!--触发器-->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="FontSize" Value="25"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button Content="按钮"/>
+</StackPanel>
+```
+
+### `MultiTrigger`（了解）
+
+MultiTrigger 是 WPF 中的一种特殊触发器，它与普通 Trigger 的区别在于：
+
+- **普通 Trigger**：监控单个依赖属性的值变化
+- **MultiTrigger**：需要多个条件同时满足时才触发
+
+```xaml
+<Window.Resources>
+    <Style TargetType="Button">
+        <Style.Setters>
+            <Setter Property="FontStyle" Value="Italic"/>
+        </Style.Setters>
+        
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                    <Condition Property="IsFocused" Value ="True"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.Setters>
+                    <Setter Property="FontSize" Value="25"/>
+                </MultiTrigger.Setters>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button Content="按钮"/>
+</StackPanel>
+```
+
+# 控件模板
+
+WPF创建控件的实例时，它执行以下两个任务：
+
+1. 它创建一个类对象(模板父级)，该对象包含控件行为的规范，比如焦点，点击，悬停等规范。
+2. 查找控件的`ControlTemplate`并实例化一个具体的视觉元素对象，就是控件的外观。注意控件在其Template属性中存储ControlTemplate对象的引用
+
+![image-20250830151610658](assets/image-20250830151610658.png)
+
+`ContentPresenter`类的对象正如其名所示；它们生成内容在用户界面上的显示。事实上，不仅你的自定义`ControlTemplate`需要`ContentPresenter`对象来显示内容；每个ContentControl类的默认模板也包含一个ContentPresenter对象。
+
+以下是一些关于ContentPresenter类的重要事项：
+
+* ContentPresenter对象在模板内部充当占位符，用于指定内容应放置的位置。
+* 默认情况下，ContentPresenter从模板父级获取实际内容，并将其绑定到自己的Content属性。ContentPresenter甚至不允许直接包含自己的内容。
+* 要使用ContentPresenter，你必须将ControlTemplate的TargetType属性设置为模板父级的类型。
+
+![image-20250830164648656](assets/image-20250830164648656.png)
+
+```xaml
+<Window.Resources>
+    <Style TargetType="Button">
+        <Style.Resources>
+            <LinearGradientBrush x:Key="col" 
+                                 StartPoint="0 0" EndPoint="1 1">
+                <GradientStop Color="Gray" Offset="0"/>
+                <GradientStop Color="White" Offset="1"/>
+            </LinearGradientBrush>
+        </Style.Resources>
+
+        <Style.Setters>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{StaticResource col }" BorderThickness="5"
+                                Padding="4" Background="{StaticResource col}"
+                                CornerRadius="5"
+                                HorizontalAlignment="Center"
+                                >
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Background" Value="#f5f5f5"/>
+        </Style.Setters>
+    </Style>
+</Window.Resources>
+<StackPanel>
+    <Button Content="button1" Margin="5"/>
+    <Button Content="button2" Margin="5"/>
+</StackPanel>
+```
+
+# 数据绑定进阶
+
+## 数据模板
+
+`DataTemplate`是将数据对象的详细信息以自定义的、可视化的方式展示出来。有关数据模板的一些重要事项如下：
+
+* 与控件模板一样，数据模板通常在元素树中更高的位置声明为资源。
+* 可以将数据模板应用于ContentControls或ItemsControls。ItemsControl。
+  * 对于ItemsControl控件，模板对象赋值给ItemTemplate属性。
+  * 对于ContentControls控件，模板对象赋值给ContentTemplate属性。
+
+![image-20250830195447075](assets/image-20250830195447075.png)
+
+使用数据模板我们可以创建更好看的外观。
+
+![image-20250830195618354](assets/image-20250830195618354.png)
+
+注意模板内的 DataContext：
+
+- 模板的数据上下文是当前控件绑定的对象
+- 但对于 ItemsControl（如 ListBox），有一个特殊行为：WPF 会自动将模板的 DataContext 设置为集合中的当前项
+
+```xaml
+<Window.Resources>
+    <DataTemplate x:Key="temp">
+        <Border Margin="1" BorderBrush="Blue"
+                BorderThickness="2" CornerRadius="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock FontWeight="Bold" Text="{Binding FirstName}" Padding="2"/>
+                <Rectangle Grid.Column="1" Grid.RowSpan="2"
+                   Fill="{Binding FavoriteColor}"/>
+                <TextBlock Padding="2" Grid.Row="1" Text="{Binding Age}"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</Window.Resources>
+<StackPanel Orientation="Horizontal">
+    <ListBox SelectedItem="{Binding CurrentPerson}" Margin="5"
+             ItemsSource="{Binding People}"
+             Width="100"
+             x:Name="list" 
+             ItemTemplate="{StaticResource temp}"/>
+    <StackPanel Margin="10 5">
+        <Label Content="{Binding CurrentPerson.FirstName}"/>
+        <Label Content="{Binding CurrentPerson.Age}"/>
+        <Label Content="{Binding CurrentPerson.FavoriteColor}"/>
+    </StackPanel>
+</StackPanel>
+```
+
+`MainView`
+
+```c#
+public class MainView :ViewModelBase
+{
+
+		private Person? _currentPerson;
+
+		public Person? CurrentPerson
+        {
+			get { return _currentPerson; }
+			set => SetField(ref _currentPerson, value);
+		}
+        public ObservableCollection<Person> People { set; get; }
+
+        public MainView()
+        {
+            People = new ObservableCollection<Person>(
+                );
+            People.Add(new Person("shirley", 24, "Green"));
+            People.Add(new Person("Roy", 36, "Blue"));
+            People.Add(new Person("Isable", 25, "Orange"));
+            People.Add(new Person("Manuel", 27, "Red"));
+            CurrentPerson = People[1];
+        }
+}
+```
+
+:bookmark:内容控件的模板
+
+![image-20250830210755353](assets/image-20250830210755353.png)
+
+
+
+```xaml
+  <Window.Resources>
+      <DataTemplate x:Key="temp">
+          <Border Background="{Binding FavoriteColor}" Width="40" Height="40"
+                  CornerRadius="10">
+              <Button Content="{Binding FirstName}" Background="Transparent"
+                      BorderBrush="Transparent" Foreground="White"/>
+          </Border>
+      </DataTemplate>
+  </Window.Resources>
+  <StackPanel>
+      <Label Content="{Binding CurrentPerson}" 
+              ContentTemplate="{StaticResource temp}"/>
+  </StackPanel>
+```
+
+创建资源资源，在`App.xaml`或`MainWindow.xaml`中引用。
+
+```xaml
+<Window.Resources>
+    <ResourceDictionary>
+        <!-- 合并多个外部资源文件 -->
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="./Res/Template/DataTemplates.xaml"/>
+        </ResourceDictionary.MergedDictionaries>
+        <!-- 除此之外，还可以定义本地资源 -->
+    </ResourceDictionary>
+</Window.Resources>
+```
+
+`Window.Resources`只能包含一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源（通过直接定义或合并其他字典）
+
+
+
+
 
 
 
