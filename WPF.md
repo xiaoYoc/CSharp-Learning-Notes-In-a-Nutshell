@@ -3421,25 +3421,36 @@ flowchart TD
 
 ### 自定义命令
 
+**命令（Command）**：就是一个实现了 `ICommand` 接口的对象。它有两个核心方法和一个事件：
 
+- `bool CanExecute(object parameter)`：**我能不能做？** 返回`true`，按钮就可点击；返回`false`，按钮就变灰。这是命令最大的优势之一（自动化UI状态）。
+- `void Execute(object parameter)`：**做什么！** 这里就是要触发的业务逻辑。
+- `event EventHandler CanExecuteChanged`：事件（比如用户输入了有效数据），手动触发这个事件，通知UI重新检查 `CanExecute()` 来更新按钮状态。
 
 > 标准命令模板
+>
+> 1. `WPF`控件（如按钮）订阅此事件，但实际订阅被转发给命令管理器(CommandManager)去管理。
+> 2. 当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件
+> 3. 进而调用按钮的事件处理程序，内部会执行`CanExecute(object parameter)`方法，更新UI状态
 
 ```c#
 public class DelegateCommand : ICommand
 {
-    //WPF控件（如按钮）订阅此事件，但实际订阅被转发给命令管理器(CommandManager)去管理。
-    //当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件，
-    //进而调用所有关联命令的CanExecute方法，从而更新命令状态
+    
+    private readonly Action<object?> _execute;
+
+    private readonly Func<object?,bool>? _canExecute;
+
+    //Button订阅了命令中的CanExecuteChanged事件
+    //但是订阅被重定向到了CommandManager.RequerySuggested事件上
+    //当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件
+    //执行事件处理程序，所有关联控件调用其命令的 CanExecute 方法，最终更新UI状态
     public event EventHandler? CanExecuteChanged
     {
         add { CommandManager.RequerySuggested += value; }
-        remove {  CommandManager.RequerySuggested -= value;}
+        remove { CommandManager.RequerySuggested -= value; }
     }
 
-    private Action<object?> _execute;
-
-    private Func<object?,bool>? _canExecute;
     public DelegateCommand(Action<object?> execute,Func<object?,bool>? canExecute = null) 
     {
         //参数为null，扔错误
@@ -3454,11 +3465,23 @@ public class DelegateCommand : ICommand
 }
 ```
 
+` CommandManager.RequerySuggested`事件取代了手动通知
+
+```c#
+public void RaiseCanExecuteChanged()
+{
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+}
+//EventArgs.Empty,全局静态且空的EventArgs实例，用于在不需要传递额外数据的事件中作为参数传递
+```
+
+
+
 ```mermaid
 flowchart TD
     A[用户交互操作<br>鼠标/键盘等输入] --> B[CommandManager 检测交互]
     B --> C[触发 RequerySuggested 事件]
-    C --> D[所有关联命令收到通知]
+    C --> D[所有关联控件收到通知]
     D --> E[调用各命令的 CanExecute 方法]
     E --> F[更新UI命令状态<br>如按钮启用/禁用]
     
@@ -4067,11 +4090,11 @@ WPF创建控件的实例时，它执行以下两个任务：
   * 对于ItemsControl控件，模板对象赋值给ItemTemplate属性。
   * 对于ContentControls控件，模板对象赋值给ContentTemplate属性。
 
-![image-20250830195447075](assets/image-20250830195447075.png)
+![image-20250830195447075](assets/wpf/image-20250830195447075.png)
 
 使用数据模板我们可以创建更好看的外观。
 
-![image-20250830195618354](assets/image-20250830195618354.png)
+![image-20250830195618354](assets/wpf/image-20250830195618354.png)
 
 注意模板内的 DataContext：
 
@@ -4144,7 +4167,7 @@ public class MainView :ViewModelBase
 
 :bookmark:内容控件的模板
 
-![image-20250830210755353](assets/image-20250830210755353.png)
+![image-20250830210755353](assets/wpf/image-20250830210755353.png)
 
 
 
