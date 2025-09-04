@@ -3548,35 +3548,6 @@ public MainWindow()
 
 ![image-20250819061535428](assets/image-20250819061535428.png)
 
-:bookmark:资源优先级
-
-```mermaid
-flowchart TD
-    A[WPF 资源<br>按定义位置与作用域划分]
-
-    A --> B[系统级资源<br>System Resources]
-    A --> C[应用程序级资源<br>Application.Resources<br>App.xaml]
-    A --> D[窗口/页级资源<br>Window.Resources / Page.Resources]
-    A --> E[元素级资源<br>（本地资源）<br>Element.Resources]
-
-    subgraph F [作用域关系]
-        direction RL
-        G[系统资源<br>全局可用]
-        H[应用程序资源<br>全局可用]
-        I[窗口资源<br>窗口内可用]
-        J[元素资源<br>元素及子元素内可用]
-        
-        J -- 覆盖 --> I
-        I -- 覆盖 --> H
-        H -- 覆盖 --> G
-    end
-
-    B ---> G
-    C ---> H
-    D ---> I
-    E ---> J
-```
-
 
 
 :bookmark: 使用`XAML`来存储和检索资源的值
@@ -3611,18 +3582,55 @@ flowchart TD
 </StackPanel>
 ```
 
+:bookmark:`staticResource`是在`xaml`加载时实例化，以下为具体查找资源键顺序
+
+```mermaid
+flowchart TD
+    A[WPF 资源<br>按定义位置与作用域划分]
+
+    A --> B[系统级资源<br>System Resources]
+    A --> C[应用程序级资源<br>Application.Resources<br>App.xaml]
+    A --> D[窗口/页级资源<br>Window.Resources / Page.Resources]
+    A --> E[元素级资源<br>（本地资源）<br>Element.Resources]
+
+    subgraph F [作用域关系]
+        direction RL
+        G[系统资源<br>全局可用]
+        H[应用程序资源<br>全局可用]
+        I[窗口资源<br>窗口内可用]
+        J[元素资源<br>元素及子元素内可用]
+        
+        J -- 覆盖 --> I
+        I -- 覆盖 --> H
+        H -- 覆盖 --> G
+    end
+
+    B ---> G
+    C ---> H
+    D ---> I
+    E ---> J
+```
+
+:red_circle:理解自定义用户控件无法使用`staticResouce`访问`maxinWindow`中的定义的资源
+
+* 编译时编译器会**独立地**处理每一个 `.xaml` 文件，并不知道用户控件将来用在哪个窗口中，便无法找到资源键
+
+- **App.xaml资源属于全局层级**：位于最顶层的Application作用域，因其独立于可视化树结构 ，不论编译器还是运行时，任何控件均可通过向上查找访问。
+
+- **运行时机制**：`DynamicResource`会在运行时利用完整的逻辑树查找所有可用资源。
+
 ## 静态资源与动态资源
 
 从`ResourceDictionary`以`StaticResource`读取对象时，其引用会被分配给属性一次。如果资源库中的引用发生变化，该变化不会传播到持有原始引用的属性。
 
-使用DynamicResource读取对象时，如果引用地址发生变化，持有旧引用的属性会自动更新。
+使用DynamicResource读取对象时，会在运行时利用完整的逻辑树查找所有可用资源。如果引用地址发生变化，持有旧引用的属性会自动更新。
 
 :red_circle: 区别：资源系统负责管理对象的引用，而数据绑定系统负责处理对象内部属性的变化通知。
 
 | 特性                 | StaticResource                           | DynamicResource                          |
 | :------------------- | :--------------------------------------- | :--------------------------------------- |
 | **主要作用**         | 获取数据源引用                           | 获取数据源引用                           |
-| **引用获取时机**     | XAML加载时一次性获取                     | XAML加载时获取并建立监听                 |
+| **引用获取时机**     | XAML加载时一次性获取                     | 在XAML加载时获取并建立监听               |
 | **监听内容**         | 不监听任何变化                           | 只监听资源键对应对象的整体替换           |
 | **性能**             | 较高（无运行时监听开销）                 | 较低（需要维护资源监听）                 |
 | **适用场景**         | 资源不会改变时                           | 资源可能被整体替换时（如主题切换）       |
@@ -4187,10 +4195,10 @@ public class MainView :ViewModelBase
   </StackPanel>
 ```
 
-创建资源资源，在`App.xaml`或`MainWindow.xaml`中引用。
+创建资源字典，在`App.xaml`中引用。
 
 ```xaml
-<Window.Resources>
+<App.Resources>
     <ResourceDictionary>
         <!-- 合并多个外部资源文件 -->
         <ResourceDictionary.MergedDictionaries>
@@ -4198,10 +4206,10 @@ public class MainView :ViewModelBase
         </ResourceDictionary.MergedDictionaries>
         <!-- 除此之外，还可以定义本地资源 -->
     </ResourceDictionary>
-</Window.Resources>
+</App.Resources>
 ```
 
-`Window.Resources`只能包含一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源（通过直接定义或合并其他字典）
+`App.Resources`只能包含一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源（通过直接定义或合并其他字典）
 
 
 
