@@ -4,7 +4,7 @@
 
 :two:[高级特性](高级特性.md)（完成,反射特性未作深究）
 
-:three: [WPF](WPF.md)（未更新完成）
+:three: [WPF](WPF.md)（完成，未涉及框架知识）
 
 # 初识
 
@@ -28,18 +28,30 @@
 
 `C#`程序执行机制分为编译期和运行期两个阶段。
 
-:one:编译期：编译器将源代码转换为CIL中间语言(`.dll`或`.exe`)。
+:one:编译期：`C#编译器`将一系列以.cs为扩展名的源代码文件编译成程序集，程序集是.NET中的打包和部署单元。程序集可以是一个应用程序也可以是一个库。普通的控制台程序或Windows应用程序包含一个入口点（entry point），而库则没有。库可以被应用程序或其他的库调用（引用）。
 
 * 检查语法
 * 常量确定:使用`const`声明的常量在编译期完全确定，在执行期代码会跳过常量的声明与初始化。
 
 :two:运行期:将`CIL`语言转换为机器码，并执行。
 
-以下为编译→运行期的详细示意图（了解即可）。
+以下为编译与运行期的示意图（了解即可）。
+
+编译期：
+
+```mermaid
+flowchart LR
+        Q[源代码] --> R[语法/语义检查]
+        R --> S[常量确定：const替换为字面量]
+        S --> T[生成CIL指令与元数据]
+        T --> U[生成CIL程序集.dll/.exe]
+```
+
+运行期
 
 ```mermaid
 flowchart TD
-    subgraph 运行期
+    
         A[加载程序集] --> B[解析元数据]
         B --> C{首次调用方法？}
         C -->|是| D[JIT编译：CIL→机器码]
@@ -58,14 +70,7 @@ flowchart TD
         M --> N[置默认值（清零）]
         N --> O[执行字段初始化器（按声明顺序）]
         O --> P[执行静态构造函数]
-    end
 
-    subgraph 编译期
-        Q[源代码] --> R[语法/语义检查]
-        R --> S[常量确定：const替换为字面量]
-        S --> T[生成CIL指令与元数据]
-        T --> U[生成CIL程序集.dll/.exe]
-    end
 ```
 
 
@@ -139,7 +144,7 @@ namespace worklzb
 | -------------------- | ------------------------------------------------------------ |
 | Console.WriteLine( ) | 将字符串打印到屏幕，结尾跟一个换行符                         |
 | Console.Write( )     | 将字符串打印到屏幕                                           |
-| Console.ReadLine( )  | 返回用户输入的内容 ，string类型                              |
+| Console.ReadLine( )  | 读取用户在屏幕中输入的内容 ，string类型                      |
 | Console.ReadKey( )   | 暂停窗口，直到用户输入内容。参数为true时，不显示用户输入内容。 |
 
 :bookmark:空格，换行符，`Tab`，都被编译器忽略。
@@ -403,7 +408,7 @@ Console.WriteLine(arr1[0]);//100
 
 :one: 变量名称(标识符)要有意义
 
-:two: 不能与关键字冲突，微软内部定义的有特殊意义的:large_blue_diamond: 单词。
+:two: 不能与关键字冲突（对编译器有特殊意义的:large_blue_diamond: 单词）。
 
 :three:以字母，`_`,`@`开头，后面跟任意`数字`，`字母`，`下划线_`;`@`符号的作用是转义关键字。
 
@@ -1472,7 +1477,7 @@ try
 {
     //可能出现异常的代码
 }
-catch
+catch(Exception ex)
 {
     //出现异常后执行此处代码
 }
@@ -1499,9 +1504,9 @@ do
         break;
         //退出当前循环
     }
-    catch 
+    catch(Exception ex)
     { //出现异常后转到此处执行代码
-        Console.WriteLine("输入非法数字，请重新输入");
+        Console.WriteLine(ex.Message);
 
     }
 } 
@@ -1509,6 +1514,26 @@ while (true);
 ```
 
 :red_circle:`try-catch`之间不能有其他代码。
+
+## 常用异常类
+
+catch 子句捕获异常应当是System.Exception 以及其子类
+
+```mermaid
+flowchart TD
+    A[System.Exception<br/>所有异常的基类] --> B[System.SystemException<br/>系统级异常基类]
+    
+    B --> C[System.ArgumentException<br/>参数无效]
+    C --> D[System.ArgumentNullException<br/>参数为null]
+    C --> E[System.ArgumentOutOfRangeException<br/>参数超出范围]
+    
+    B --> F[System.InvalidOperationException<br/>对象状态无效]
+    B --> J[System.NullReferenceException<br/>引用为空]
+
+    style C fill:#f9f,stroke:#333
+    style F fill:#ccf,stroke:#333
+    style J fill:#f96,stroke:#333
+```
 
 # 条件语句
 

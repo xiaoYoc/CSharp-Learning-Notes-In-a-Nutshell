@@ -2688,20 +2688,54 @@ public partial class MainWindow : Window
 
 ### 绑定对象
 
-当多个绑定使用同一个源对象时，你可以为元素指定一个 DataContext 。从 `FrameworkElement` 派生的每个类都有一个 `DataContext` 属性。
+当多个绑定使用同一个源对象时，你可以为元素指定一个 DataContext作为绑定源 。从 `FrameworkElement` 派生的每个类都有一个 `DataContext` 属性。
 
-再使用`DataContext`属性之前，我们有必要了解WPF查找绑定源的优先级：
+再使用`DataContext`属性之前，我们有必要了解WPF的显示绑定源指令，他们将强制改变绑定源：
 
 1. `ElementName` - 直接指定元素名称
 2. `Source` - 直接指定源对象
 3. `RelativeSource` - 相对于当前元素的源
-4. `DataContext` - 元素的数据上下文（默认）
 
 :small_red_triangle:**当一个控件同时设置了DataContext和在Binding中指定了Source（或其他绑定源属性）时，绑定会优先使用在Binding中明确指定的源，而忽略DataContext。**
 
-换句话说：**明确指定的绑定源属性（Source/ElementName/RelativeSource）的优先级高于继承的DataContext**。
+换句话说：**明确使用绑定指令（Source/ElementName/RelativeSource）的源优先级高于继承的DataContext**。
 
 如果在某元素未查找到绑定源，它会开始沿着元素树向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
+
+:bookmark:`RelativeSource` 
+
+`RelativeSource`  通过 `Mode` 属性指定定位逻辑，支持四种模式：
+
+| **模式**          | **用途描述**                                                 | **XAML 语法示例**                                            |
+| ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `Self`            | 绑定到**当前元素自身**的属性                                 | `{Binding Path=Width, RelativeSource={RelativeSource Self}}` |
+| `FindAncestor`    | 绑定到**指定类型的祖先元素**（可跨层级）                     | `{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}` |
+| `TemplatedParent` | 绑定到**应用控件模板的父元素**（常用于 `ControlTemplate` 或 `DataTemplate`） | `{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}` |
+| `PreviousData`    | 绑定到**数据集合中的前一项**（如 `ItemsControl` 中的相邻项） | `{Binding Path=Value, RelativeSource={RelativeSource PreviousData}}` |
+
+:one: `Self` 模式：绑定当前元素自身
+
+```xml
+<!-- 同一元素的属性间联动（如宽高比例绑定） -->
+<TextBlock Width="100" 
+           Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}" />
+```
+
+ :two: `FindAncestor` 模式：绑定祖先元素
+
+- 参数：
+
+  - `AncestorType`：目标祖先的类型（如 `Grid`, `StackPanel`）。
+  - `AncestorLevel`（可选）：跳过层级数（默认1，即直接父级）。
+
+  ```xml
+  <!-- 跨层级获取容器属性（如窗口标题绑定到父 Grid 的背景色） -->
+  <Grid x:Name="MainGrid" Background="Blue">
+      <Label Content="Title"
+             Background="{Binding Path=Background, 
+                           RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" />
+  </Grid>
+  ```
 
 ```c#
 //ViewModel,视图模型
@@ -2834,6 +2868,8 @@ class PersonViewModel : INotifyPropertyChanged
 ### 绑定到一个集合
 
 > `ItemsControl` 需要显式设置 `ItemsSource`来指定数据源来生成内容集合，即使 `DataContext` 可用且包含数据集合，系统也不会自动将 `DataContext` 应用到 ItemsSource 属性
+>
+> 至于子控件的数据上下文为集合中的每个对象：当 `ItemsSource` 被设置后，控件会为集合中的**每一个元素**生成一个容器（如 `ListBoxItem`）。每个容器的 `DataContext` **自动变成**其对应的那一条数据对象。
 
 从对象集合中一次绑定一个对象到控件。
 
@@ -3492,7 +3528,118 @@ flowchart TD
     J --> L[命令逻辑执行完成]
 ```
 
+![image-20250904194017613](assets/image-20250904194017613.png)
 
+```xaml
+<Window.Resources>
+    <!--将MainView作为资源引入-->
+    <viewmodel:MainView x:Key="mainView"/>
+    <!-- 数据模板，展示对象数据 -->
+    <DataTemplate x:Key="listData">
+        <Border Margin="2" BorderBrush="Blue" BorderThickness="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="{Binding FirstName}"/>
+                <Rectangle Grid.Column="1" Fill="{Binding FavoriteColor}"
+                           Grid.RowSpan="2"/>
+                <Label Content="{Binding Age}" Grid.Row="1"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</Window.Resources>
+<DockPanel Margin="10" DataContext="{StaticResource mainView}">
+    <StackPanel Orientation="Vertical" DockPanel.Dock="Left">
+        <ListBox Width="100" Height="500"
+                 ItemsSource="{Binding People}"
+                 ItemTemplate="{StaticResource listData}"/>
+        <TextBlock/>
+    </StackPanel>
+    <StackPanel Margin="4" DockPanel.Dock="Right" 
+                DataContext="{Binding}">
+        <TextBlock Text="FirstName"/>
+        <TextBox Text="{Binding NewFirstName, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Text="Age"/>
+        <TextBox Text="{Binding NewAge,UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Text="FavoriteColor"/>
+        <TextBox Text="{Binding NewFavoriteColor,UpdateSourceTrigger=PropertyChanged}"/>
+        <Button Content="Add" Margin="0 8" Background="#f5f5f5"
+                Command="{Binding AddCommand, Source={StaticResource mainView}}"/>
+    </StackPanel>
+</DockPanel>
+```
+
+`MainView.cs`
+
+```c#
+public class MainView :ViewModelBase
+{
+    private string? _newFirstName;
+
+    public string? NewFirstName
+    {
+        get { return _newFirstName; }
+        set
+        {
+            SetField(ref _newFirstName, value);
+        }
+    }
+    private int _newAge;
+
+    public int NewAge
+    {
+        get { return _newAge; }
+        set 
+        {
+            SetField(ref _newAge, value);
+        }
+    }
+
+    private string? _newFavoriteColor;
+    public string? NewFavoriteColor
+    {
+        get { return _newFavoriteColor; }
+        set
+        {
+            SetField(ref _newFavoriteColor, value);
+        }
+    }
+
+
+   public DelegateCommand AddCommand { get; }
+
+    public ObservableCollection<Person> People { set; get; }
+    public MainView()
+    {
+        People = new ObservableCollection<Person>(
+            );
+        People.Add(new Person("shirley", 24, "Green"));
+        People.Add(new Person("Roy", 36, "Blue"));
+        People.Add(new Person("Isable", 25, "Orange"));
+        People.Add(new Person("Manuel", 27, "Red"));
+        AddCommand = new DelegateCommand(AddPerson,JudgeAdd);
+    }
+
+    private void AddPerson(object? parameter)
+    {
+        if(string.IsNullOrEmpty(NewFirstName) 
+           || string.IsNullOrEmpty(NewFavoriteColor) || NewAge<=0) return;
+        People.Add(new Person(NewFirstName, NewAge, NewFavoriteColor));
+    }
+    private bool JudgeAdd(object? parameter)
+    {
+        if (string.IsNullOrEmpty(NewFirstName) 
+            || string.IsNullOrEmpty(NewFavoriteColor) || NewAge <= 0) return false;
+        return true;
+    }
+}
+```
 
 # 资源
 
