@@ -32,7 +32,7 @@
 ![image-20250809173449456](assets/image-20250809173449456.png)
 
 ```c#
-[STAThread]//指示单线程
+[STAThread]//当前入口Main方法为主线程
 static void Main()
 {
     //窗体对象
@@ -41,10 +41,12 @@ static void Main()
     window.Title = "MyWPF";
     window.Height = 200;
     window.Width = 200;
-     Application application = new Application();
+    Application application = new Application();
     application.Run(window);
 }
 ```
+
+如果想修改**任何UI元素**（如改变文本框的文字、调整窗口大小），最终都必须由主线程(`UI`线程)来执行。
 
 ![image-20250809173934723](assets/image-20250809173934723.png)
 
@@ -115,7 +117,7 @@ flowchart TD
 
 - 专门为 `SolidColorBrush` 提供预定义实例
 - 包含常用颜色的静态属性（如 `Brushes.Red`, `Brushes.Blue`）
-- 返回的画笔是冻结的（不可修改），优化性能
+- 返回的画笔是冻结的（不可修改）
 
 ```c#
 public MainWindow()
@@ -284,11 +286,6 @@ flowchart TD
     
     class A,B,C,D,E,F,G,H,I abstract
     class J,K concrete
-    
-    subgraph Legend
-        L[Abstract Class]:::abstract
-        M[Concrete Class]:::concrete
-    end
 ```
 
 :bookmark: 常见的控件
@@ -451,9 +448,9 @@ xmlns[:可选映射前缀] = "命名空间"
 
 :one: 使用无参数构造函数创建对象。
 
-:two: 使用`XAML`元素的内容部分，赋值给类对象的默认内容属性。
+:two: 将`XAML`元素的内容部分，赋值给类对象的默认内容属性。
 
-:three: 将`XAML`特征中的值赋值给对象的其他属性。
+:three: 将`XAML`特征中的值赋值给对象的属性。
 
 ### 元素语法
 
@@ -672,7 +669,7 @@ public class MyButton :Button
 
 ### 标签扩展
 
-标签扩展有两种形式，:one:构造函数与多个参数，:two:是属性 = 值形式，多个用逗号分隔。
+标签扩展有两种形式，:one:构造函数与多个参数，:two:属性 = 值形式，多个用逗号分隔。
 
 ![image-20250810160641546](assets/image-20250810160641546.png)
 
@@ -714,7 +711,7 @@ public class MyTime : MarkupExtension
 }
 ```
 
-:bookmark:UI界面
+:bookmark:`UI`界面
 
 ![image-20250810161801492](assets/image-20250810161801492.png)
 
@@ -774,7 +771,7 @@ public class MyTime : MarkupExtension
 
 :bookmark: 父容器给子元素分配的空间称之为布局槽，子元素默认会占满整个布局槽.
 
-:one: 通过 `Width`/`Height` 或内容尺寸决定**实际占用大小**（但不超过布局槽）
+:one: 通过 `Width`/`Height` 或内容决定**实际占用大小**（但不超过布局槽）
 
 :two: 通过 `HorizontalAlignment`/`VerticalAlignment` 决定**在槽内的对齐位置**
 
@@ -839,8 +836,8 @@ public class MyTime : MarkupExtension
 <StackPanel Background="AliceBlue" VerticalAlignment="Top">
     <Button HorizontalContentAlignment="Left">Left</Button>
     <Button HorizontalContentAlignment="Right">Right</Button>
-    <Button HorizontalContentAlignment="Center">Center</Button>
-    <!--默认行为-->
+    <Button HorizontalContentAlignment="Center">Center</Button><!--默认行为-->
+   <!--Stretch的内容对齐特殊性，通常不使用-->
     <Button HorizontalContentAlignment="Stretch">Strech</Button>
 </StackPanel>
 ```
@@ -897,7 +894,7 @@ public class MyTime : MarkupExtension
 
 ![](assets/image-20250826063559348.png)
 
-`margin`根据左上右下顺序进行调整，随着margin增大，元素逐渐被`margin`挤占掉
+`margin`根据左上右下顺序进行调整，随着margin增大，元素的可视化区域会逐步缩小
 
 ## `Panel`
 
@@ -1000,21 +997,9 @@ graph TD
 
 ```mermaid
 graph TD
-    A[WrapPanel 布局特性] --> B[忽略子元素对齐属性]
-    A --> C[强制内容驱动布局]
-    A --> D[元素总是按内容尺寸排列]
-    
-    B --> B1[HorizontalAlignment 无效]
-    B --> B2[VerticalAlignment 无效]
-    
-    C --> C1[不保留额外空间]
-    C --> C2[不响应对齐请求]
-    
-    D --> D1[元素尺寸由内容决定]
-    D --> D2[无拉伸或偏移空间]
+    A[WrapPanel 布局特性] -->  D1[元素尺寸默认由内容决定]
+    A --> D2[默认无拉伸或偏移空间]
 ```
-
-
 
 `WrapPanel` 将元素并排放置，一个接一个，但与 StackPanel不同，当元素到达 WrapPanel的末尾时，它们会开始新的一行或列。
 
@@ -1165,7 +1150,7 @@ graph TD
 Grid 提供了三种控制行列大小的途径：
 :one: 绝对尺寸：行和列被赋予绝对大小。
 :two: 自动尺寸：行和列会根据内容自动调整大小。
-:three: 按比例大小：可用空间按比例分配给行和列。
+:three: 按比例大小(默认行为)：可用空间按比例分配给行和列。
 
 ##### 绝对尺寸
 
@@ -1391,8 +1376,6 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 </StackPanel>
 ```
 
-
-
 ### button
 
 | 常用属性                              |                                                              |
@@ -1464,11 +1447,11 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 ![image-20250816232520809](assets/image-20250816232520809.png)
 
 ```xaml
-<Button Content="close" Width="60" Height="20" Margin="4">
-    <!-- ToolTipService.InitialShowDelay首次显示的时间 -->
-    <Button.ToolTip ToolTipService.InitialShowDelay="0">
-        <ToolTip> <!-- 继承于ContentControl-->
-            <StackPanel>
+ <!-- ToolTipService.InitialShowDelay首次显示的时间 -->
+<Button Content="close" Width="60" Height="20" Margin="4" ToolTipService.InitialShowDelay="0">
+    <!-- 继承于ContentControl-->
+    <Button.ToolTip >
+            <StackPanel >
                 <TextBlock FontWeight="Bold"
                     Text="Save File"/>
                 <TextBlock Text="Clicking on this button,saves the file to disk"
@@ -1476,7 +1459,6 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
                 <Border BorderBrush="Silver" BorderThickness="0 1 0 0" Margin="4"/>
                 <TextBlock FontStyle="Italic" FontSize="8" Text="Press F1 for more help"/>
             </StackPanel>
-        </ToolTip>
     </Button.ToolTip>
 </Button>
 ```
@@ -1822,12 +1804,19 @@ MessageBoxResult res = MessageBox.Show("警告","警告窗口",MessageBoxButton.
 
 指向第一个选中的对象引用，如果没有选中任何项目为`null`。
 
-| **属性名**        | **类型**             | **描述**                                                     | **默认值**       |
-| :---------------- | :------------------- | :----------------------------------------------------------- | :--------------- |
-| **SelectedItem**  | `object`             | 获取或设置当前选中的**第一个项**（多选时返回第一个选中的项） | `null`（未选中） |
-| **SelectedItems** | `IList`              | 获取当前选中的所有项的集合（只读）                           | 空集合           |
-| **SelectedIndex** | `int`                | 获取或设置当前选中的**第一个项的索引**（多选时返回第一个选中项的索引） | `-1`（未选中）   |
-| **SelectionMode** | `SelectionMode` 枚举 | 控制选择行为： • `Single` - 单选 • `Multiple` - 多选 • `Extended` - 扩展多选（Ctrl/Shift选择） |                  |
+| **属性名**        | **类型**             | **描述**                                                     | **默认值**       | **补充说明**                                                 |
+| :---------------- | :------------------- | :----------------------------------------------------------- | :--------------- | :----------------------------------------------------------- |
+| **SelectedItem**  | `object`             | 获取或设置当前选中的**第一个项**（多选时返回第一个选中的项） | `null`（未选中） | 直接返回数据项对象本身                                       |
+| **SelectedItems** | `IList`              | 获取当前选中的所有项的集合（只读）                           | 空集合           | 仅在 `SelectionMode` 为 Multiple 或 Extended 时有意义        |
+| **SelectedIndex** | `int`                | 获取或设置当前选中的**第一个项的索引**                       | `-1`（未选中）   | 索引从 0 开始                                                |
+| **SelectionMode** | `SelectionMode` 枚举 | 控制选择行为： • `Single` - 单选 • `Multiple` - 多选 • `Extended` - 扩展多选（Ctrl/Shift选择） | `Single`         |                                                              |
+| **SelectedValue** | `object`             | 选中对象的某个属性值，由 SelectedValuePath 决定其类型        | `null`           | **不设置 `SelectedValuePath` 时**：`SelectedValue = SelectedItem`（返回整个对象） |
+
+:red_circle:重要讨论：
+
+- 当使用 `ItemsSource` 数据绑定时，`SelectedItem` 返回的是**数据对象**
+- 当直接向 `Items` 集合添加 `ListBoxItem` 时，`SelectedItem` 返回的是**`ListBoxItem` 容器对象**
+- `SelectedValue`同理
 
 ![image-20250813200917443](assets/image-20250813200917443.png)
 
@@ -1976,8 +1965,6 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
     MessageBox.Show((this.com.SelectedItem as ComboBoxItem).Content?.ToString());
 }
 ```
-
-:bookmark:自动加载
 
 
 
@@ -2353,7 +2340,7 @@ flowchart LR
      }
      static MainWindow()
      {
-         //定义元数据
+         //定义元数据，与PropertyMetadata相比，FrameworkPropertyMetadata是WPF增强版元数据
          FrameworkPropertyMetadata md = new FrameworkPropertyMetadata();
          md.PropertyChangedCallback = OnSidesChange;
          //将Sides与SiderProperty关联，用于xaml文档中绑定，样式等需要解析字符串的场景
@@ -2517,7 +2504,7 @@ public partial class MainWindow : Window
 * `ElementName` 属性指定了目标属性要绑定的源对象。
 *  `Path` 属性指定绑定源对象的某哪属性。
 *  目标属性必须是一个依赖属性。
-*  如果只绑定了源对象，而未指定路径，那么
+*  如果未指定路径，那么绑定的是当前源对象。
 
 ![image-20250815181831876](assets/image-20250815181831876.png)
 
@@ -2539,10 +2526,10 @@ public partial class MainWindow : Window
  {
      InitializeComponent();
      Binding binding = new Binding();
-     binding.Source = sourceInfo;//设置源
-     binding.Path = new PropertyPath("Text");//设置源属性
+     binding.Source = sourceInfo;//绑定源
+     binding.Path = new PropertyPath("Text");//绑定源属性
      //连接源属性与目标属性
-     //通过依赖属性标识符定位属性系统中的依赖属性
+     //通过依赖属性标识符定位
      displayText.SetBinding(ContentProperty, binding);
  }
 ```
@@ -2553,7 +2540,7 @@ public partial class MainWindow : Window
 
 * UI依赖属性改变 → 属性系统通知 → BindingExpression → 反射调用setter
 
-  :red_circle:数据源确保实现 `INotifyPropertyChanged`接口 ，这样值改变时才会触发事件通知BindingExpression对象
+  :red_circle:数据源确保实现`INotifyPropertyChanged`接口 ，这样值改变时才会触发事件通知BindingExpression对象
 
 ![image-20250815184814220](assets/image-20250815184814220.png)
 
@@ -2577,7 +2564,7 @@ graph LR
 
 ### 使用`CLR`属性进行数据绑定
 
-`CLR` 属性在 `.NET` 类中定义的普通属性，这些属性具有 `get` 和 `set` 访问，我们可以在数据绑定中使用这些普通的 `CLR` 属性，但默认情况下不可能实现自动的 UI 通知，除非创建了通知机制。
+`CLR` 属性在 `.NET` 类中定义的普通属性，这些属性具有 `get` 和 `set` 访问，我们可以在数据绑定中使用这些普通的 `CLR` 属性，但默认情况下不可能自动通知UI，除非创建了通知机制。
 
 未实现通知接口则UI不会更新：
 
@@ -2736,6 +2723,8 @@ public partial class MainWindow : Window
                            RelativeSource={RelativeSource AncestorType={x:Type Grid}}}" />
   </Grid>
   ```
+  
+  ![image-20250925221543875](assets/wpf/image-20250925221543875.png)
 
 ```c#
 //ViewModel,视图模型
@@ -2767,15 +2756,19 @@ public class Person : INotifyPropertyChanged
 :bookmark:建立数据上下文，以及绑定
 
 ```xaml
-<StackPanel Name="stack">
+<StackPanel Background="#f5f5f5">
     <StackPanel.DataContext>
-        <local:Person/>
+        <viewmodel:Person/>
     </StackPanel.DataContext>
-    <Label Content="{Binding Path =Name}"></Label>
+    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold"
+               Foreground="Red"/>
+    <TextBox Margin="5"
+        Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}"
+        Width="300"/>
 </StackPanel>
 ```
 
-:bookmark:`初探MVVM`
+#### `初探MVVM`
 
 ![image-20250817214108183](assets/image-20250817214108183.png)
 
@@ -2904,7 +2897,7 @@ class PersonViewModel : INotifyPropertyChanged
  }
 ```
 
-
+如果集合需要更新，使用`ObservableCollection`类型
 
 ```mermaid
 flowchart TB
@@ -2925,16 +2918,21 @@ flowchart TB
 
 ------
 
-:bookmark:示例
+#### `DataGrid`
 
-![image-20250827220919647](assets/image-20250827220919647.png)
+![image-20250926225429929](assets/wpf/image-20250926225429929-1758898475731-2.png)
 
 ```xaml
-<DataGrid AutoGenerateColumns="False" ItemsSource="{Binding}">
+<DataGrid ItemsSource="{Binding}" 
+          AutoGenerateColumns="False"
+          CanUserAddRows="False"  
+          >
+    <!--CanUserAddRows禁用新建行 -->
+    <!--空白列通常是由于列宽自适应导致的,指定列宽-->
     <DataGrid.Columns>
-        <DataGridTextColumn Header="姓氏" Binding="{Binding FirstName}"/>
-        <DataGridTextColumn Header="名字" Binding="{Binding LastName}"/>
-        <DataGridTextColumn Header="单位" Binding="{Binding Department}"/>
+        <DataGridTextColumn Header="姓" Binding="{Binding FirstName}" Width="*"/>
+        <DataGridTextColumn Header="名" Binding="{Binding LastName}" Width="*"/>
+        <DataGridTextColumn Header="单位" Binding="{Binding Department}" Width="*"/>
     </DataGrid.Columns>
 </DataGrid>
 ```
@@ -3011,6 +3009,60 @@ public class ViewModelBase : INotifyPropertyChanged
         OnPropertyChanged(propertyName);
         return true;
     }
+}
+```
+
+`DataGridTextColumn`并不在可视化元素树上：
+
+- 它定义了**如何渲染**每一行的单元格
+- 但本身不是实际显示在屏幕上的元素
+- 实际的可视元素是`DataGridCell`（在可视化树上）
+
+如果想隐藏其中一列，使用`ElementName`和`RelativeSource`绑定会失败，因其不在名称作用域或可视化树中，无法查找名称或祖先元素，只能使用代理类隐藏。
+
+![image-20250927000414334](assets/wpf/image-20250927000414334.png)
+
+```xaml
+<Window.Resources>
+    <!--Freezable在资源中定义时，只能访问定义位置的直接DataContext，
+但这种访问能力是有限的，只能访问直接定义位置的DataContext
+    不能像可视化树中的元素那样向上继承-->
+    <local:BindingProxy x:Key="proxy" Data="{Binding}"/>
+</Window.Resources>
+<DataGrid ItemsSource="{Binding Employees}" 
+          AutoGenerateColumns="False"
+          CanUserAddRows="False"  
+          >
+    <!--CanUserAddRows禁用新建行 -->
+    <!--空白列通常是由于列宽自适应导致的,指定列宽-->
+    <DataGrid.Columns>
+        <DataGridTextColumn Header="姓" Binding="{Binding FirstName}" Width="*"/>
+        <DataGridTextColumn Header="名" Binding="{Binding LastName}" Width="*"/>
+        <DataGridTextColumn Header="单位" Binding="{Binding Department}" 
+                            Width="*"
+                            Visibility="{Binding Data.Vis,Source={StaticResource proxy} }"/>
+    </DataGrid.Columns>
+</DataGrid>
+```
+
+代理类需继承`Freeavle`，因为普通的`CLR`类在资源处不能继承`Datacontext`,而继承Freeavle的类能在资源处解析`DataContext`，
+
+```c#
+public class BindingProxy:Freezable
+{
+    public static readonly DependencyProperty? DataProperty;
+
+    public object Data
+    {
+        set => SetValue(DataProperty, value);
+        get => (object) GetValue(DataProperty);
+    }
+    static BindingProxy()
+    {
+        DataProperty = DependencyProperty.Register("Data",typeof(object), typeof(BindingProxy), new PropertyMetadata(null));
+    }
+    //主要用于支持克隆和冻结操作,暂时不深究
+    protected override Freezable CreateInstanceCore() => new BindingProxy();
 }
 ```
 
@@ -3193,7 +3245,8 @@ public class ConvertDecimal : IValueConverter
 ```xaml
 <StackPanel>
     <Label Content="My Text" FontFamily="{Binding SelectedValue.Content,ElementName=fontBox}"
-           FontWeight="{Binding SelectedValue,ElementName=weightBox}"/>
+           FontWeight="{Binding SelectedValue.Content,ElementName=weightBox}"/>
+    <!--未使用绑定生成的集合当前选择项都是ComboBoxItem容器对象-->
     <ComboBox Name="fontBox" SelectedIndex="0" Margin="5,0,5,2 ">
         <ComboBoxItem>Arial</ComboBoxItem>
         <ComboBoxItem>Courier New</ComboBoxItem>
@@ -3477,10 +3530,10 @@ public class DelegateCommand : ICommand
 
     private readonly Func<object?,bool>? _canExecute;
 
-    //Button订阅了命令中的CanExecuteChanged事件
-    //但是订阅被重定向到了CommandManager.RequerySuggested事件上
+    //Button绑定命令时内部便订阅了命令中的CanExecuteChanged事件
+    //但是订阅被重定向到了CommandManager.RequerySuggested事件上，事件处理程序中包含了调用CanExecute()方法的逻辑
     //当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件
-    //执行事件处理程序，所有关联控件调用其命令的 CanExecute 方法，最终更新UI状态
+    //所有关联控件调用其命令的 CanExecute 方法，最终更新UI状态
     public event EventHandler? CanExecuteChanged
     {
         add { CommandManager.RequerySuggested += value; }
@@ -3645,7 +3698,7 @@ public class MainView :ViewModelBase
 
 `WPF`中`resource`指代两种不同类型的事物：
 
-* 第一种资源类型指的是程序使用但不是程序代码创建的项。例如，从代码外部提供的图像或图标。
+* 第一种资源类型指的是程序使用但不是程序代码创建的资源。例如，从代码外部提供的图像或图标。
 * 第二种资源是`WPF`中描述存储在对象字典中并在代码的各个位置使用的. NET代码对象。这些通常与XAML标记相关联，但也用于隐藏代码。他们也被称对象资源。
 
 对象资源可以在应用程序中的不同地方**重复使用**，例如：
@@ -3772,7 +3825,7 @@ flowchart TD
 
 使用DynamicResource读取对象时，会在运行时利用完整的逻辑树查找所有可用资源。如果引用地址发生变化，持有旧引用的属性会自动更新。
 
-:red_circle: 区别：资源系统负责管理对象的引用，而数据绑定系统负责处理对象内部属性的变化通知。
+:red_circle: 与绑定的区别：资源系统负责管理对象的引用，而数据绑定系统负责处理对象内部属性的变化通知。
 
 | 特性                 | StaticResource                           | DynamicResource                          |
 | :------------------- | :--------------------------------------- | :--------------------------------------- |
@@ -4241,7 +4294,7 @@ WPF创建控件的实例时，它执行以下两个任务：
 `DataTemplate`是将数据对象的详细信息以自定义的、可视化的方式展示出来。有关数据模板的一些重要事项如下：
 
 * 与控件模板一样，数据模板通常在元素树中更高的位置声明为资源。
-* 可以将数据模板应用于ContentControls或ItemsControls。ItemsControl。
+* 可以将数据模板应用于ContentControls或ItemsControls。
   * 对于ItemsControl控件，模板对象赋值给ItemTemplate属性。
   * 对于ContentControls控件，模板对象赋值给ContentTemplate属性。
 
