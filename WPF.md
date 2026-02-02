@@ -37,8 +37,8 @@ static void Main()
 {
     //窗体对象
     Window window = new Window();
-    window.Content = "自定义界面";
-    window.Title = "MyWPF";
+    window.Content = "my simple window";
+    window.Title = "hi!wpf";
     window.Height = 200;
     window.Width = 200;
     Application application = new Application();
@@ -46,13 +46,16 @@ static void Main()
 }
 ```
 
-如果想修改**任何UI元素**（如改变文本框的文字、调整窗口大小），最终都必须由主线程(`UI`线程)来执行。
+![image-20260121184424715](assets/wpf/image-20260121184424715.png)
 
-![image-20250809173934723](assets/image-20250809173934723.png)
+## Window
 
 大多数功能最低的 WPF 程序都包含 Application 类的一个实例和一个或多个 Window 类的实例。可以将 WPF 程序视为单个 Application 对象和一个或多个 Window 对象
 
-## Window
+![image-20250809173934723](assets/image-20250809173934723.png)
+
+* `Application`实例托管`window`对象
+* `Window`对象组成用户界面并呈现数据
 
 使用派生类创建窗体,并添加一个按钮对象:
 
@@ -61,18 +64,16 @@ static void Main()
  {
      public MyWindow()
      {
-         Width = 400;
-         Height = 400;
-         Title = "wpf";
-         //声明一个Button对象
-         Button btn = new Button();
-         btn.Content = "click";
-         btn.Width = 100;
-         btn.Height = 50;
-         //Set the button to be the window content. 
-         Content = btn;
-         //样式
-         WindowStyle = WindowStyle.ThreeDBorderWindow;
+         Height = 300;
+		Width = 300;
+		Title = "simple wpf";
+        //声明一个Button对象
+        Button button = new Button();
+        button.Content = "Click Me";
+        //windows实例Content属性是一个object类型
+        //始终是单个对象，该对象会返过来包含其他子对象
+        Content = button;////Set the button to be the window content. 
+        WindowStyle = WindowStyle.ThreeDBorderWindow;//窗口样式，三维边框
      }
  }
  public class Program
@@ -82,17 +83,62 @@ static void Main()
      {
          //窗体对象
         MyWindow window = new MyWindow();
-          Application application = new Application();
-         application.Run(window);
+        Application application = new Application();
+        application.Run(window);
      }
  }
 ```
 
 ## `WPF`应用程序
 
-WPF应用程序模板生成一个包含两个类的程序——一个类继承自Application，另一个类继承自Window
+使用`WPF`应用程序模板生成一个最小的`WPF`程序，包含两个类，每个类都有一个`XAML`文件和一个`C#`代码隐藏文件.
+
+![image-20260121191507863](assets/wpf/image-20260121191507863.png)
+
+程序模板生成一个包含两个类的程序——`App`类继承自Application，`MainWindow`类继承自`Window`,且每个类都由各自的`xaml`和隐藏的`c#`代码实现。
 
 ![image-20250809195424150](assets/image-20250809195424150.png)
+
+
+
+### `XAML`简介
+
+> `XAML`是一种基于`XML`的标记语言。
+>
+> `XAML`会在编译时映射为`.Net`对象，会通过设置对象的属性来描述UI的静态视觉特性。
+>
+> `C#`主要用于指定程序的大部分活动部分，例如控制流程和消息处理程序。
+>
+> 例如，您可以使用`XAML`在窗口上放置一个按钮并设置其所有视觉特性。但是，您需要使用C#编写消息处理程序，该处理程序在按钮被点击时被调用
+
+### 逻辑树与视觉树
+
+> 逻辑树：`XAML`文件定义的`UI`元素结构，可用来进行数据绑定，资源查找等。
+>
+> 视觉树(了解)：在逻辑树的基础上，展开控件内部的视觉细节。
+
+```xaml
+<Window x:Class="ReviewWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ReviewWpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <StackPanel>
+        <TextBlock>
+            This window has a button.
+        </TextBlock>
+        <Button>
+            Button
+        </Button>
+    </StackPanel>
+</Window>
+
+```
+
+![image-20260121194224356](assets/image-20260121194224356.png)
 
 ### 颜色
 
@@ -135,7 +181,9 @@ public MainWindow()
 }
 ```
 
-`Color`结构体中`A`属性即`alpha`通道，用来控制图像透明度，数字越大，透明度越低。
+`new SolidColorBrush(Color color)`,参数可以通过`Color`类构造函数创建，也可以通过`Colors`类提供的预定义颜色来创建。
+
+`Color`结构体中`A`属性即`alpha`通道，用来控制图像透明度，值为0，颜色是完全透明的。如果它的值是255，颜色是完全不透明的。
 
 #### 线性渐变
 
@@ -195,8 +243,6 @@ public MainWindow()
 
 * Current 属性是一个静态属性，它返回程序`Application `对象的引用。
 
-* StartupUri 属性包含应用程序启动时UI的起始位置。
-
 :bookmark: `Application`的生命周期
 
 ```c#
@@ -230,13 +276,12 @@ public partial class App : Application
 
  WPF 应用程序生命周期中**方法执行时触发的对应事件**：
 
-| 事件名称          | 触发方法          | 事件处理器签名                                               |
-| :---------------- | :---------------- | :----------------------------------------------------------- |
-| **Startup**       | `OnStartup`       | `void App_Startup(object sender, StartupEventArgs e)`        |
-| **Exit**          | `OnExit`          | `void App_Exit(object sender, ExitEventArgs e)`              |
-| **Activated**     | `OnActivated`     | `void App_Activated(object sender, EventArgs e)`             |
-| **Deactivated**   | `OnDeactivated`   | `void App_Deactivated(object sender, EventArgs e)`           |
-| **SessionEnding** | `OnSessionEnding` | `void App_SessionEnding(object sender, SessionEndingEventArgs e)` |
+| 事件名称        | 触发方法        |
+| :-------------- | :-------------- |
+| **Startup**     | `OnStartup`     |
+| **Exit**        | `OnExit`        |
+| **Activated**   | `OnActivated`   |
+| **Deactivated** | `OnDeactivated` |
 
 ```c#
 [STAThread]//指示单线程
@@ -431,9 +476,7 @@ xaml类型的文件包含两部分，一部分以.xaml扩展名结尾的前端�
         Topmost="True">
 ```
 
-
-
-可以在`XAML`标签上使用`xlmns`特征来定义命名空间(`XML-Namespace`的简写)，当来源不同的类重名时，可以使用名称空间加以区分。
+可以在`XAML`标签上使用`xlmns`特征来引入命名空间(`XML-Namespace`的简写)，当来源不同的类重名时，可以使用名称空间加以区分。
 
 ```xaml
 xmlns[:可选映射前缀] = "命名空间" 
@@ -450,7 +493,7 @@ xmlns[:可选映射前缀] = "命名空间"
 
 :two: 将`XAML`元素的内容部分，赋值给类对象的默认内容属性。
 
-:three: 将`XAML`特征中的值赋值给对象的属性。
+:three: 将`XAML`属性中的值赋值给对象的属性。
 
 ### 元素语法
 
@@ -458,7 +501,7 @@ xmlns[:可选映射前缀] = "命名空间"
 
 ![image-20250810114408062](assets/image-20250810114408062.png)
 
-设置对象的其他属性，可以通过特性语法来实现。
+设置对象的其他属性，可以通过属性语法来实现。
 
 ![image-20250810114606901](assets/image-20250810114606901.png)
 
@@ -541,15 +584,17 @@ flowchart TD
     <Button Height="20">
         <Button.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <!--位于渐变的开始位置-->
+                <!--Offset，红色位置0-->
                 <GradientStop Color ="Red" Offset="0.0"></GradientStop>
-                <!--位于渐变的结束位置-->
+                <!--Offset，小麦色结束位置1-->
                 <GradientStop Color ="Wheat" Offset="1.0"></GradientStop>
             </LinearGradientBrush>
         </Button.Background>
     </Button>
 </StackPanel>
 ```
+
+渐变刷`GradientBrush`默认内容属性`GradientStopCollection GradientStops`
 
 再比如在按钮中加个图片，`public object Content { get; set; }`属性是个`object`类型，所以它可以接受任何类型。
 
@@ -605,7 +650,7 @@ Button btn = new Button();
 
 ### 命名空间
 
-命名空间使用 xmlns 属性分配在XAML文档根元素的开始标签中,`XAML`标签语言指定了两个标准命名空间：
+在`XAML`文档根元素的开始标签中使用 xmlns 特性描述命名空间,指定了两个标准命名空间：
 
 
 
@@ -657,7 +702,7 @@ public class MyButton :Button
 }
 ```
 
-使用自定义按钮
+使用自定义按钮,`local`相当于命名空间的别名
 
 ```xaml
 <StackPanel>
@@ -675,11 +720,11 @@ public class MyButton :Button
 
 
 
-标记扩展是第一种形式并且有n个构造函数参数，`XAML`解析器会找到具有n个参数的扩展类构造函数，并使用该构造函数来创
+标记扩展是第一种形式:有n个参数，`XAML`解析器会找到具有n个参数的扩展类构造函数，并使用该构造函数来创
 
 建扩展类对象。
 
-如果标记扩展具有属性/值对，则会调用无参数构造函数。一旦对象被构造，其属性会根据属性/ 值对中的值进行设置。
+如果标记扩展具有属性/值对，则会调用无参数构造函数。一旦对象被构造，会根据属性/ 值对中的值进行设置。
 
 无论哪种方式，一旦对象被构建并设置其属性，XAML解析器就会调用`ProvideValue()`方法，将返回的值赋给目标属性。
 
@@ -726,7 +771,7 @@ public class MyTime : MarkupExtension
 
 ### 空白与特殊字符
 
-您出于某种原因需要让`XAML`解析器保留您放置的空白，可以将 xml:space 属性设置为值 preserve
+您出于某种原因需要让`XAML`解析器保留您放置的空白，可以将 xml:space 指令设置为值 preserve
 
 ![image-20250810163421306](assets/image-20250810163421306.png)
 
@@ -771,9 +816,9 @@ public class MyTime : MarkupExtension
 
 :bookmark: 父容器给子元素分配的空间称之为布局槽，子元素默认会占满整个布局槽.
 
-:one: 通过 `Width`/`Height` 或内容决定**实际占用大小**（但不超过布局槽）
+:one:  `Width`/`Height` 决定**实际占用大小**（不超过布局槽）
 
-:two: 通过 `HorizontalAlignment`/`VerticalAlignment` 决定**在槽内的对齐位置**
+:two:  `HorizontalAlignment`/`VerticalAlignment` 决定子元素**在槽内的对齐位置**
 
 :bookmark:为何子元素会占满整个布局槽?
 
@@ -785,7 +830,7 @@ public class MyTime : MarkupExtension
 
 ## 约束元素的大小
 
-`Width 和 Height`:设置元素在布局槽中的实际宽度或高度。
+`Width 和 Height`:设置元素在布局槽中的实际宽度或高度,此时元素会在布局槽中居中。
 
 `MinWidth, MaxWidth, MinHeight和 MaxHeight`:设置一个范围，实际宽度或高度必须保持在这个范围内，而不是设置固定的宽
 
@@ -861,6 +906,8 @@ public class MyTime : MarkupExtension
 
 外边距是在元素外部添加的额外空间，元素外部边框与布局槽边界的距离。
 
+:red_circle:不同容器中，控件的排列方式不同，如果指定边距小于默认边距，则会被忽略。
+
 ![image-20250810204936620](assets/image-20250810204936620.png)
 
 注意两个按钮的间距。
@@ -888,13 +935,16 @@ public class MyTime : MarkupExtension
 
 ```xaml
 <Grid>
+    <!-- Grid中行高为Auto时，margin小于外边距会被忽略 -->
     <Button Width="100" Height="100"  Margin="130">anniu</Button>
 </Grid>
 ```
 
 ![](assets/image-20250826063559348.png)
 
-`margin`根据左上右下顺序进行调整，随着margin增大，元素的可视化区域会逐步缩小
+`margin`根据左上右下顺序进行调整，随着margin增大，元素的可视化区域会逐步缩小。
+
+
 
 ## `Panel`
 
@@ -958,21 +1008,19 @@ graph TD
 ![image-20250807232754675](assets/image-20250807232754675.png)
 
 ```xaml
-<Grid Height="385" VerticalAlignment="Bottom">
-    <!--定义行 高度比2:8-->
+<Grid VerticalAlignment="Top">
     <Grid.RowDefinitions>
-        <RowDefinition Height="1*"/>
-        <RowDefinition Height="9*"/>
+        <RowDefinition/>
     </Grid.RowDefinitions>
     <StackPanel Orientation="Horizontal">
-        <Button Content="提交" Width="50" Margin="2"></Button>
-        <Button Content="发布"  Width="50" Margin="2"></Button>
-        <Button Content="测试" Width="50" Margin="2"></Button>
+        <Button Content="提交" Margin="2" FontSize="15"/>
+        <Button Content="发布" Margin="2"  FontSize="15"/>
+        <Button Content="测试" Margin="2" FontSize="15"/>
     </StackPanel>
 </Grid>
 ```
 
-:bookmark: StackPanel 中元素不同方向的对齐支持：
+:bookmark: StackPanel 中元素不同排列方向的对齐支持：
 
 | 方向     | HorizontalAlignment | VerticalAlignment | 原因                    |
 | :------- | :------------------ | :---------------- | :---------------------- |
@@ -1184,6 +1232,8 @@ Grid 提供了三种控制行列大小的途径：
 
 ##### 自动尺寸
 
+> 创建刚好容纳内容的行和列，给单元格分配的布局槽刚好容纳元素。
+
 ![image-20250811211112591](assets/image-20250811211112591.png)
 
 ```xaml
@@ -1284,7 +1334,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 * 每个单元格包含一个元素。
 * 元素按其在列表中列出的顺序添加到单元格中。
 * 通过指定UniformGrid 元素中的行数和列数来创建单元格。
-* `FirstColumn`指定第一行前导空格的数量。
+* `FirstColumn`指定第一行首列的索引位置。
 
 ![image-20250817155042493](assets/image-20250817155042493.png)
 
@@ -1380,7 +1430,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 | 常用属性                              |                                                              |
 | ------------------------------------- | ------------------------------------------------------------ |
-| `public bool IsCancel { get; set; }`  | 指示 [Button](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.button?view=windowsdesktop-9.0) 是否是一个取消按钮, 用户可以通过按 ESC 键来激活 Cancel 按钮。 |
+| `public bool IsCancel { get; set; }`  | 指示 [Button](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.button?view=windowsdesktop-9.0) 是否是一个取消按钮, 用户可以通过按 ESC 键触发。 |
 | `public bool IsDefault { get; set; }` | 是否是一个确认按钮, 用户可以通过按 `Enter` 键来激活确认按钮。 |
 
 
@@ -1419,9 +1469,11 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 `ToolTip`:一个长方形的小弹出窗口,用户将指针悬停在一个控件上时显示有关该控件用途的简短说明,无法独立创建。
 
-该类在`ContentControl`中声明，但只能作为其余控件的属性来使用。
+`ToolTip`类继承`ContentControl`，但只能作为其余控件的属性来使用。
 
-`ToolTip`属性从`FramworkElement`继承而来，几乎所有控件都能使用。
+而`object ToolTip`属性从`FramworkElement`继承而来，几乎所有控件都能使用。
+
+`wpf`内置的 **类型转换器**会将文本或其他对象转换为`ToolTip`对象并赋值给`ToolTip`属性。
 
 ```xaml
 <Button Content="按钮">
@@ -1438,7 +1490,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
             ToolTip="Create a new File"/>
     <Button Content="open" Width="60" Height="20" Margin="4" 
     ToolTip="open a file" ToolTipService.ShowDuration="2000"/>
-    <!--ShowDuration持续时间-->
+    <!--ShowDuration持续时间，毫秒-->
     <Button Content="close" Width="60" Height="20" Margin="4" 
     ToolTip="saves the file to disk"/>
 </StackPanel>
@@ -1447,7 +1499,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 ![image-20250816232520809](assets/image-20250816232520809.png)
 
 ```xaml
- <!-- ToolTipService.InitialShowDelay首次显示的时间 -->
+ <!-- ToolTipService.InitialShowDelay延迟多长时间展示，毫秒 -->
 <Button Content="close" Width="60" Height="20" Margin="4" ToolTipService.InitialShowDelay="0">
     <!-- 继承于ContentControl-->
     <Button.ToolTip >
@@ -1467,7 +1519,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 `CheckBox` 和 `RadioButton` 控件是按钮的特殊形式，它们会维护状态。
 
-每次用户点击一个 CheckBox，它通过设置或取消`IsChecked `属性在选中和非选中状态之间切换。
+每次用户点击一个 CheckBox，它通过设置或取消 `bool? IsChecked `属性在选中和非选中状态之间切换。
 
 
 
@@ -1527,7 +1579,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 
 :red_circle:radioButton 如果需要实现分组的效果 
 
-1. 使⽤布局容器来嵌套 （如grid /stackPanel等等）
+1. 使⽤布局容器来分组 （如grid /stackPanel等等）
 2. 可以使⽤groupName进⾏区分 
 
 
@@ -1537,7 +1589,7 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 :bookmark:界面`UI`
 
 ```xml
-<Grid Name="mainGrid">
+<Grid Name="myClass">
     <Label Content="选课" Width="200" HorizontalAlignment="Left"/>
     <CheckBox Content="C#" Width="200" HorizontalAlignment="Left" Margin="10,30"/>
     <CheckBox Content="数据结构" Width="200" HorizontalAlignment="Left" Margin="10,60"/>
@@ -1554,17 +1606,18 @@ DockPanel 是 WPF 中用于动态停靠控件的布局容器，它允许子元�
 ```c#
 private void Button_Click_1(object sender, RoutedEventArgs e)
 {
-    UIElementCollection eleCol = this.mainGrid.Children;
-    StringBuilder sb = new StringBuilder();
-    sb.Append("选择的课程是");
-    foreach (UIElement ele in eleCol)
+   UIElementCollection lists = this.myClass.Children;
+    if(lists != null)
     {
-        if (ele is CheckBox && (ele as CheckBox).IsChecked.GetValueOrDefault())
+        foreach(var list in lists)
         {
-            sb.Append((ele as CheckBox).Content);
+            //模式匹配：判断是否可以转换，如可以则直接声明变量，如果List为null，直接返回false
+            if(list is CheckBox  checkBox && checkBox.IsChecked.HasValue)
+            {
+                MessageBox.Show((checkBox).Content.ToString());
+            }
         }
-    }
-    MessageBox.Show(sb.ToString());
+}
 }
 ```
 
@@ -1580,9 +1633,7 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
 </ScrollViewer>
 ```
 
-
-
-### HeaderedContentControls
+### `HeaderedContentControl`
 
 `HeaderedContentControl `类派生自` ContentControl` 类,包含两个内容项—— `Content` 和 Header。
 
@@ -1591,7 +1642,7 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
 
 ![image-20250812231236588](assets/image-20250812231236588.png)
 
-#### `GroupBox`
+#### `GroupBox`**分组框** 
 
 `GroupBox`在其内容周围添加边框，并将标题放置在边框的左上角。注意事项如下：
 
@@ -1628,7 +1679,7 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
 
 ![image-20250812231456732](assets/image-20250812231456732.png)
 
-#### `Expander Control `
+#### `Expander`可折叠面板
 
 `Expander` 控件类似于一个 `GroupBox` ，可以通过点击按钮来显示或隐藏其内容。
 
@@ -1654,7 +1705,7 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
 
 ![image-20250812233245679](assets/image-20250812233245679.png)
 
-## `window`类
+### `window`
 
 > 大多数`WPF`程序由一个 `Window`对象组成，该对象包含其他元素。
 >
@@ -1666,32 +1717,23 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
 
 | **名称**                  | **类别** | **描述**                                                     |
 | :------------------------ | :------- | :----------------------------------------------------------- |
-| **Show**                  | 方法     | 在屏幕上创建一个可见窗口，创建后立即返回，不会等待窗口关闭。 |
-| **ShowDialog**            | 方法     | 在屏幕上创建一个可见窗口，直到该窗口关闭才返回。             |
-| **Hide**                  | 方法     | 使窗口不可见。                                               |
-| **TopMost**               | 属性     | 指定窗口是否置顶：`true`（始终显示在最前）或 `false`（正常层级）。 |
-| **ShowInTaskBar**         | 属性     | 控制窗口是否在任务栏中列出。                                 |
-| **WindowStartupLocation** | 属性     | 指定窗口初始位置（`Manual`/`CenterScreen`/`CenterOwner`）。  |
+| **ShowDialog()**          | 方法     | 在屏幕上创建一个模态窗口，直到该窗口关闭才返回结果。         |
+| **Show()**                | 方法     | 在屏幕上创建一个非模态窗口                                   |
 | **Icon**                  | 属性     | 设置窗口图标（图标文件路径或资源）。                         |
 | **Title**                 | 属性     | 设置窗口标题文本。                                           |
+| **`TopMost`**             | 属性     | 指定窗口是否置顶：`true`（始终显示在最前）或 `false`（正常层级）。 |
+| **`Window Owner`**        | 属性     | 子窗口的所有者                                               |
+| **`bool? DialogResult`**  | 属性     | 模态窗口的返回值                                             |
+| **ShowInTaskBar**         | 属性     | 控制窗口是否在任务栏中列出,默认列出。                        |
+| **WindowStartupLocation** | 属性     | 指定窗口初始位置（`Manual`/`CenterScreen`/`CenterOwner`）。  |
 | **WindowStyle**           | 属性     | 窗口边框样式： `None`（无边框） `SingleBorderWindow`（单边框） `ThreeDBorderWindow`（3D边框） `ToolWindow`（工具箱窗口） |
 | **ResizeMode**            | 属性     | 窗口缩放控制： `NoResize`（不可调节） `CanMinimize`（仅可最小化） `CanResize`（可调节） `CanResizeWithGrip`（可调节+显示网格） |
-| **Width**                 | 属性     | 窗口设计宽度（设备无关单位）。                               |
-| **Height**                | 属性     | 窗口设计高度（设备无关单位）。                               |
-| **MinWidth**              | 属性     | 窗口最小宽度限制。                                           |
-| **MaxWidth**              | 属性     | 窗口最大宽度限制。                                           |
-| **MinHeight**             | 属性     | 窗口最小高度限制。                                           |
-| **MaxHeight**             | 属性     | 窗口最大高度限制。                                           |
-| **ActualWidth**           | 属性     | 窗口实际渲染宽度（运行时计算，只读）。                       |
-| **ActualHeight**          | 属性     | 窗口实际渲染高度（运行时计算，只读）。                       |
 
-### 独立窗口与子窗口
-
-
+#### 独立窗口与子窗口
 
 一个程序可以创建多个窗口。这些窗口可以是完全独立的，也可以被其他窗口拥有。
 
- 被另一个窗口拥有的窗口称为子窗口。子窗口也称为无模式对话框。
+ 被另一个窗口拥有的窗口称为子窗口。
 
 * 当其所有者窗口最小化或关闭时，子窗口也会最小化或关闭。
 * 要将窗口设置为子窗口，请将其 `Owner` 属性设置为所有者窗口的引用。
@@ -1706,9 +1748,7 @@ private void Button_Click(object sender, RoutedEventArgs e)
 }
 ```
 
-:red_circle:通过 `Show()` 创建的窗口是操作系统管理的独立窗口，即使设置 `Owner`，它仍属于顶级窗口，与父窗口**平级**（只是逻辑上存在从属关系)
-
-### 模态对话框
+#### 模态对话框
 
 模态对话框，是一个专注于显示特定信息集或从用户收集信息的窗口。
 
@@ -1734,7 +1774,7 @@ private void Button_Click(object sender, RoutedEventArgs e)
   DialogResult 为 false 并关闭窗口。
 * 将按钮的 `IsDefault` 属性设置为 true ，用户点击该按钮，将调用按钮的事件处理程序，将 DialogResult 值设置为 true 或 false 并关闭窗口。
 
-### `MessageBox`对话框
+#### `MessageBox`对话框
 
 `MessageBox class`创建的模态对话框向用户显示消息、错误或警告。由于对话框是模态的，用户必须在继续程序之前处理
 
@@ -1771,6 +1811,28 @@ MessageBoxResult res = MessageBox.Show("警告","警告窗口",MessageBoxButton.
 
 ![image-20250812235011106](assets/image-20250812235011106.png)
 
+```text
+ItemsControl
+├─ Items           : ItemCollection           (原始数据集合)
+└─ ItemsSource     : IEnumerable              (数据源绑定)
+└─ ItemTemplate : DataTemplate                (项数据模板)
+
+Selector (继承 ItemsControl)
+├─ SelectedItem    : object                   (选中的项对象，多选时返回第一个)
+├─ SelectedValue   : object                   (选中项的值，由SelectedValuePath决定)
+├─ SelectedIndex   : int                      (选中项的索引，-1表示未选中)
+└─ SelectedValuePath : string                 (指定从选中项中提取哪个属性作为SelectedValue)
+
+ListBox (继承 Selector)
+├─ SelectedItems   : IList                    (所有选中项的集合，只有SelectionMode不是Single时有用)
+└─ SelectionMode   : SelectionMode            (选择模式：Single-单选，Multiple-多选，Extended-扩展多选)
+
+ComboBox (继承 Selector)
+└─ SelectionBoxItem : object                  (下拉框中显示的项，可自定义显示内容)
+```
+
+
+
 ### `ListBox`
 
 ` ListBox` 向用户显示一组元素，用户可以从中选择一个或多个子项。以下是一些关于 ListBox的重要分析：
@@ -1781,9 +1843,9 @@ MessageBoxResult res = MessageBox.Show("警告","警告窗口",MessageBoxButton.
 
   将子元素放入 `ListBox`的 Items 集合中，有两种形式
 
-   :one: 显式地将每个项包装在` ListBoxItem `元素中，
+   :one: 显式地将每个项包装在` ListBoxItem `元素中
 
-  :two: 直接将控件放入集合中，系统在`UI`渲染层面会隐式包装它们（在控件外层套一层`ListBoxItem`,其`Content`属性为控件）
+  :two: 直接将控件放入集合中，系统在`UI`渲染层面(视觉树)会隐式包装它们（在控件外层套一层`ListBoxItem`,其`Content`属性为控件对象）
 
   ![image-20250813192705192](assets/image-20250813192705192.png)
 
@@ -1806,7 +1868,7 @@ MessageBoxResult res = MessageBox.Show("警告","警告窗口",MessageBoxButton.
 
 | **属性名**        | **类型**             | **描述**                                                     | **默认值**       | **补充说明**                                                 |
 | :---------------- | :------------------- | :----------------------------------------------------------- | :--------------- | :----------------------------------------------------------- |
-| **SelectedItem**  | `object`             | 获取或设置当前选中的**第一个项**（多选时返回第一个选中的项） | `null`（未选中） | 直接返回数据项对象本身                                       |
+| **SelectedItem**  | `object`             | 获取或设置当前选中的**第一个项**（多选时返回第一个选中的项） | `null`（未选中） | 直接返回数据项对象本身或元素对象                             |
 | **SelectedItems** | `IList`              | 获取当前选中的所有项的集合（只读）                           | 空集合           | 仅在 `SelectionMode` 为 Multiple 或 Extended 时有意义        |
 | **SelectedIndex** | `int`                | 获取或设置当前选中的**第一个项的索引**                       | `-1`（未选中）   | 索引从 0 开始                                                |
 | **SelectionMode** | `SelectionMode` 枚举 | 控制选择行为： • `Single` - 单选 • `Multiple` - 多选 • `Extended` - 扩展多选（Ctrl/Shift选择） | `Single`         |                                                              |
@@ -1814,9 +1876,11 @@ MessageBoxResult res = MessageBox.Show("警告","警告窗口",MessageBoxButton.
 
 :red_circle:重要讨论：
 
-- 当使用 `ItemsSource` 数据绑定时，`SelectedItem` 返回的是**数据对象**
-- 当直接向 `Items` 集合添加 `ListBoxItem` 时，`SelectedItem` 返回的是**`ListBoxItem` 容器对象**
-- `SelectedValue`同理
+- `Items`存储的是原始对象：
+  - 如果使用 `ItemsSource` 数据绑定时，存储的是数据源中的对象
+  - 当直接向 `Items` 元素添加 `ListBoxItem`元素时，`Items` 存储的是**`ListBoxItem` 容器对象**
+  - 当直接向 `Items` 元素添加 其他元素，如`Label`元素时，`Items` 存储的是**`Label` 对象**
+
 
 ![image-20250813200917443](assets/image-20250813200917443.png)
 
@@ -1860,7 +1924,7 @@ private void Button_Click_1(object sender, RoutedEventArgs e)
  }
 ```
 
-:bookmark:多选择
+#### 多选择
 
 通过`SelectionMode`属性设置选择模式。
 
@@ -1902,6 +1966,96 @@ private void its_SelectionChanged(object sender, SelectionChangedEventArgs e)
 }
 ```
 
+使用`SelectedItems`属性
+
+```xaml
+<StackPanel>
+    <ListBox  x:Name="select" SelectionChanged="Selected_Changed" SelectionMode="Multiple">
+        <ListBoxItem>
+            <Label Content="Sweetie"/>
+        </ListBoxItem>
+        <Label Content="Darwin"/>
+        <Label Content="Florence"/>
+    </ListBox>
+    <Button Content="click" Click="Button_Click"/>
+</StackPanel>
+```
+
+`C#`
+
+```c#
+ private void Selected_Changed(object sender, SelectionChangedEventArgs e)
+ {
+     ListBox? box = sender as ListBox;
+     if (box != null)
+     {
+         foreach (var item in box.SelectedItems)
+         {
+             //判断选中的是ListBoxItem还是Label对象
+             if (item is ListBoxItem)
+             {
+                 MessageBox.Show((item as ListBoxItem)?.Content?.ToString() ?? "空");
+             }
+             else
+             {
+                 MessageBox.Show((item as Label)?.Content?.ToString() ?? "空");
+             }
+         }
+        
+     }
+ }
+```
+
+#### `SelectedValuePath`
+
+选取对象的属性，常与数据绑定连用。
+
+![image-20260131153702705](assets/wpf/image-20260131153702705.png)
+
+```xaml
+<StackPanel>
+    <ListBox SelectionMode="Extended" ItemsSource="{Binding}"
+             SelectionChanged="ListBox_SelectionChanged" 
+             SelectedValuePath="Department"
+             DisplayMemberPath="FirstName"
+             Name="selector"/>
+</StackPanel>
+```
+
+`C#`
+
+```c#
+public ObservableCollection<Employee> Employees { get; set; }
+public MainWindow()
+{
+    InitializeComponent();
+    Employees = new ObservableCollection<Employee>();
+    Employees.Add(new Employee
+    {
+        FirstName = "Kunal",
+        LastName = "Chowdhury",
+        Department = "Software Division"
+    });
+    Employees.Add(new Employee
+    {
+        FirstName = "Michael",
+        LastName = "Washington",
+        Department = "Software Division"
+    });
+    Employees.Add(new Employee
+    {
+        FirstName = "John",
+        LastName = "Strokes",
+        Department = "Finance Department"
+    });
+    this.DataContext = Employees;
+}
+private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    MessageBox.Show(this.selector.SelectedValue.ToString());
+}
+```
+
 ### `ComboBox`
 
 设置`ComboBox`的 `Items` 集合的方法与设置 `ListBox`中集合的方法类似。您可以显式地将子项包装
@@ -1923,7 +2077,7 @@ private void its_SelectionChanged(object sender, SelectionChangedEventArgs e)
 </StackPanel>
 ```
 
-要从代码中获取选定的项，请使用 `SelectionBoxItem` 属性（选中项的内容，非`ComboBoxItem`对象）
+要从代码中获取选定的项，请使用 `SelectionBoxItem` 属性（**显示在输入框里的内容对象**）,放入其他控件，如`Label`时会返回``Rectangle`对象（这是内部的处理机制，所以不推荐使用）
 
 ```c#
 private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -1966,7 +2120,74 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 }
 ```
 
+### `TabControl`选项卡
 
+包含多个项的控件，这些项共享屏幕上的同一空间。
+
+![image-20250817142133582](assets/image-20250817142133582.png)
+
+```xaml
+<StackPanel>
+    <TabControl>
+        <TabItem Header="Tab 1">
+            <TextBlock Text="You have Selected 'Tab 1'"
+                       FontSize="15" Margin="10" HorizontalAlignment="Left"/>
+        </TabItem>
+        <TabItem Header=" Tab 2">
+            <TextBlock Text="You have Selected 'Tab 2'"
+                   FontSize="15" Margin="10" HorizontalAlignment="Left"/>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="10" Height="10" Fill="AntiqueWhite"
+                             Margin="0 1 8 0"/>
+                    <TextBlock Text="Tab 3"/>
+                </StackPanel>
+            </TabItem.Header>
+            <TextBlock Text="You have selected 'Tab 3'"/>
+        </TabItem>
+    </TabControl>
+    <TextBlock Text="固定区域"/>
+</StackPanel>
+```
+
+也可以进行嵌套
+
+![image-20250817142920448](assets/image-20250817142920448.png)
+
+```xaml
+<StackPanel>
+    <TabControl>
+        <TabItem Header="上封头">
+            <TabControl>
+                <TabItem Header="进料口">
+                    进料口管口信息
+                </TabItem>
+                <TabItem Header="人孔">
+                    人孔口管口信息
+                </TabItem>
+                <TabItem Header="清洗口">
+                    清洗口管口信息
+                </TabItem>
+            </TabControl>
+        </TabItem>
+        <TabItem Header="下封头">
+            <TabControl>
+                <TabItem Header="出料口">
+                    出料口管口信息
+                </TabItem>
+                <TabItem Header="液位计">
+                   液位计管口信息
+                </TabItem>
+                <TabItem Header="温度传感器街头">
+                    温度传感器管口信息
+                </TabItem>
+            </TabControl>
+        </TabItem>
+    </TabControl>
+</StackPanel>
+```
 
 ### `Menu`菜单
 
@@ -2056,82 +2277,11 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 `InputGestureText`仅是设置文本，不与`MenuItem`相关联。
 
-### `TabControl`
-
-包含多个项的控件，这些项共享屏幕上的同一空间。
-
-![image-20250817142133582](assets/image-20250817142133582.png)
-
-```xaml
-<StackPanel>
-    <TabControl>
-        <TabItem Header="Tab 1">
-            <TextBlock Text="You have Selected 'Tab 1'"
-                       FontSize="15" Margin="10" HorizontalAlignment="Left"/>
-        </TabItem>
-        <TabItem Header=" Tab 2">
-            <TextBlock Text="You have Selected 'Tab 2'"
-                   FontSize="15" Margin="10" HorizontalAlignment="Left"/>
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Width="10" Height="10" Fill="AntiqueWhite"
-                             Margin="0 1 8 0"/>
-                    <TextBlock Text="Tab 3"/>
-                </StackPanel>
-            </TabItem.Header>
-            <TextBlock Text="You have selected 'Tab 3'"/>
-        </TabItem>
-    </TabControl>
-    <TextBlock Text="固定区域"/>
-</StackPanel>
-```
-
-也可以进行嵌套
-
-![image-20250817142920448](assets/image-20250817142920448.png)
-
-```xaml
-<StackPanel>
-    <TabControl>
-        <TabItem Header="上封头">
-            <TabControl>
-                <TabItem Header="进料口">
-                    进料口管口信息
-                </TabItem>
-                <TabItem Header="人孔">
-                    人孔口管口信息
-                </TabItem>
-                <TabItem Header="清洗口">
-                    清洗口管口信息
-                </TabItem>
-            </TabControl>
-        </TabItem>
-        <TabItem Header="下封头">
-            <TabControl>
-                <TabItem Header="出料口">
-                    出料口管口信息
-                </TabItem>
-                <TabItem Header="液位计">
-                   液位计管口信息
-                </TabItem>
-                <TabItem Header="温度传感器街头">
-                    温度传感器管口信息
-                </TabItem>
-            </TabControl>
-        </TabItem>
-    </TabControl>
-</StackPanel>
-```
-
-
-
 ## 其他控件
 
 ### Border
 
-> 在另一个元素四周绘制边框和/或背景。
+> 在另一个元素四周绘制`边框`或`背景`。
 >
 > [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0) 只能有一个子级。 若要显示多个子元素，需要在父 [Border](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.border?view=windowsdesktop-6.0)内放置一个附加[Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0)元素。 然后，可以在该 [Panel](https://learn.microsoft.com/zh-cn/dotnet/api/system.windows.controls.panel?view=windowsdesktop-6.0) 元素中放置子元素。
 >
@@ -2139,7 +2289,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 ![image-20250806222232439](assets/image-20250806222232439.png)
 
-```c#
+```xaml
 <Grid>
     <Border Background="AliceBlue" Width="200" Height="30" CornerRadius="10"
             BorderThickness="1"
@@ -2148,6 +2298,7 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
                 Background="Transparent" 
                 Click="Button_Click">
         </Button>
+    <!-- Transparent 透明-->
     </Border>
 </Grid>
 ```
@@ -2156,6 +2307,18 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 | ------------------------------------------------ | ---------------- |
 | `public Brush BorderBrush { get; set; }`         | 设置外部边框颜色 |
 | `public CornerRadius CornerRadius { get; set; }` | 圆角             |
+
+还可以用来表示文本下划线。
+
+```xaml
+<StackPanel HorizontalAlignment="Left">
+    <Border  BorderThickness="0 0 0 1" BorderBrush="Red">
+        <Label Content="文本"/>
+    </Border>
+</StackPanel>
+```
+
+![image-20260125100716656](assets/wpf/image-20260125100716656.png)
 
 ### `TextBox`
 
@@ -2287,11 +2450,13 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
 
 :two: 通过`DependencyProperty.Register()`方法可在`wpf`属性系统中注册一个依赖属性，被注册过的依赖属性会被分配一个全局唯一的索引（`GlobalIndex`）。
 
+![image-20260123182044614](assets/image-20260123182044614.png)
+
 :three: `DependencyObject` 类的对象有`GetValue()`和`SetValue()`两个方法，用于中获取和设置依赖属性值。
 
 :bookmark: 值是如何存储的?`GlobalIndex`又是如何与之关联的？
 
-值是存储在**每个 `DependencyObject` 实例内部**的一个类型为 `EffectiveValueEntry` 的结构体数组中，每个元素包含`GlobalIndex`和`value`属性，这个`PropertyIndex`存储的就是属性系统分配的全局唯一索引，更加方便我们进行查找。
+值是存储在**每个 `DependencyObject` 实例内部**的一个类型为 `EffectiveValueEntry` 的结构体数组中，每个元素包含`PropertyIndex`和`value`属性，这个`PropertyIndex`存储的就是属性系统分配的全局唯一索引，更加方便进行查找。
 
 
 
@@ -2381,7 +2546,7 @@ flowchart LR
 
 ------
 
-以下是`SetValue`和`GetValue`u过程，目前仅作了解，不再深入。
+以下是`SetValue`和`GetValue`u过程，目前仅作了解。
 
 :bookmark: `SetValue`:
 
@@ -2390,11 +2555,7 @@ flowchart TD
     A[调用 DependencyObject.SetValue<br>为依赖属性赋值] --> B[属性系统内部处理<br>Coerce强制, Validate验证, 比较值变化]
     B --> C{值是否发生改变？}
     C -->|否| Z[流程结束]
-    C -->|是| D{值 = 默认值？}
-    D -->|是| E[删除实例数组中的EffectiveValueEntry元素]
-    D -->|否| F[将新值存入实例数组的EffectiveValueEntry元素]
-    E --> G[更新实例的_effectiveValues数组]
-    F --> G
+    C -->|是| G[更新实例的_effectiveValues数组]
     G --> H[全局属性系统广播变更事件]
     H --> I[绑定、样式、动画等<br>监听者响应变更]
     I --> J[调用注册的PropertyChangedCallback]
@@ -2419,7 +2580,7 @@ flowchart TD
     H --> I
 ```
 
-## 附加属性
+## 附加属性(理解)
 
 附加属性是特殊的依赖属性。和普通依赖属性的差异如下：
 
@@ -2493,7 +2654,7 @@ public partial class MainWindow : Window
 </StackPanel>
 ```
 
-保持同步的数据元素必须是属性。一个属性称为源属性，另一个称为目标属性.
+保持同步的数据必须是属性。一个属性称为源属性，另一个称为目标属性.
 
 :bookmark:绑定语法
 
@@ -2536,9 +2697,9 @@ public partial class MainWindow : Window
 
 `displayText.SetBinding(ContentProperty, binding)`会创建一个`BindingExpression`对象，类似于桥梁的作用。
 
-* 数据源实现INPC 或为依赖属性→ 触发事件 → BindingExpression → 更新UI依赖属性
+* 数据源实现INPC 或为依赖属性→ 触发`PropertyChanged`事件/属性系统通知 → BindingExpression → 更新UI依赖属性
 
-* UI依赖属性改变 → 属性系统通知 → BindingExpression → 反射调用setter
+* UI依赖属性改变 → 属性系统通知 → BindingExpression → 更新数据
 
   :red_circle:数据源确保实现`INotifyPropertyChanged`接口 ，这样值改变时才会触发事件通知BindingExpression对象
 
@@ -2559,6 +2720,12 @@ graph LR
 ```
 
 除了使用`ElementName`绑定数据源外，还是可以使用`Source`属性绑定静态资源作为数据源。
+
+`Binding`内部成员如下：
+
+![image-20260126212647844](assets/image-20260126212647844.png)
+
+
 
 ## 绑定的方式
 
@@ -2588,7 +2755,7 @@ graph LR
      <TextBlock Text=":" HorizontalAlignment="Center" Grid.Column="1"/>
      <TextBlock Text="{Binding Department, ElementName=window}" Margin="0 2" Grid.Column="2"/>
      <!--Row 1-->
-     <TextBlock Text="Your Name" Grid.Row="1"/>
+     <TextBlock Text="Ydour Name" Grid.Row="1"/>
      <TextBlock Text=":" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center"/>
      <TextBox Text="{Binding PersonName, ElementName=window,Mode=TwoWay}" Margin="0 2" Grid.Column="2" Grid.Row="1"/>
      <!--Row3-->
@@ -2597,7 +2764,7 @@ graph LR
                  Grid.Row="3" Grid.ColumnSpan="3">
          <Button Content="Submit" Margin="4" Width="80" Click="OnSubmit"/>
          <Button Content="Reset" Margin="4" Width="80" Click="OnReset"/>
-     </StackPanel>
+     </StackPanel>d
  </Grid>
 ```
 
@@ -2608,6 +2775,7 @@ public partial class MainWindow : Window,INotifyPropertyChanged//源更新通报
 {
     public string Department { get => "Softer"; }
 
+    //BindingExpression订阅该事件
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private string personName;
@@ -2627,6 +2795,7 @@ public partial class MainWindow : Window,INotifyPropertyChanged//源更新通报
     }
     public virtual void OnPropertyChanged([CallerMemberName]string? propertyName = null)
     {
+        //事件源，参数包，标准的发布订阅模式
         PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(propertyName));
     }
     private void OnSubmit(object sender, RoutedEventArgs e)
@@ -2639,6 +2808,8 @@ public partial class MainWindow : Window,INotifyPropertyChanged//源更新通报
     }
 }
 ```
+
+`[CallerMemberName]`特性：调用这个方法时没有传递参数**不会使用参数的默认值**，就自动把调用者的名字（方法名、属性名）作为参数传进来
 
 ### 使用依赖属性进行绑定
 
@@ -2681,13 +2852,13 @@ public partial class MainWindow : Window
 
 1. `ElementName` - 直接指定元素名称
 2. `Source` - 直接指定源对象
-3. `RelativeSource` - 相对于当前元素的源
+3. `RelativeSource` - 相对于当前元素的源对象
 
 :small_red_triangle:**当一个控件同时设置了DataContext和在Binding中指定了Source（或其他绑定源属性）时，绑定会优先使用在Binding中明确指定的源，而忽略DataContext。**
 
 换句话说：**明确使用绑定指令（Source/ElementName/RelativeSource）的源优先级高于继承的DataContext**。
 
-如果在某元素未查找到绑定源，它会开始沿着元素树向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
+如果在某元素未查找到绑定源，它会开始沿着逻辑树向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
 
 :bookmark:`RelativeSource` 
 
@@ -2758,15 +2929,17 @@ public class Person : INotifyPropertyChanged
 ```xaml
 <StackPanel Background="#f5f5f5">
     <StackPanel.DataContext>
-        <viewmodel:Person/>
+        <viewmodel:Person/> 
     </StackPanel.DataContext>
-    <TextBlock Text="{Binding Name}" Margin="5" FontWeight="Bold"
+    <Label Content="{Binding Name}" Margin="5" FontWeight="Bold"
                Foreground="Red"/>
     <TextBox Margin="5"
         Text="{Binding Name,UpdateSourceTrigger=PropertyChanged}"
         Width="300"/>
 </StackPanel>
 ```
+
+`<viewmodel:Person/> `遵循元素语法，默认调用无参构造。
 
 #### `初探MVVM`
 
@@ -2920,6 +3093,33 @@ flowchart TB
 
 #### `DataGrid`
 
+创建单元格步骤：:one:列描述 :two:添加数据，使用`Binding`数据绑定属性，用于将DataGrid列绑定到数据源的某个属性上
+
+列类型如下：
+
+```mermaid
+graph TD
+    A[WPF DataGrid列类型] --> B[内置列]
+    A --> C[自定义列]
+    
+    B --> B1[DataGridTextColumn<br/>文本/数字列]
+    B --> B2[DataGridCheckBoxColumn<br/>复选框列]
+    B --> B3[DataGridComboBoxColumn<br/>下拉框列]
+    B --> B4[DataGridHyperlinkColumn<br/>超链接列]
+    
+    C --> C1[DataGridTemplateColumn<br/>模板列<br/>（最灵活）]
+```
+
+| 宽度设置方式     | 说明                                       | 示例                     | 适用场景                             |
+| :--------------- | :----------------------------------------- | :----------------------- | :----------------------------------- |
+| **固定数值**     | 设置固定的像素宽度                         | `Width="120"`            | 需要固定宽度的列，如ID、状态等       |
+| **Auto**         | 自动调整以适合所有内容（包括标题和单元格） | `Width="Auto"`           | 内容长度不确定，需要完全显示所有内容 |
+| **SizeToCells**  | 根据数据单元格内容调整宽度，忽略标题       | `Width="SizeToCells"`    | 数据内容重要，标题较短的列           |
+| **SizeToHeader** | 根据列标题调整宽度，忽略数据内容           | `Width="SizeToHeader"`   | 标题较长但数据内容较短的列           |
+| *** (星号)**     | 按比例分配剩余空间                         | `Width="*"` `Width="2*"` | 需要响应式布局，按比例分配宽度的列   |
+
+
+
 ![image-20250926225429929](assets/wpf/image-20250926225429929-1758898475731-2.png)
 
 ```xaml
@@ -2927,6 +3127,7 @@ flowchart TB
           AutoGenerateColumns="False"
           CanUserAddRows="False"  
           >
+    <!--AutoGenerateColumns禁用自动生成列 -->
     <!--CanUserAddRows禁用新建行 -->
     <!--空白列通常是由于列宽自适应导致的,指定列宽-->
     <DataGrid.Columns>

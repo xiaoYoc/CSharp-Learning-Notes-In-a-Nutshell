@@ -142,7 +142,7 @@ namespace worklzb
 
 | Console类常用方法    | 作用                                                         |
 | -------------------- | ------------------------------------------------------------ |
-| Console.WriteLine( ) | 将字符串打印到屏幕，结尾跟一个换行符                         |
+| Console.WriteLine( ) | 将字符串打印到屏幕，结尾跟一个换行符（内部调用`ToString方法`） |
 | Console.Write( )     | 将字符串打印到屏幕                                           |
 | Console.ReadLine( )  | 读取用户在屏幕中输入的内容 ，string类型                      |
 | Console.ReadKey( )   | 暂停窗口，直到用户输入内容。参数为true时，不显示用户输入内容。 |
@@ -179,7 +179,45 @@ Console.   WriteLine();//空格
 
 # 变量与常量
 
-变量与常量是用来在计算机中存储数据。
+变量与常量即在计算机中存储数据的所在地址别名。
+
+## 标识符的命名规范
+
+> 标识符是指变量,类，方法或其他程序结构的名称;关键字指的是微软内部定义的有特殊意义的字符串，如`if`,`in` `class`等。
+
+标识符命名规范如下:
+
+:one: 标识符要有意义
+
+:two: 不能与关键字冲突（对编译器有特殊意义的:large_blue_diamond: 单词）。
+
+:three:以字母，`_`,`@`开头，后面跟任意`数字`，`字母`，`下划线_`;`@`符号的作用是转义关键字。
+
+```csharp
+string 1num = 1; //错误
+string num_1 = 2; //正确
+string a = 2;//无意义
+int @int = 0;//@符号转义关键字，了解，不推荐
+```
+
+:four:大小写敏感
+
+```csharp
+int num = 0;
+int Num = 1;//二者不一致
+```
+
+:five:不能重复声明
+
+:six:变量，字段推荐`Camel(骆驼)`命名规范：首单词字母小写，其余单词首字母大写。
+
+* `highSchool`
+
+* `dark_Key`
+
+:seven:类，结构，方法，枚举,属性名推荐`Pascal`命名规范：所有单词首字母大写
+
+:eight:常量所有字母大写，如`PI`
 
 ## 变量类型
 
@@ -214,7 +252,9 @@ F-->bool
 F --> char
 ```
 
-:two:自定义类型：需要用户定义类型的结构，先声明类型然后实例化(分配内存空间)，最后初始化(存放数据)。
+:two:自定义类型：需要用户定义类型的结构，然后声明变量并实例化(分配内存空间)。
+
+需要注意的是数组和委托稍有不同，看起来是直接实例化的，实际的声明是系统内部帮我们定义类型结构。
 
 ```mermaid
 flowchart TD
@@ -234,7 +274,12 @@ A--> 委托delegate
 
 :red_circle: 整数类型不能赋值小数。
 
-:red_circle:有符号类型位数第一位表示数字的正负性，如`int a = -1`，二进制为`1000 0000 0000 0000 0000 0000 0000 0001` 。
+:red_circle:有符号类型位数第一位表示数字的正负性，**最高位为符号位**
+
+- `0` = 正数或零
+- `1` = 负数
+
+如`sbyte a = -1`，二进制为`1111 1111` 。
 
 | 整数类型 | 备注           | 整数类型 | 备注           |
 | -------- | -------------- | -------- | -------------- |
@@ -255,22 +300,46 @@ A--> 委托delegate
 
 二进制是逢2进位的进位制，0,1是基本运算符。 
 
-二进制转10进制使用除2取余法。
+10进制转2进制使用除2取余法。
 
 ![image-20250525203615043](assets/image-20250525203615043.png)
 
-二进制转十进制需要按位求幂相加。
+二进制转十进制需要**按位求幂**相加。
 
 ![image-20250525204010588](assets/image-20250525204010588.png)
 
-二进制`1000`表示的十进制8，则四位二进制表示的最大十进制数为`2的5次方-1` .
+:bookmark: 二进制`1000`表示的十进制8，则四位二进制表示的最大十进制数为`2的4次方-1` .
+
+:bookmark:数值溢出：指计算结果超出了数据类型能表示的范围
+
+注意数值溢出特性：
+
+当运算结果超过了数据类型能表示的范围，它会自动**回卷**到另一端。
+
+- **正溢出**：`2147483647 + 1` → **-2147483648**
+- **负溢出**：`-2147483648 - 1` → **2147483647**
+
+![溢出](assets/溢出.webp)
+
+```c#
+unchecked //显示指定允许溢出
+{
+    int maxNum = int.MaxValue;
+    Console.WriteLine(maxNum);//2147483647
+    maxNum = maxNum + 1;
+    Console.WriteLine(maxNum);//-2147483648
+}
+//checked为不允许溢出
+```
+
+
 
 :three:其他
 
 | 类型   | 关键字 | 备注                                                         |
 | ------ | ------ | ------------------------------------------------------------ |
 | 字符串 | string | 存放0~多个字符文本，用双引号包裹起来                         |
-| 单字符 | char   | 仅能存放一个字符，不能为空，用单引号包裹,本质上是 16 位 Unicode 整数值 |
+| 单字符 | char   | 仅能存放一个字符，不能为空，用单引号包裹,本质上是 16 位 Unicode 整数值(即ushort) |
 | 布尔值 | bool   | true或false                                                  |
 | 枚举   | enum   | 用户自定义的数据类型,默认用Int数据存储。                     |
 
@@ -327,7 +396,7 @@ flowchart TD
     end
 
     %% 标注说明
-    N1["静态存储区（由高频堆实现）"] ~~~ D
+    N1["CSharp中静态存储区（由高频堆实现）"] ~~~ D
     N2["线程栈（每个线程独立）"] ~~~ S
     classDef note fill:#f9f9f9,stroke:#ddd;
     class N1,N2 note;
@@ -338,7 +407,7 @@ flowchart TD
 
 
 1. 栈的空间小，读取速度最快，由操作系统与CLR管理；
-2. 静态存储区域访问速度极快，接近栈，数据常驻内存，适合存储 长期不变的高频访问数据，过度使用可能导致 内存占用增加。
+2. 静态存储区域访问速度极快，接近栈，数据常驻内存，适合存储长期不变的高频访问数据，过度使用可能导致内存占用增加。
 3. GC堆的空间大，小对象分配速度快，大对象分配速度较慢，释放速度慢，由垃圾回收机制`GC`管理；
 
 ```mermaid
@@ -362,7 +431,7 @@ C-->Object
 
 ![image-20250330114743619](assets/image-20250330114743619.png)
 
-:red_circle:无论值类型，引用类型变量作为成员使用数据存放在GC堆中。
+:red_circle:无论值类型，引用类型变量作为实例成员使用数据都存放在GC堆中。
 
 ### 值类型
 
@@ -387,7 +456,7 @@ Console.WriteLine(a);//10
 
 `MyType`实例有`A`值类型变量与`B`引用类型变量。`A`存储实际数据；`B`储存实际数据的引用，该引用才指向数据。
 
-引用类型的复制行为（因字符串的不可变性，不在此类）：引用类型变量赋值给另一个变量，只是复制了引用地址，两个变量指向同一个对象，修改一个会影响另一个。
+引用类型的复制行为（因字符串的不可变性，不在此讨论范围之内）：引用类型变量赋值给另一个变量，只是复制了引用地址，两个变量指向同一个对象，修改一个会影响另一个。
 
 ```csharp
 int[] arr1 = { 1, 2, 3 };
@@ -396,60 +465,35 @@ arr2[0] = 100;
 Console.WriteLine(arr1[0]);//100
 ```
 
-### 静态类型字段
+:bookmark:字符串不可变性：
+
+一旦一个字符串对象被创建，它的内容就不能被修改。任何看似修改字符串的操作，实际上变量指向了**一个新的字符串对象**，而不是在原来的字符串上进行修改。
+
+### 静态类型
 
 
 
-静态类型变量存储在静态存储区域（广义托管堆的特殊区域）中，在访问所在类成员时便被初始化，整个程序结束时才会销毁变量。
+静态类型变量存储在静态存储区域（广义托管堆的特殊区域）中，首次访问所在类成员时便被初始化，整个程序结束时才会销毁变量。
 
 值类型直接嵌入在`静存储态区域`中，若是引用类型则在`静态存储区域`中存储对象的引用，该引用指向GC堆中的实际数据。
 
-## 命名规范
 
-:one: 变量名称(标识符)要有意义
-
-:two: 不能与关键字冲突（对编译器有特殊意义的:large_blue_diamond: 单词）。
-
-:three:以字母，`_`,`@`开头，后面跟任意`数字`，`字母`，`下划线_`;`@`符号的作用是转义关键字。
-
-```csharp
-string 1num = 1; //错误
-string num_1 = 2; //正确
-string a = 2;//无意义
-int @int = 0;//@符号转义关键字，了解，不推荐
-```
-
-:four:大小写敏感
-
-```csharp
-int num = 0;
-int Num = 1;//二者不一致
-```
-
-:five:不能重复声明
-
-:six:变量，字段推荐`Camel(骆驼)`命名规范：首单词字母小写，其余单词首字母大写。
-
-* `highSchool`
-
-* `dark_Key`
-
-:seven:类，结构，方法，枚举,属性名推荐`Pascal`命名规范：所有单词首字母大写
-
-:eight:常量所有字母大写，如`PI`
 
 ## 变量的声明与初始化
 
 
 
-声明变量：意在指定数据类型以及名称(内存地址别名)，告诉编译器它的数据类型，在何处分配空间，给它分配多大的空间。
+声明变量：告诉编译器它的数据类型，在何处分配空间，在运行时给它预留多大的空间。
 
 ```csharp
-// 数据类型 变量名
-int a;//,已在栈分配空间，内存中的值未定义(可能是残留数据)，不能直接使用
-string str; //栈中分配空间(值未定义)，堆中未分配内存，不能直接使用
-bool b = false;//声明且初始化
-int d, e, f, g;//连续声明变量,要求变量类型一致
+static void Main()
+{
+    // 数据类型 变量名
+    int a;//,运行时在栈分配空间，内存中的值未定义(可能是残留数据)，不能直接使用
+    string str; //栈中分配空间(值未定义)，堆中未分配内存，不能直接使用
+    bool b = false;//声明且初始化
+    int d, e, f, g;//连续声明变量,要求变量类型一致
+}
 ```
 
 在声明变量的同时进行初始化:
@@ -459,11 +503,11 @@ int a = 100, b = 0, c = 20,d;
 //连续声明以及赋值,要求变量类型一致
 ```
 
-声明变量`a`,并将值100赋值给`a`。本质是在内存中申请一个存储整数的空间，随后将100存放其中。
+声明变量`a`,并将值100赋值给`a`。本质是在内存中申请一个存储整数的空间(声明)，随后将100存放其中(初始化)。
 
 :red_circle:自动初始化:定义在某些位置的变量未进行初始化，但系统会提供默认值(引用类型为`null`,值类型为`0`,布尔类型为`false`)，某些则不会提供默认值(即未定义，使用该变量前必须显示初始化)。
 
-* 类、结构字段以及数组元素会自动初始化
+* 类、结构的成员以及数组元素会自动初始化。
 * 函数中的局部变量，形参不会自动初始化。
 
 ## var推断类型
@@ -519,9 +563,9 @@ static void Main(string[] args)
     int a = 1;
     int b = 2;
     //将Main函数中的a，b储存的值赋值形参a,b，变量名虽相同但不冲突
-    Range(a, b);
-    //方法结束后，内部的变量占用的空间回收
-    Console.WriteLine(a);//1，只能访问到本方法中的a
+    
+    Range(a, b);//方法结束后，内部的变量占用的空间回收
+    Console.WriteLine(a);//1，只能访问Main方法中的a
     Console.WriteLine(b);//2
 }
 public static void Range(int a, int b)
@@ -543,8 +587,6 @@ Action action;
 action();
 //原变量i提升为闭包对象的字段，具体在lambda表达式中讲述
 ```
-
-
 
 ### 静态字段模拟全局变量
 
@@ -579,7 +621,7 @@ const int num = 10;//程序运行时会跳过常量声明部分
 num = 20;//错误，赋值号左边必须是变量...
 ```
 
-常量的类型可以是预定义的简单类型，`string`类型，枚举，不能是其他引用类型和结构体，后者需要在运行期才能确定（因为构造函数执行在运行期）。
+常量的类型可以是预定义的简单类型，`string`类型，枚举，不能是结构体、数组或其他引用类型，后者需要在运行期才能确定（因为构造函数执行在运行期）。
 
 常量在内存中没有存储位置，编译时编译器会将常量替换为具体的值。
 
@@ -590,15 +632,14 @@ num = 20;//错误，赋值号左边必须是变量...
 ```c#
 int? num = null;
 //内部编译为 Nullable<int> x = new Nullable<int>()的结构体
-//HasValue属性判断是否有值
-//null代表无效数据
-if (num.HasValue) 
+
+if (num.HasValue) //HasValue属性判断是否有值
 {
-    //执行相关
+    //执行相关代码
 }
 ```
 
-:bookmark: 可空类型内存结构：
+:bookmark: 可空类型数据结构：
 
 ![image-20250716195011028](assets/image-20250716195011028.png)
 
@@ -642,7 +683,15 @@ int? p= null;
 Console.WriteLine(p.GetValueOrDefault());//默认值0
 p = 20;
 Console.WriteLine(p.GetValueOrDefault());//对象的值20
-Console.WriteLine(num.GetValueOrDefault(14));//20，对象有值，输出的还是对象的值，优先级高
+```
+
+:red_circle:`HasValue`为`True`时指定默认值无效
+
+```c#
+int? num = null;
+Console.WriteLine(num.GetValueOrDefault(10));//10
+num = 3;
+Console.WriteLine(num.GetValueOrDefault(10));//3
 ```
 
 # 运算符
@@ -689,10 +738,10 @@ number = 20;//重新赋值后number值是20
  num += 5;//15，num = num + 5
  num *= 2;//30,num = num * 2
  num %= 4;//余2,num = num % 4
-//=后面可视为一个整体
+
 int n = 0;
-n += 5 + 3 * 2 + 6;
-// n =17
+n *= 5 + 3 * 2 + 6; //*=后面可视为一个整体
+// n =0
 ```
 
 ## 算数运算符
@@ -755,7 +804,7 @@ do
 {
     try //try—catch捕获异常
     {
-        Console.WriteLine("请输入圆面积");
+        Console.WriteLine("请输入圆半径");
         //将用户输入的文本转换为double类型
         double r = double.Parse(Console.ReadLine());
         double area = _pi * r * r;//计算圆面积
@@ -998,10 +1047,10 @@ string telNumber = "001-12345";
 Console.Write("我叫{1},我今年{2}岁了，性别{3},电话号码{0}",telNumber,name,age,sex);
 ```
 
-:bookmark:格式化数字字符串：`{索引:字符}`
+:bookmark:格式化数字：`{索引:字符}`
 
 ```c#
-Console.WriteLine("{0:c}", 10);
+Console.WriteLine("{0:c}", 10);//金钱
 Console.WriteLine("{1:f}",5,6);//默认两位小数
 ```
 
@@ -1045,13 +1094,13 @@ Console.WriteLine("AB\bF\b"); //AF
 
 ### @符号
 
-1. 取消`\`的转移作用，让`\`单纯表示`\`。
+:one: 取消`\`的转移作用，让`\`单纯表示`\`。
 
 ```csharp
 Console.WriteLine(@"C:\Users\Administrator\Desktop");
 ```
 
-1. 将字符串按照编辑的原格式输出。
+:two: 将字符串按照编辑的原格式输出。
 
 ```csharp
 Console.WriteLine(@"白日依山尽，
@@ -1074,6 +1123,8 @@ if(s != null)
 }
 ```
 
+`s为null时，s?.Split(' ')`返回`null`,可与空值合并符连用。
+
 数组也可以使用空值运算符
 
 ```c#
@@ -1092,7 +1143,9 @@ string s1 = (s ?? "str");
 Console.WriteLine(s1);
 //可空类型
 int? p= 2;
-int num = p ?? 4;//通过访问 p.Value 直接获取 int 值
+int num = p ?? 4;
+//?? 运算符不仅检查空值，还会进行类型推断和转换。
+//当右侧操作数是值类型（非可空）时，整个表达式的结果类型就是该值类型
 Console.WriteLine(num);//2
 ```
 
@@ -1152,7 +1205,7 @@ Console.WriteLine($"{500:f1}");//一位，f2两位，以此类推
 
 :one:系统会从0开始，依次为枚举成员赋予一个整数值常量； 
 
-:two:枚举成员名即是整数常量名称,只是在使用枚举变量前，要求先声明枚举类型。
+:two:枚举成员名即是整数常量名称,只是在使用枚举变量前，要求先定义枚举类型。
 
 ## 枚举类型的声明与枚举变量声明
 
@@ -1207,7 +1260,7 @@ namespace study
 }
 ```
 
-只有当枚举值作为**编译时常量**（使用`const`声明）或在编译时被直接替换为字面量使用时，才不会占用运行时内存。而普通枚举变量与其他值类型变量一样，需要正常的内存空间。
+只有当枚举作为**编译时常量**（使用`const`声明）或在编译时被直接替换为字面量使用时，才不会占用运行时内存。而普通枚举变量与其他值类型变量一样，需要正常的内存空间。
 
 ## 设置底层类型和显示值
 
@@ -1222,7 +1275,7 @@ enum MyColor:byte
  }
 ```
 
-:book:设置显示值(枚举成员名称不能重复，但是可以有重复值)
+:book:设置显示值(枚举成员名称不能重复，但是可以有重复值_不推荐转换时容易出问题)
 
 ```c#
 enum MyColor
@@ -1238,9 +1291,11 @@ enum MyColor
 
 ## 枚举类型的转换
 
+> 将数字或数字型文本转换为枚举时，如果序列中不存在该数字，不会报错。
+
 ### `enum`与`Int`转换
 
-因枚举是一组带名字的常量组成的集合，在内存中默认存储为Int型，可以跟Int互相转换（相兼容）。当转换一个枚举中不存的的值时，不会抛异常，而是将数字显示出来。
+因枚举是一组带名字的常量组成的集合，在内存中默认存储为Int型，可以跟Int互相转换。
 
 ```csharp
 namespace study
@@ -1279,7 +1334,7 @@ namespace study
 
 所有的类型都可以调用`ToString()`转化为`string`类型。
 
-将字符串数字或文本转换为枚举类型，需要调用调用`Enum`类的`Parse`方法，如果转换的字符串是数字，枚举中没有也不会抛异常，若是文本，枚举中没有则会抛异常。
+将字符串数字或文本转换为枚举类型，需要调用调用`Enum`类的`Parse`方法，若是序列中不存在对应的字符串则不会抛异常。
 
 `Enum.Parse()`方法返回一个`object`类型，需要进行里氏转换。
 
@@ -1340,14 +1395,23 @@ Console.WriteLine("{0:0.00}",num);//保留两位小数输出35.00
 int a = '1';
 Console.WriteLine(a);//49
 //char转int
-int a = 'a' + 'v';//隐式转换
+int a = 'a' + 'v';//隐式转换，底层是ushort
 ```
 
-:two:将整数赋值给`double`类型，float`类型，或者将`float` 类型赋值给 `double`类型，会进行隐式转换。
+:two:将整数赋值给`double`类型，float`类型，或者将`float` 类型赋值给 `double类型，会进行隐式转换。
+
+:three:值类型可隐式转换为可空类型。
+
+```c#
+int? num = null;
+num = 3;
+int a = (int)num;
+Console.WriteLine(a==3);//True
+```
 
 ### 显示类型转换
 
-类型兼容，可强制进行类型转换。语法：在括弧中写入要转换的类型。
+类型兼容，可强制进行类型转换。语法：在括弧中写入要转换的目标类型。
 
 1. `double`与`int`等类型兼容
 2. `int`与`enum`类型兼容，详见枚举章节
@@ -1360,13 +1424,7 @@ int a = 'a' + 'v';//隐式转换
  Console.WriteLine(b);//2
 ```
 
-:two:`Int`类型转`double`类型.
-
-```csharp
-int num = 3;//int 类型
-double doNum = (double)num;
-Console.WriteLine("{0:0.00}",doNum);//3.00
-```
+:two:可空类型转换为值类型。
 
 ## 类型不兼容
 
@@ -1457,9 +1515,9 @@ Console.WriteLine(num);//123
 
 ### TryParse( )方法
 
-1. `int.TryParse(string value,out int result )`接受两个参数，参数1，要转换的字符串，参数2为多余返回参数。如果方法正常运行，则方法返回布尔值True，参数2接收转换后的值，否则返回`false`,`result`值为0.
+1. `int.TryParse(string value,out int result)`接受两个参数，参数1，要转换的字符串，参数2为多余返回参数。如果方法正常运行，则方法返回布尔值True，参数2接收转换后的值，否则返回`false`,`result`值为0.
 2. `double.TryParse()`
-3. `Enum.TryParse()`，返回`object`,详见枚举。
+3. `Enum.TryParse<T>()`，返回`object`,具体用法见泛型。
 
 ```csharp
 int num;
@@ -1470,7 +1528,7 @@ Console.WriteLine("b = {0}，num = {1}", b, num);
 
 # 异常捕获
 
-异常：程序没有编译错误，但在运行过程中，由于某些原因导致程序不能正常运行。为了避免这些错误，我们要经常用`try-catch`进行异常捕获。哪来代码容易出现异常，就在在`try{}`里面。
+异常：程序没有编译错误，但在运行过程中，由于某些原因导致程序不能正常运行。为了避免这些错误，我们要经常用`try-catch`进行异常捕获。哪里代码容易出现异常，就在在`try{}`里面。
 
 ```csharp
 try
@@ -1490,46 +1548,84 @@ finally
 
 如果`try`中代码没有出现异常，则不会执行`catch`中的代码；如果`try`中出现异常，则出现异常后面的语句都不会执行，而是直接跳转到`catch`中执行代码,`finally`语句，最后执行的代码，不管有没有错，都会执行其中的代码。
 
-例_用户输入某个数字，返回数字的2倍。
+例_用户输入除数与被除数，计算二者的商，捕获其中可能出现的异常。
 
 ```csharp
-do 
+try
 {
-    Console.WriteLine("请输入一个数字");
-    try 
-    {
-        //可能出现异常的代码
-        double num = Convert.ToDouble(Console.ReadLine());
-        Console.WriteLine(num * 2);
-        break;
-        //退出当前循环
-    }
-    catch(Exception ex)
-    { //出现异常后转到此处执行代码
-        Console.WriteLine(ex.Message);
-
-    }
-} 
-while (true);
+    Console.WriteLine("请输入除数");
+    int num1 = int.Parse(Console.ReadLine());
+    Console.WriteLine("请输入被除数");
+    int num2 = int.Parse(Console.ReadLine());
+    Console.WriteLine($"{num1}/{num2} ={num1 / num2}");
+}
+//CLR自动生成异常对象，DivideByZeroException ex仅捕获除0异常
+catch (DivideByZeroException ex)
+{
+    Console.WriteLine(ex.Message);
+    //throw ex;
+}
+catch(FormatException ex)
+{//仅捕获字符串格式异常，无法转换为数字
+    Console.WriteLine(ex.Message);
+}
+catch //捕获其他异常
+{
+    Console.WriteLine("其他错误");
+    throw;//直接扔错误
+}
 ```
 
-:red_circle:`try-catch`之间不能有其他代码。
+:red_circle:`try-catch`之间不能有其他代码。多条`catch`语句只会进入其中一个。
 
 ## 常用异常类
 
-catch 子句捕获异常应当是System.Exception 以及其子类
+> catch 子句捕获异常应当是System.Exception 以 及其子类
+
+异常类关系如下:
+
+```tex
+System.Object
+  └── System.Exception
+        ├── System.SystemException
+        │     ├── ArgumentException
+        │     ├── NullReferenceException
+        │     └── ...
+        ├── ApplicationException  // ❌ 已弃用
+        └── 你的自定义异常类  // ✅ 直接继承 Exception
+```
+
+`SystemException`指的是系统异常，空引用，参数无效等；`ApplicationException`指的是应用异常，逻辑错误。
+
+```c#
+// 系统异常示例 - 像"天灾"
+string text = File.ReadAllText("不存在的文件.txt");  // 抛 System.IO.FileNotFoundException
+// 即使你代码没bug，文件可能被删了，这就是系统异常
+
+// 应用程序异常示例 - 像"人祸"
+if (user.Password != inputPassword) {
+    throw new InvalidPasswordException("密码错误");  // 自定义的业务异常
+}
+// 这是你的业务逻辑错误，属于应用程序异常
+```
+
+在异常处理时，开发者真正关心的是异常的具体**类型**（如 `FileNotFoundException`）或**消息**，而不是它属于`系统`还是`应用`，后来`ApplicationException`就被社区弃用了。
+
+创建任何自定义异常时，都**直接继承 `System.Exception`，而不是 `ApplicationException`**。
 
 ```mermaid
-flowchart TD
+flowchart LR
     A[System.Exception<br/>所有异常的基类] --> B[System.SystemException<br/>系统级异常基类]
-    
+    A --> A1[自定义异常类]
     B --> C[System.ArgumentException<br/>参数无效]
     C --> D[System.ArgumentNullException<br/>参数为null]
     C --> E[System.ArgumentOutOfRangeException<br/>参数超出范围]
     
     B --> F[System.InvalidOperationException<br/>对象状态无效]
     B --> J[System.NullReferenceException<br/>引用为空]
-
+    B -->H[IndexOutOfRangeException<br/>无效索引]
+    B-->I[DivideByZeroException<br/>除0错误]
+    B -->L[InvalidCastException<br/>无效类型转换]
     style C fill:#f9f,stroke:#333
     style F fill:#ccf,stroke:#333
     style J fill:#f96,stroke:#333
@@ -1539,7 +1635,9 @@ flowchart TD
 
 ## if语句
 
-if语句中的条件一般是关系表达式，返回一个布尔值。条件成立，表达式值为true，则执行相关代码。
+if语句中的条件一般是关系表达式，返回
+
+一个布尔值。条件成立，表达式值为true，则执行相关代码。
 
 ```csharp
 //if语句，只能判断一种情况
@@ -2183,6 +2281,7 @@ do
 {
     //循环体
 }while(循环条件);
+//后面加分号，否则编译器认为这是下一个while循环
 ```
 
 :one:小兰唱歌，直到老师满意为止。
@@ -2352,6 +2451,58 @@ for(表达式1，表达式2，表达式3)
 3. 执行循环体
 4. 执行表达式3(自增或自减)
 5. 判断循环条件，`true`则执行循环体，`false`退出循环。
+
+### `for`循环的作用域
+
+`c#`遵循最小作用域原则：对于`for`循环，如果循环变量`i`在括弧内声明，则仅内部可访问，退出循环块`{}`时，生命周期结束，外部无法访问。
+
+```c#
+for (int i = 0; i < 5; i++)
+{
+    i++;
+    //仅内部可以访问i
+}
+//外部无法访问i
+int j = 0;//会扩大循环变量的作用域
+for (; j < 5; j++)
+{
+    j++;
+}
+//此处可以访问j,不推荐
+```
+
+### 循环体中的变量声明
+
+```c#
+for (...) 
+{
+    // 值类型声明
+    int num = 0; 
+    DateTime time = DateTime.Now;
+    LargeStruct s = new LargeStruct();
+}
+
+```
+
+头部变量`i`仅声明一次，每次循环时，会替换变量`i`存储的旧值，到循环结束后，变量`i`的声明周期结束，无法访问；其栈内存**延迟至方法执行完毕时**，随整个栈帧弹栈统一回收。（不考虑闭包）
+
+循环体内部声明的变量，每次迭代都会重新声明一个新变量，会复用上一次的内存地址(编译器优化的结果)，覆盖写入，替换原来的旧值。
+
+![image-20250723221707746](assets/image-20250723221707746.png)
+
+引用类型，每次迭代循环体内部都会`new`一个新对象，在栈中的变量每次迭代仅仅是修改了地址，而`GC`堆却产生了垃圾(在本例中无任何地方引用)，过多时会引起`GC`,需注意。
+
+```c#
+//引用类型迭代
+for (...) 
+{
+    // 引用类型声明
+    var obj = new MyClass(); 
+    byte[] buffer = new byte[1024];
+}
+```
+
+:red_circle:避免在循环体中频繁创建引用对象。
 
 ### for循环练习
 
@@ -2528,7 +2679,7 @@ for (int i = 1; i <=100; i++)
 
 > 意在循环数组中的每一项`item`,只读，不能对`item`进行更改。
 >
-> `item`类型如果和`collection`类型相互兼容或存在继承关系，内部可进行类型强转或者里氏转换。
+> `item`类型如果和`collection`元素类型相互兼容或存在继承关系，内部可进行类型强转或者里氏转换。
 
 ```c#
 //语法规范
@@ -2595,50 +2746,19 @@ for (int i = 2; i <=100; i++)
 //此种方法，质数2未参与判断
 ```
 
-## 循环体中的变量声明
-
-```c#
-for (...) 
-{
-    // 值类型声明
-    int num = 0; 
-    DateTime time = DateTime.Now;
-    LargeStruct s = new LargeStruct();
-}
-//注意其等价于
-{
-    int i = 0;
-    while (i < 10)
-    {
-        ...
-        i++;
-    }
-}
-```
-
-头部变量`i`仅声明一次，每次循环时，会替换变量`i`存储的旧值，到循环结束后，变量`i`的声明周期结束，无法访问；其栈内存**延迟至方法执行完毕时**，随整个栈帧弹栈统一回收。（不考虑闭包）
-
-循环体内部声明的变量，每次迭代都会重新声明一个新变量，会复用上一次的内存地址，覆盖写入，替换原来的旧值。
-
-![image-20250723221707746](assets/image-20250723221707746.png)
-
-内部值是类型变量，非极端情况下(递归，过大数据)不会造成栈溢出。
-
-```c#
-//引用类型迭代
-for (...) 
-{
-    // 引用类型声明
-    var obj = new MyClass(); 
-    byte[] buffer = new byte[1024];
-}
-```
-
-引用类型，每次迭代都会产生垃圾，过多时会引起`GC`,需注意。
-
 # using语句
 
-`using`语句是为了管理非托管资源，该资源实现了`IDisposable`接口中的`Dispose`方法。
+> 非托管资源就是那些需要手动清理的、不属于.NET内存管理系统的资源.
+>
+> `using`语句是为了管理非托管资源，该资源实现了`IDisposable`接口中的`Dispose`方法。
+>
+> **常见的非托管资源：**
+>
+> - 文件（要关闭）
+> - 数据库连接（要关闭）
+> - 网络连接（要关闭）
+> - 图形资源（要释放）
+> - 窗口句柄（要销毁）
 
 管理资源流程:
 
@@ -2647,6 +2767,8 @@ for (...)
 :two:资源放在`try`结构中
 
 :three:`finally`块中调用资源的`Dispose`方法，用以块退出时结束资源。
+
+仅为了释放资源，不处理异常，所以不含`catch`块
 
 ![image-20250420220514438](assets/image-20250420220514438-1745157922321-1.png)
 
@@ -2782,11 +2904,17 @@ graph LR
 
 
 ```c#
-public struct Point
+public struct Point 
 {
+    public Point()
+    {
+       X = 10;
+       Y = 10;
+    }
     public int X;
     public int Y;
-    public bool isExit;
+    public bool isExit =true;
+    //....
 }
 static void Main()
 {
@@ -2795,7 +2923,7 @@ static void Main()
 	//默认为null，null != ""，没有开空间
 	//bool[],默认为false
  	bool[]  boArr = new bool[4];
-	//Point结构体，所有字段归零
+	//Point结构体，所有字段归零,即使结构体存在字段初始器也是全部清零。
  	Point[] points = new Point[2];
 }
 
@@ -2803,11 +2931,13 @@ static void Main()
 
 ![image-20250723211730809](assets/image-20250723211730809.png)
 
-## 数组的栈内存分配与堆内存
+## 数组的栈内存分配
 
 ![333648d1c3304f0fed6b996756ab7df](assets/333648d1c3304f0fed6b996756ab7df.jpg)
 
-内存代码区存储着我们定义好的方法，从`Main`函数开始执行，`Main`函数的栈帧压入栈内存，内部存储着相关变量。`arr`变量存储引用地址，指向堆中的数据。`Main`函数内部定义的方法执行时，也会生成一个独立的栈帧，执行完毕后弹栈。
+内存代码区存储着我们定义好的方法，从`Main`函数开始执行，`Main`函数的栈帧压入栈内存，内部存储着相关变量。`arr`变量存储引用地址，指向堆中的数据。
+
+:red_circle: `Main`函数内部定义的方法执行时，也会生成一个独立的栈帧，执行完毕后弹栈。
 
 ## 二维数组
 
@@ -3004,7 +3134,7 @@ for (int i = 0; i < arr.Length-1; i++)
 
 ## 断点调试
 
-即程序在某节点停下来，然后进行逐句调试。
+即程序在某节点停下来，然后进行逐句调试(F9)。
 
 
 
@@ -3079,7 +3209,7 @@ Program.Sing()
 ## return关键字
 
 1. 在方法中返回要返回的值
-2. 立即结束本次方法。
+2. :red_circle:立即结束本次方法。
 
 ```csharp
 static void Main(string[] args)
@@ -3096,7 +3226,7 @@ static void Main(string[] args)
 
 ## 方法调用
 
-我们在Main函数中调用自定义函数，我们管Main函数叫`调用者`，自定义函数叫被`调用者`,若`被调用者`想获得`调用者`中声明的变量:
+我们在Main函数中调用自定义函数，我们管Main函数叫`调用者`，自定义函数叫`被调用者`,若`被调用者`想获得`调用者`中声明的变量:
 
 :one:传参（形参与实参）
 
@@ -3215,6 +3345,7 @@ static void ChangeAge(ref Person p,int num)
      p.age = 30;
      num += 30;
     //创建新对象赋值给形参时，形参与实参指向同一对象
+    //注意重新赋值行为与单纯的值参数不同
      p = new Person();
  }
 ```
@@ -3231,7 +3362,7 @@ out参数侧重于在一个方法中返回多个不同类型的值（也可以�
 `C#7.0`新增语法:显示消除变量的声明，调用完后可以直接使用变量:
 
 ```c#
-//int num = 2;
+//int num;
 //Change(out num);
 //被新语法替换↓
 Change(out int num);
@@ -3389,7 +3520,7 @@ public static bool ImitateTryParse(string s, out int num)
 
 ### params_可变参数数组
 
-将实参列表中跟可变参数数组类型一致的变量当作数组元素去处理；
+将实参列表中跟可变参数数组元素类型一致的变量当作数组元素去处理；
 
 :red_circle:可变参数数组必须是在形参列表最后一个参数；
 
@@ -3399,7 +3530,7 @@ public static bool ImitateTryParse(string s, out int num)
 
 :one:如果依次传递参数，则方法内部会自行声明一个数组。如果数组元素是引用类型，在方法内部修改会影响外部的变量。
 
-:two:如果传递的是一个一维数组，即为值参数，形参和实参指向同一对象。
+:two:本质为值参数，如果传递的是一个数组，形参和实参指向同一引用对象。
 
 ```csharp
 static void Main(string[] args)
@@ -3419,7 +3550,7 @@ public static void Test(string name, int id,params int[] score)
 }
 ```
 
-1. 求任意长度整数类型数组的最大值。
+求任意长度整数类型数组的最大值。
 
 ```csharp
 static void Main(string[] args)
@@ -3444,6 +3575,8 @@ public static int ArrMax(params int[] arr)
 }
 ```
 
+对于可变参数数组，可以不提供任何参数。
+
 ### 命名参数
 
 一般情况下，形参与实参的位置是一一对应的，使用命名参数可以按任意顺序填写参数，格式`形参:实参值或表达式`
@@ -3461,7 +3594,10 @@ public static int ArrMax(params int[] arr)
 
 ### 可选参数
 
-表明某个参数是可选的，需在方法声明中提供默认值。可选参数只能是值类型，字符串与默认值`=null`的引用类型，且为值参数(不能与`ref,out,params`连用)。
+> - 可选参数的值在**编译时**就需要确定
+> - 局部变量在**运行时**才被创建和赋值(const除外)
+
+表明某个参数是可选的，需在方法声明中提供默认值。可选参数只能是值类型，字符串与值`=null`的引用类型(值为编译时常量)，且不能与`ref,out,params`连用。
 
 ```c#
 public static void Example(int a,int b ,int c= 2,params string[] strs){}
@@ -3490,7 +3626,7 @@ public static void Test(int a, int b =0, int c = 0,params string[] strings) {}
 参数不同：
 
 1. 参数个数相同，但是类型不同；
-2. 参数个数相同，参数顺序不同
+2. 参数个数与类型相同，参数顺序不同
 3. 参数个数不相同；
 4. 数量、类型、顺序一致，但存在参数修饰符
 
@@ -3548,18 +3684,18 @@ public static int Connect(int a ,ref int b)
   编译器在编译阶段就计算好整个方法**所需的最大栈空间**
   
 - ✅ **栈空间一次性预留**
-  方法开始时，整个栈帧所需空间已预留（变量内存位置已确定）
+  方法开始时，整个栈帧所需空间已预留（变量内存位置执行时确定）
   
   ```mermaid
   flowchart TB
       A[进入方法] --> B[栈指针一次性下移]
-      B --> C[为所有局部变量分配空间，变量内存位置确定]
+      B --> C[为所有局部变量分配空间，变量内存位置执行时确定]
       C --> E1{变量是否赋值？}
       E1 -->|否| F1[标记为'未初始化'<br>禁止读取]
-      E1 -->|是| G1[写入值覆盖内存]
+      E1 -->|是| G1[写入值覆盖]
   ```
   
-  :bookmark:换句话说，进入方法时就在栈内为局部变量分配好了内存。
+  :bookmark:换句话说，进入方法时就分配好了所需的最大内存。
 
 ```c#
 public static void Main(string[] args)
@@ -4000,7 +4136,7 @@ public static void Res(int[] arr)
 
 # 结构体
 
- 结构体是一种轻量级的值类型复合数据类型，隐式密封.
+ 结构体是一种轻量级的值类型复合数据类型，隐式密封,无法继承其他类，也无法作为其他类型的基类.
 
 :one:声明结构类型
 
@@ -4020,17 +4156,18 @@ public static void Res(int[] arr)
 :two:创建结构实例，并访问其成员
 
 ```csharp
-  Person zsPerson;//栈中分配内存，有未定义值
+ Person zsPerson;//栈中分配内存，有未定义值
  Console.Write(zsPerson);//错误，使用未赋值的变量
  //给zsPerson的成员赋值
  zsPerson._name = "张三";//string
  zsPerson._age = 15;//int
+Console.Write(zsPerson._age)//15，可访问
 Console.Write(zsPerson)//错误，使用未赋值的变量
  zsPerson._sex = Sex.男;//枚举类型
 Console.Write(zsPerson)//此时才可以正常使用
 ```
 
-:bookmark:`C#`9.0及之前使用构造函数：
+:bookmark:`C#`9.0及之前显示声明构造函数：要求设计人员**显示初始化所有字段**，明确对象的初始值，而不是使用清零后的默认值，避免潜在的错误。
 
 ```c#
 public struct Point
@@ -4039,14 +4176,15 @@ public struct Point
     public Point(int x,int y)
     {
         //声明有参构造函数必须显示初始化所有字段
-        this._x = x; this._y = y;
+        this._x = x; 
+        this._y = y;
         _name = null;
     }
     static Point() 
 	{ 
         
 	}
-    //禁用实例字段初始化器
+    //无实例字段初始化器
     public int _x; 
     public int _y;
     public string _name;
@@ -4056,55 +4194,137 @@ public struct Point
 }
 ```
 
-:bookmark:C#10.0使用构造函数
+执行过程：
+
+:one:静态初始化阶段:静态字段清零→静态初始化器挂载到静态构造函数的首行执行
+
+:two:实例初始化阶段：实例字段清零→执行构造函数
+
+在`c# 11.0`显示声明构造函数则无此硬性要求。
+
+## 字段初始化器
+
+> `C#`10.0及以上可使用实例字段初始化器，但必须显示声明构造函数（可显示声明无参构造函数）
+>
+> :red_circle:与类不同的是，声明有参构造函数，并不会顶替无参构造函数。
+
+在结构体中，**字段初始化器是构造函数的一部分**，在字段初始化器执行时代码会挂载到显示声明的构造函数头部。
+
+**🎯**为何如此设计？
+
+很大原因时为了代码复用。
 
 ```c#
-public struct Point
+public struct Person 
 {
-    public Point()
+    public Person()
     {
-        Console.WriteLine($"{X},{Y}");//2,1
+        //获取用户定义的默认值
     }
-    public int X =2; 
-    public int Y =1;
+    public Person(int age)
+    {//根据条件去替换值
+        if(age>_age) _age = age;
+    }
+    public string? _name ="json";//字段初始化器
+    public int _age =12;
 }
 ```
 
-:red_circle:与类不同的是，声明有参构造函数，并不会顶替无参构造函数。
+不同的构造函数初始化的状态不同，使用字段初始化器可进行代码复用。
+
+:red_circle:注意静态字段存在初始化器时，无需显示声明静态构造函数，内部会自动将静态字段插入到构造函数开始处执行；如果声明了静态构造函数，同样会将字段初始化语句插入构造函数开始处执行，因为静态构造函数有且仅有一个。
+
+
+
+看一个特殊的例子，说明显示声明无参构造与使用隐式构造函数的区别：
+
+```c#
+public struct Point 
+{
+    public Point(int x,int y) 
+    {
+        this._x = x;
+        this._y = y;
+    }
+
+    public int _x=2;
+    public int _y;
+}
+///
+static void Main()
+{
+    Point p = new Point();//未显示挂载到无参构造函数上，字段初始化器不执行
+    Console.WriteLine(p._x);//0
+}
+```
+
+调用`new Point()`时，由于没有显示声明无参构造函数，字段初始化将不会执行。
+
+**🎯**为何如此设计？
+
+主要的目的是向后兼容。
+
+:one:旧版本代码：角色初始位置(0,0)此时`new Point()`时就是(0,0)点
+
+```c#
+ public struct Point 
+ {
+     public int _x;//横坐标
+     public int _y;//总坐标
+     //....
+ }
+```
+
+:two:语言版本升级并新增功能：角色受伤后会随机出现在y=2的位置
+
+```c#
+public struct Point 
+ {
+     public Point(int x){}
+     public int _x;//横坐标
+     public int _y =2;//纵坐标
+     //....
+ }
+```
+
+如果此时`new Point()`不是默认值，那旧代码会出现逻辑错误，同时语义也不一致。
+
+以下为结构体实例字段初始化整体流程：
+
+```mermaid
+graph TB
+    A[开始new结构体] --> B[在栈/堆上分配内存空间]
+    B --> C[内存清零/设为默认值]
+    C --> D[调用构造函数]
+    D --> E{是否存在字段初始化器?}
+    
+    E -->|是| F[编译器将字段初始化器代码<br>插入到相应的构造函数开始处]
+    F --> G[执行插入的字段初始化代码]
+    G --> H[执行用户编写的构造函数体]
+    
+    E -->|否| I[直接执行用户编写的构造函数体]
+    
+    H --> J[初始化完成]
+    I --> J
+    
+    style F fill:#f9f,stroke:#333,stroke-width:2px
+    style G fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+
+
+执行过程：首先内存块清零→执行构造函数→如果存在字段初始化器，将字段初始化器提升到构造函数开始处执行→执行构造函数的内容→初始化完毕
 
 :bookmark:以下是重要讨论：
 
 1. 作为局部变量时在栈中分配空间，依据弹栈来管理内存，内部不存在析构函数。
-
 2. 如不通过new关键字来声明结构体，栈中会预留内存空间，但内部成员未定义，不能直接使用，待设计者通过`变量.字段`的形式赋值以后，才可以使用结构体。
-
 3. 若没有定义构造函数，则new结构体时，会将内存块直接清零，字段为默认值，然后执行无参构造。
+4. `C#9.0`及之前（含9.0），结构体的实例字段不存在字段初始化器，无法直接为字段设置初始值；可以声明有参构造函数，但必须初始化所有字段。
+5. 在C#10.0实例字段可以有初始化器,需要显示声明构造函数，同时还要初始化所有字段，11.0以后便无此硬性要求。
+7. 若在结构体中声明同类型的结构体字段，便无法计算结构体占用的内存大小，所以在结构体内禁止该行为。
 
-4. 如果声明了构造函数，:red_circle: 所有字段必须显示初始化，确保字段在任何使用场景下都具有确定性的初始状态，防止因未初始化数据导致的不可预测行为。
-
-5. `C#9.0`以及之前，结构体的实例字段不存在字段初始化器，无法直接为字段设置初始值。
-
-6. 在`C#10.0`可以显示声明无参构造函数
-
-7. 在C#10.0实例字段可以有初始化器,但必须显示声明构造函数。
-
-8. 若在结构体中声明同类型的结构体字段，便无法计算结构体占用的内存大小，所以禁止该行为。
-
-   ```mermaid
-   graph TD
-       A[栈帧创建] --> B[预留内存空间]
-       B --> C{初始化方式}
-       C --> D[new初始化] --> F1[内存清零]
-       F1 --> F2{字段初始化器?}
-       F2 -->|C#10+| F22[执行字段初始化]
-       F22 --> F3[执行构造函数体]
-       F2 -->|C#9-| F3
-       C --> E[手动赋值] --> G[直接赋值字段]
-       G --> H[其他字段保持未定义]
-       F3 --> I[安全可用]
-       H --> J[赋值后可用]
-   ```
-
+## 结构体与类的区别
 
 
 :bookmark:与类的区别
@@ -4131,7 +4351,7 @@ public struct Point
 
 :bookmark: ​结构体作为类成员时，会在分配内存时清零，此时结构体中的字段存储类型的默认值。
 
-:bookmark: 结构体作为返回值时，返回的是一个副本。
+:bookmark: 结构体作为属性类型时，返回值是一个副本，编辑它无意义，所以编译器禁止修改副本的值。
 
 ```c
 public struct Point
@@ -4150,7 +4370,7 @@ public class MyClass
 
     public Point P
     {
-        //返回一个结构体
+        //返回一个结构体副本
         get
         {
             return p;
@@ -4288,7 +4508,7 @@ public class Block
 Random random = new Random();
 int i = random.Next();//生成一个非负数的随机数
 i = random.Next(100);//生成0~99的随机数
-i = random.Next(5,100);//生成5~99的随机数
+i = random.Next(5,100);//生成5~99的随机数，左包含右不包含
 ```
 
 ------
@@ -4335,21 +4555,29 @@ public class Program
 ## 代码的省略写法
 
 ```c#
- public class Program
+ public class Simple 
  {
-     int _num;
-     public int Num 
+     //=>代表{}或者{}+return,只有一个语句时可省略
+     private int _num;
+
+     public int Num
      {
-         get => _num;//省略return,=>代表{}
+         get => _num;
          set => _num = value;
      }
-     static void Main()
+
+     private int _count;
+
+     public int Count => _count;//get;
+
+     public void Fun(int a, int b) => Console.WriteLine(a + ", " + b);
+
+     public int Add(int a, int b) => a + b;
+
+     public void Test() 
      {
-         //仅一句代码时可省略{}
-         if(true) Console.WriteLine("a");  
+         if(true) Console.WriteLine("");
      }
-     public void Show() => Console.WriteLine("show");//=>代表{}
-     public int Add(int a, int b) => a + b;//省略return
  }
 ```
 
