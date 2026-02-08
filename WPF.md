@@ -3483,23 +3483,25 @@ Windows编程是事件驱动的，在程序运行时，它可以随时被用户�
 当按钮被点击时，Click事件被触发，该方法将按钮文本设置为“已点击”或“再次点击”
 
 ```c#
- private void myName_Click(object sender, RoutedEventArgs e)
+ private void myButton_Click(object sender, RoutedEventArgs e)
  {
-     myName.Content = (myName.Content.ToString() == "clicked" || myName.Content.ToString() == "clicked again") ? "clicked again" : "clicked";
+     this.myButton.Content = (this.myButton.Content.ToString() == "clicked" || this.myButton.Content.ToString() == "clicked again")
+         ? "clicked again": "clicked";
  }
 
- private void myName_MouseEnter(object sender, MouseEventArgs e)
+ private void myButton_MouseEnter(object sender, MouseEventArgs e)
  {
-     myName.Content = "mouse over";//鼠标悬停
+     //鼠标悬停
+     if(this.myButton.Content.ToString() == "click me") this.myButton.Content = "mouse over";
  }
 
- private void myName_MouseLeave(object sender, MouseEventArgs e)
+ private void MyButton_MouseLeave(object sender, MouseEventArgs e)
  {
-     myName.Content = "click me";
+     if(this.myButton.Content.ToString() == "mouse over") this.myButton.Content = "clicked";
  }
 ```
 
-## 路由
+## 路由事件
 
 WPF添加了一种新类型的事件对象，称为路由事件，它单单处理添加事件处理程序的元素，还发送到元素树中的其他元素。
 
@@ -3511,7 +3513,7 @@ WPF对其路由事件使用三种不同的路由策略：
 
 :three: 隧道路由:从元素树的顶部开始，逐级向下工作，在每个元素上触发事件，直到到达最初触发事件的元素。按照惯例，内置的WPF隧道事件名称以前缀`Preview`开头。
 
-在许多情况下，WPF使用事件时，它不是引发单个路由事件，而是使用一对路由事件——首先引发隧道事件，然后引发冒泡事件。这样做的原因是它为你提供了在更高级别处理事件的机会，而不是在事件引发的地方处理事件。
+在许多情况下，WPF使用事件时，它不是引发单个路由事件，而是使用一对路由事件——首先引发隧道事件，然后引发冒泡事件。这样做的原因是它为你提供了在更高级别处理事件的机会，而不是在事件引发的地方处理事件,:red_circle: 即使元素树中间的事件存在间隔，依然能正常传递。
 
 从顶部开始路由并向下隧道传播，允许你在更高层次创建一个事件处理器，该处理器接管事件处理，条件允许可以阻止它进一步向下传播。
 
@@ -3540,6 +3542,7 @@ WPF对其路由事件使用三种不同的路由策略：
         </Label>
     </Border>
     <StackPanel>
+        <!-- Button 的 Click 事件只响应左键，而右键点击会触发 MouseUp 事件 -->
         <Button Name="clear" Padding="10,3" Click="clear_Click">
             Clear
         </Button>
@@ -3647,19 +3650,76 @@ private void car_PreviewMouseUp(object sender, MouseButtonEventArgs e)
 
 命令架构由以下组件组成
 
+```c#
+public interface ICommandSource
+{
+    ICommand Command { get; }       // 关联的命令对象(及继承ICommand的对象)
+    object CommandParameter { get; } // 传递给命令的参数
+    IInputElement CommandTarget { get; } // 命令目标元素
+}
+```
+
+
+
 ![image-20250819225805829](assets/image-20250819225805829.png)
 
-命令源对象触发命令的执行：命令源通常是UI输入元素，如Button或输入手势。
+命令源对象触发命令的执行：命令源通常是UI输入元素，如Button或`MenuItem`（他们实现了`ICommandSource`接口）。
 
-命令对象表示要执行的操作，包括操作应启用条件的条件，以及表示命令的输入手势列表。但它实际上并不包含执行操作的代码！
+命令对象(即命令)表示要执行的操作，包括操作应启用条件的条件，以及表示命令的输入手势列表。但它实际上并不包含执行操作的代码！
 
-命令目标是命令操作的对象：命令绑定将命令与目标连接起来。
+命令目标是命令操作的对象：命令绑定将命令与目标连接起来（常出现在内置命令中，对于自定义命令常用`CommandParameter`,因为它经常是隐式操作）。
+
+```xaml
+<StackPanel>
+    <Button Content="click" Command="{Binding MesCommand}" 
+            CommandParameter="{Binding sub}"/>
+</StackPanel>
+```
+
+`CommandParameter` 会同时将参数`SelectedItem`传递给 `_execute` 和 `_canExecute` 两个委托！
+
+```c#
+public string sub { set; get; } = "ok? ok";//参数
+public DelegateCommand MesCommand { get; set; }
+ public MainWindow()
+ {   
+     InitializeComponent();
+     //命令
+     MesCommand = new DelegateCommand(Pri);
+     this.DataContext = this;
+ } 
+private void Pri(object? o)
+ {
+     if (o != null && o is string s) MessageBox.Show(s);
+     MessageBox.Show("something","提示");
+ }
+```
+
+
 
 ### 内置命令
 
+> 1. 主要用于`UI`交互
+> 2. 内置命令对象由框架提供的静态类定义，并在首次访问时初始化。
+> 3. 控件类通过 `CommandManager.RegisterClassCommandBinding()` 在类级别注册命令处理程序，使得像 `TextBox` 这样的控件默认支持 `Copy`、`Cut`、`Paste` 等操作。
+
+```mermaid
+graph TD
+    A[开始] --> B[框架定义命令]
+    B --> C[静态类首次访问时初始化]
+    C --> D[控件类静态构造函数注册]
+    D --> E[CommandManager管理注册表]
+    E --> F[运行时查找执行]
+    F --> G[结束]
+    
+    style B fill:#e1f5e1
+    style D fill:#e8f4f8
+    style E fill:#fff3e0
+```
+
 命令源具有Command和CommandTarget属性，这些属性可以分别存储对命令对象和目标对象的引用。
 
-命令绑定与数据绑定的区别
+
 
 ```mermaid
 flowchart TD
@@ -3691,23 +3751,29 @@ flowchart TD
 
 ```xaml
  <StackPanel>
-     <TextBox Name="cutFrom"></TextBox>
-     <TextBox Name ="pasteTo"></TextBox>
-     <StackPanel Orientation="Horizontal">
-         <!--command要执行的命令-->
-         <!--命名目标是cutFrom-->
-         <Button Width="50"
-                 Command="ApplicationCommands.Cut" 
-                 CommandTarget="{Binding ElementName=cutFrom}">cut</Button>
-         <!--粘贴源-->
-         <Button Width="50"
-                 Command="ApplicationCommands.Paste"
-                 CommandTarget="{Binding ElementName=pasteTo}">
-             Paste
-         </Button>
-     </StackPanel>
- </StackPanel>
+    <TextBox Name="cutFrom">121</TextBox>
+    <TextBox Name ="pasteTo">12313</TextBox>
+    <StackPanel Orientation="Horizontal">
+        <!--command要执行的命令-->
+        <!--命名目标是cutFrom-->
+        <Button Width="50"
+             Command="{x:Static ApplicationCommands.Cut}" 
+             CommandTarget="{Binding ElementName=cutFrom}">cut</Button>
+        <!--粘贴源-->
+        <Button Width="50"
+             Command="{x:Static ApplicationCommands.Paste}"
+             CommandTarget="{Binding ElementName=pasteTo}">
+            Paste
+        </Button>
+    </StackPanel>
+</StackPanel>
 ```
+
+Windows系统有一个**全局的剪切板**，它是一个共享的内存区域：
+
+- **剪切**：将选中内容复制到剪切板，并删除原内容
+- **复制**：将选中内容复制到剪切板，保留原内容
+- **粘贴**：将剪切板内容粘贴到当前位置
 
 ### 自定义命令
 
@@ -3717,11 +3783,19 @@ flowchart TD
 - `void Execute(object parameter)`：**做什么！** 这里就是要触发的业务逻辑。
 - `event EventHandler CanExecuteChanged`：事件（比如用户输入了有效数据），手动触发这个事件，通知UI重新检查 `CanExecute()` 来更新按钮状态。
 
+:one:数据发生变化时
+
+![image-20260207191423884](assets/wpf/image-20260207191423884.png)
+
+:two:点击时
+
+![image-20260207191503390](assets/wpf/image-20260207191503390.png)
+
 > 标准命令模板
 >
-> 1. `WPF`控件（如按钮）订阅此事件，但实际订阅被转发给命令管理器(CommandManager)去管理。
+> 1. `WPF`控件（如按钮）订阅`CanExecuteChanged`事件，但实际订阅被转发给命令管理器(CommandManager)去管理。
 > 2. 当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件
-> 3. 进而调用按钮的事件处理程序，内部会执行`CanExecute(object parameter)`方法，更新UI状态
+> 3. 进而调用按钮注册于命令`CanExecuteChanged`的事件处理程序，内部会执行`CanExecute(object parameter)`方法，返回`true`更新UI状态
 
 ```c#
 public class DelegateCommand : ICommand
@@ -3734,7 +3808,7 @@ public class DelegateCommand : ICommand
     //Button绑定命令时内部便订阅了命令中的CanExecuteChanged事件
     //但是订阅被重定向到了CommandManager.RequerySuggested事件上，事件处理程序中包含了调用CanExecute()方法的逻辑
     //当用户进行鼠标、键盘等交互操作后，CommandManager会触发RequerySuggested事件
-    //所有关联控件调用其命令的 CanExecute 方法，最终更新UI状态
+    //所有关联控件调用其命令的 CanExecute方法，最终更新UI状态
     public event EventHandler? CanExecuteChanged
     {
         add { CommandManager.RequerySuggested += value; }
@@ -3744,7 +3818,7 @@ public class DelegateCommand : ICommand
     public DelegateCommand(Action<object?> execute,Func<object?,bool>? canExecute = null) 
     {
         //参数为null，扔错误
-        ArgumentNullException.ThrowIfNull(execute);
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _execute = execute;
         _canExecute = canExecute;
     }
@@ -3781,6 +3855,21 @@ flowchart TD
     I -->|否| K[命令不执行]
     J --> L[命令逻辑执行完成]
 ```
+
+因为`CommandManager`接管了外部注册的事件处理程序，所以无法使用`CanExecuteChanged`来进行手动触发，但是可以调用以下方法来手动触发：
+
+```c#
+/// <summary>
+/// 主动调用
+/// </summary>
+public void RaiseCanExecuteChanged()
+{
+    //手动触发所有控件状态重新评估
+    CommandManager.InvalidateRequerySuggested();
+}
+```
+
+
 
 ![image-20250904194017613](assets/image-20250904194017613.png)
 
@@ -3882,8 +3971,6 @@ public class MainView :ViewModelBase
 
     private void AddPerson(object? parameter)
     {
-        if(string.IsNullOrEmpty(NewFirstName) 
-           || string.IsNullOrEmpty(NewFavoriteColor) || NewAge<=0) return;
         People.Add(new Person(NewFirstName, NewAge, NewFavoriteColor));
     }
     private bool JudgeAdd(object? parameter)
@@ -3899,7 +3986,22 @@ public class MainView :ViewModelBase
 
 `WPF`中`resource`指代两种不同类型的事物：
 
-* 第一种资源类型指的是程序使用但不是程序代码创建的资源。例如，从代码外部提供的图像或图标。
+```mermaid
+flowchart LR
+    A[WPF资源] --> B[程序集资源<br>外部文件]
+    A --> C[对象资源<br>.NET对象]
+    
+    B --> D[图像/图标等]
+    D --> E[URI引用]
+    
+    C --> F[Style/Brush等]
+    F --> G[资源字典存储]
+    G --> H[使用StaticResource/DynamicResource读取]
+```
+
+
+
+* 第一种资源类型指的是程序集资源，程序使用但不是程序代码创建的资源。例如，从代码外部提供的图像或图标。
 * 第二种资源是`WPF`中描述存储在对象字典中并在代码的各个位置使用的. NET代码对象。这些通常与XAML标记相关联，但也用于隐藏代码。他们也被称对象资源。
 
 对象资源可以在应用程序中的不同地方**重复使用**，例如：
@@ -3908,7 +4010,7 @@ public class MainView :ViewModelBase
 * 样式（Styles）
 * 控件模板（ControlTemplates）、数据模板（DataTemplates）
 * 几何图形、动画
-* 甚至自定义的业务对象
+* 数据源
 
 ## 资源字典
 
@@ -4016,27 +4118,26 @@ flowchart TD
 
 * 编译时编译器会**独立地**处理每一个 `.xaml` 文件，并不知道用户控件将来用在哪个窗口中，便无法找到资源键
 
-- **App.xaml资源属于全局层级**：位于最顶层的Application作用域，因其独立于可视化树结构 ，不论编译器还是运行时，任何控件均可通过向上查找访问。
+- **App.xaml资源属于全局层级**：位于最顶层的Application作用域，因其独立于可视化树结构 ，不论编译还是运行时，任何控件均可通过向上查找访问。
 
 - **运行时机制**：`DynamicResource`会在运行时利用完整的逻辑树查找所有可用资源。
 
 ## 静态资源与动态资源
 
-从`ResourceDictionary`以`StaticResource`读取对象时，其引用会被分配给属性一次。如果资源库中的引用发生变化，该变化不会传播到持有原始引用的属性。
+以`StaticResource`读取对象时，其引用会被分配给属性一次。如果资源库中的引用发生变化，该变化不会传播到持有原始引用的属性。
 
-使用DynamicResource读取对象时，会在运行时利用完整的逻辑树查找所有可用资源。如果引用地址发生变化，持有旧引用的属性会自动更新。
+使用DynamicResource读取对象时，会在运行时延迟加载，利用完整的逻辑树查找所有可用资源。如果引用地址发生变化，持有旧引用的属性会自动更新。
 
 :red_circle: 与绑定的区别：资源系统负责管理对象的引用，而数据绑定系统负责处理对象内部属性的变化通知。
 
 | 特性                 | StaticResource                           | DynamicResource                          |
 | :------------------- | :--------------------------------------- | :--------------------------------------- |
 | **主要作用**         | 获取数据源引用                           | 获取数据源引用                           |
-| **引用获取时机**     | XAML加载时一次性获取                     | 在XAML加载时获取并建立监听               |
+| **引用获取时机**     | XAML加载时一次性获取                     | 运行时延迟加载并建立监听                 |
 | **监听内容**         | 不监听任何变化                           | 只监听资源键对应对象的整体替换           |
 | **性能**             | 较高（无运行时监听开销）                 | 较低（需要维护资源监听）                 |
 | **适用场景**         | 资源不会改变时                           | 资源可能被整体替换时（如主题切换）       |
 | **与属性更新的关系** | 无关，属性更新依赖INotifyPropertyChanged | 无关，属性更新依赖INotifyPropertyChanged |
-| **UI更新机制**       | 依赖数据源的INotifyPropertyChanged实现   | 依赖数据源的INotifyPropertyChanged实现   |
 
 ```xaml
 <Window.Resources>
