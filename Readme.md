@@ -1409,6 +1409,10 @@ int a = (int)num;
 Console.WriteLine(a==3);//True
 ```
 
+:four:`char​`转换为`int`类型。
+
+
+
 ### 显示类型转换
 
 类型兼容，可强制进行类型转换。语法：在括弧中写入要转换的目标类型。
@@ -1623,7 +1627,7 @@ flowchart LR
     
     B --> F[System.InvalidOperationException<br/>对象状态无效]
     B --> J[System.NullReferenceException<br/>引用为空]
-    B -->H[IndexOutOfRangeException<br/>无效索引]
+    B -->H[IndexOutOfRangeException<br/>索引超出数组界限]
     B-->I[DivideByZeroException<br/>除0错误]
     B -->L[InvalidCastException<br/>无效类型转换]
     style C fill:#f9f,stroke:#333
@@ -2752,6 +2756,8 @@ for (int i = 2; i <=100; i++)
 >
 > `using`语句是为了管理非托管资源，该资源实现了`IDisposable`接口中的`Dispose`方法。
 >
+> 如`Stream` 类`public abstract class Stream : MarshalByRefObject, IDisposable`
+>
 > **常见的非托管资源：**
 >
 > - 文件（要关闭）
@@ -3120,9 +3126,9 @@ for (int i = 0; i < arr.Length-1; i++)
 
 调试方法：
 
-1. F11逐句调试
-2. F10逐过程调试
-3. 断点调试
+1. `F10`逐过程调试
+2. `F11`逐句调试
+3. `F9`断点调试
 
 ## 单步调试
 
@@ -4138,7 +4144,7 @@ public static void Res(int[] arr)
 
 # 结构体
 
- 结构体是一种轻量级的值类型复合数据类型，隐式密封,无法继承其他类，也无法作为其他类型的基类.
+ 结构体是一种轻量级的值类型复合数据类型,无法继承其他类，也无法作为其他类型的基类,但是能继承接口。
 
 :one:声明结构类型
 

@@ -115,7 +115,7 @@ static void Main()
 
 > 逻辑树：`XAML`文件定义的`UI`元素结构，可用来进行数据绑定，资源查找等。
 >
-> 视觉树(了解)：在逻辑树的基础上，展开控件内部的视觉细节。
+> 视觉树(了解)：在逻辑树的基础上，展开控件内部的细节。
 
 ```xaml
 <Window x:Class="ReviewWpf.MainWindow"
@@ -233,7 +233,7 @@ public MainWindow()
 
 ### `Application`类
 
-每个WPF应用程序都有一个 Application class实例
+每个WPF应用程序都继承一个 Application class实例
 
 * The Application 类是 System.Windows 命名空间的成员。这与WindowsForms程序的 Application 类不同，后者位于
 
@@ -2077,7 +2077,7 @@ private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e
 </StackPanel>
 ```
 
-要从代码中获取选定的项，请使用 `SelectionBoxItem` 属性（**显示在输入框里的内容对象**）,放入其他控件，如`Label`时会返回``Rectangle`对象（这是内部的处理机制，所以不推荐使用）
+要从代码中获取选定的项，如果使用 `SelectionBoxItem` 属性（**显示在输入框里的内容对象**）,放入其他控件，如`Label`时会返回``Rectangle`对象（这是内部的处理机制，所以不推荐使用）
 
 ```c#
 private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -3212,6 +3212,25 @@ public class ViewModelBase : INotifyPropertyChanged
     }
 }
 ```
+
+`EqualityComparer<T>.Default.Equals` 的核心作用就是根据类型 `T` 的特性，自动选择最合适、最高效的比较方式：
+
+```mermaid
+graph TD
+    Start[开始比较 x 和 y] --> NullCheck{是否为 null?}
+    NullCheck -->|两者均为 null| True[返回 true]
+    NullCheck -->|其一为 null| False[返回 false]
+    NullCheck -->|两者非 null| IEquatableCheck{是否实现 IEquatable<T>?}
+    IEquatableCheck -->|是| CallIEquatable[调用 x.Equals（y） 的强类型实现]
+    IEquatableCheck -->|否| ValueTypeCheck{是否为值类型?}
+    ValueTypeCheck -->|是| CallValueType[使用 ValueType.Equals 逐字段比较]
+    ValueTypeCheck -->|否| CallObject[使用 Object.Equals<br>（默认引用比较，除非重写）]
+    CallIEquatable --> Result[返回比较结果]
+    CallValueType --> Result
+    CallObject --> Result
+```
+
+
 
 `DataGridTextColumn`并不在可视化元素树上：
 
@@ -4712,6 +4731,75 @@ public class MainView :ViewModelBase
 ```
 
 `App.Resources`只能包含一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源（通过直接定义或合并其他字典）
+
+# 其他
+
+## 防抖`DispatcherTimer`
+
+> `DispatcherTimer` 是一个**基于 UI 线程的定时器**，它允许你在指定的时间间隔后，在 UI 线程上执行一段代码，之后停止计时器。
+
+```c#
+public class Debouncer //防抖辅助类
+{
+    private readonly DispatcherTimer? _timer;
+    private Action? _action;
+
+    public Debouncer(TimeSpan span)
+    {
+        _timer = new DispatcherTimer { Interval = span };//指定间隔时长的计时器
+        _timer.Tick += (o, e) =>
+        {
+            _action?.Invoke();
+            _action = null;
+        };
+    }
+
+    public void Debounce(Action action)
+    {
+        _action = action;//赋值
+        _timer?.Stop();//停止可能存在的计时器
+        _timer?.Start();
+        //开始计时，若指定时间内属性值更改，则重新计时
+        //直到满足间隔时间后_timer.Tick执行。
+    }
+}
+```
+
+
+
+`viewmodel`代码
+
+```c#
+public class ProNames : ViewModelBase
+{
+    public ProNames()
+	{
+       _debouncer = new Debouncer(TimeSpan.FromMilliseconds(200));//生成200毫秒的计时器
+    }	
+    /// <summary>
+    /// 用户输入的物料Id
+    /// </summary>
+    private string _materielId;
+    public string MaterielId
+    {
+        get => _materielId;
+        set
+        {
+            if (SetField(ref _materielId, value)) // 值变化时才触发
+            {
+                //防抖操作
+                _debouncer.Debounce(ExecuteSearch);
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+
 
 
 
