@@ -2867,7 +2867,7 @@ public partial class MainWindow : Window
 | **模式**          | **用途描述**                                                 | **XAML 语法示例**                                            |
 | ----------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `Self`            | 绑定到**当前元素自身**的属性                                 | `{Binding Path=Width, RelativeSource={RelativeSource Self}}` |
-| `FindAncestor`    | 绑定到**指定类型的祖先元素**（可跨层级）                     | `{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Grid}}}` |
+| `FindAncestor`    | 绑定到**指定类型的祖先元素**（找到第一个匹配的祖先元素后就停止，不再继续往上找,可跨层级） | `{Binding Path=Background, RelativeSource={RelativeSource AncestorType=local:LabeledTextBox}}` |
 | `TemplatedParent` | 绑定到**应用控件模板的父元素**（常用于 `ControlTemplate` 或 `DataTemplate`） | `{Binding Path=Background, RelativeSource={RelativeSource TemplatedParent}}` |
 | `PreviousData`    | 绑定到**数据集合中的前一项**（如 `ItemsControl` 中的相邻项） | `{Binding Path=Value, RelativeSource={RelativeSource PreviousData}}` |
 
@@ -4136,6 +4136,7 @@ flowchart TD
 :red_circle:理解自定义用户控件无法使用`staticResouce`访问`maxinWindow`中的定义的资源
 
 * 编译时编译器会**独立地**处理每一个 `.xaml` 文件，并不知道用户控件将来用在哪个窗口中，便无法找到资源键
+* 从当前元素向上查找，通常止于当前控件/窗口的 `Resources`，不会自动跨过用户控件边界到 `MainWindow`。
 
 - **App.xaml资源属于全局层级**：位于最顶层的Application作用域，因其独立于可视化树结构 ，不论编译还是运行时，任何控件均可通过向上查找访问。
 

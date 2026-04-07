@@ -1185,7 +1185,14 @@ Console.WriteLine($"{500:0.00}");//两位小数
 Console.WriteLine($"{500:f1}");//一位，f2两位，以此类推
 ```
 
+### 包容运算符!
 
+> **告诉编译器：这个表达式不会是 `null`**，即使编译器静态分析认为它可能是 `null`，你确信它不是时使用。
+
+```c#
+ string? s ="";
+ s!.Split(',');
+```
 
 # 枚举
 
@@ -2012,6 +2019,107 @@ if (b)
      Console.WriteLine("请输入正确年份");
  }
 ```
+
+## `Switch`表达式
+
+> C# 8.0 引入的更简洁的语法,以表达形式返回结果。
+
+```c#
+var result = 输入值 switch
+{
+    模式1 => 结果表达式1,
+    模式2 => 结果表达式2,
+    _ => 默认结果//default
+};
+```
+
+:one:常量模式: 变量匹配每个情况，成功则返回。
+
+```c#
+int score = 98;
+string grage = score switch
+{
+    89 or >=90 => "A",
+    >=80 => "B",
+    >=70 => "C",
+    _ => "D"
+};
+Console.WriteLine(grage);
+```
+
+:two:类型模式：等同于`is`的模式匹配，判断类型并将基类转为具体的派生类。
+
+```c#
+object str = "string字符串";
+string result = str switch
+{
+    int i => $"数字{i}",
+    string s => s,
+    _ => ""
+};
+Console.WriteLine(result);
+```
+
+:three:`var`模式:捕获输入值到一个新变量，总是匹配成功。通常与 `when` 一起使用
+
+```c#
+static string GetNum(object value)
+{
+    return value switch
+    {
+        int i when i>0 => "b",
+        string s => s,
+        var s => value.ToString(),
+    };
+}
+```
+
+:four:元组模式 :将元组解构，将对应位置的值进行比较，成功则返回值。注意`var`模式会进行赋值。
+
+```c#
+ var point = (0, 1);
+ string result = point switch
+ {
+     (0, 0) => "原点",
+     (var x, 0) => "X轴",
+     (0, var y) => "Y轴",
+     (var x, var y) when x==y => "对角线",
+     _ => "普通点"
+ };
+```
+
+:five:逻辑组合 `or`与`and`
+
+```c#
+int month = 3;
+string str = month switch
+{
+    1 or 3 => "春",
+    >= 4 and <= 6 => "夏",
+    _ => "其他"
+};
+```
+
+:six:属性模式：检查对象的属性是否符合某个子模式(常量，类型等)。
+
+```c#
+Person p = new Person() { Name ="Alice",Age =19};
+
+string result = p switch
+{
+    { Name: "Alice", Age: >= 18 } => $"{p.Name}成年", //两个条件要同时匹配成功
+    { Age: >=18} => "成年",
+    _ => "未成年"
+};
+```
+
+或者使用`or`
+
+```c#
+{ Name: "Alice" } or { Age: 18 }
+```
+
+
 
 ## 三元表达式
 
