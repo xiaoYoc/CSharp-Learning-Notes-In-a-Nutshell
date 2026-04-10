@@ -116,6 +116,8 @@ static void Main()
 > 逻辑树：`XAML`文件定义的`UI`元素结构，可用来进行数据绑定，资源查找等。
 >
 > 视觉树(了解)：在逻辑树的基础上，展开控件内部的细节。
+>
+> 需要注意视觉树和逻辑树是两个概念，大部分控件既在逻辑树上也在视觉树上，`Datagrid`的列定义在逻辑树上，但不在视觉树上(视觉树为单元格)。
 
 ```xaml
 <Window x:Class="ReviewWpf.MainWindow"
@@ -139,6 +141,13 @@ static void Main()
 ```
 
 ![image-20260121194224356](assets/image-20260121194224356.png)
+
+一般情况下元素都在主视觉树上，以下为特殊控件，独立于视觉树，或者不在视觉树上。
+
+1. ContextMenu 弹出菜单，独立于主窗口的视觉树 
+2. ToolTip 浮动提示，独立弹出 
+3. Popup 的子元素 弹出层，独立视觉树 
+4. `DataGride`的类定义，仅为配置数据，不属于视觉树
 
 ### 颜色
 
@@ -2850,7 +2859,7 @@ public partial class MainWindow : Window
 
 再使用`DataContext`属性之前，我们有必要了解WPF的显示绑定源指令，他们将强制改变绑定源：
 
-1. `ElementName` - 直接指定元素名称
+1. `ElementName` - 直接指定元素名称(依赖视觉树)
 2. `Source` - 直接指定源对象
 3. `RelativeSource` - 相对于当前元素的源对象
 
@@ -2858,7 +2867,7 @@ public partial class MainWindow : Window
 
 换句话说：**明确使用绑定指令（Source/ElementName/RelativeSource）的源优先级高于继承的DataContext**。
 
-如果在某元素未查找到绑定源，它会开始沿着逻辑树向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
+如果在某元素未查找到绑定源，它会开始沿着**逻辑树**向上搜索具有其`DataContext`属性设置的元素。如果找到，它将使用该值作为绑定的源。
 
 :bookmark:`RelativeSource` 
 
@@ -2879,7 +2888,7 @@ public partial class MainWindow : Window
            Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}" />
 ```
 
- :two: `FindAncestor` 模式：绑定祖先元素
+ :two: `FindAncestor` 模式：绑定祖先元素，查找依赖视觉树
 
 - 参数：
 
@@ -3238,7 +3247,19 @@ graph TD
 - 但本身不是实际显示在屏幕上的元素
 - 实际的可视元素是`DataGridCell`（在可视化树上）
 
-如果想隐藏其中一列，使用`ElementName`和`RelativeSource`绑定会失败，因其不在名称作用域或可视化树中，无法查找名称或祖先元素，只能使用代理类隐藏。
+如果想隐藏其中一列，使用`ElementName`和`RelativeSource`绑定会失败(二者依赖视觉树)，无法查找名称或祖先元素，可以使用代理类隐藏，或者使用` Source={x:Reference elementName}`。
+
+> 名称作用域相关概念，也就是在各自的名称作用域范围内可以重名
+>
+> 1. Window/Page/UserControl 根元素 ✅ 顶级名称作用域 
+> 2. ControlTemplate ✅ 模板内部名称独立 
+> 3. DataTemplate ✅ 模板内部名称独立 
+
+`ElementName`沿着视觉树查找名称作用域的名称，直到找到为止，以`xaml`文件为界限。
+
+` Source={x:Reference elementName}`却不会依赖视觉树，会找出整个`xaml`文件名称作用域内符合的名称。
+
+
 
 ![image-20250927000414334](assets/wpf/image-20250927000414334.png)
 
@@ -4628,8 +4649,16 @@ WPF创建控件的实例时，它执行以下两个任务：
 
 注意模板内的 DataContext：
 
-- 模板的数据上下文是当前控件绑定的对象
-- 但对于 ItemsControl（如 ListBox），有一个特殊行为：WPF 会自动将模板的 DataContext 设置为集合中的当前项
+- ✅模板的数据上下文是当前控件绑定的对象
+- ✅但对于 ItemsControl（如 ListBox），有一个特殊行为：WPF 会自动将模板的 DataContext 设置为集合中的当前项
+- ✅ 数据模板内部的常规控件（如 ComboBoxItem 里的 StackPanel）
+  可以使用 `ElementName`、`x:Reference`、`RelativeSource `访问外部控件的 DataContext。
+  原因： 模板生成的 UI 被挂载到了视觉树上，具备完整的树遍历路径和名称作用域链。
+- ✅ 数据模板内部的弹出窗口（Popup）
+  不能依赖 `ElementName 或 FindAncestor`，因为它们不在视觉树上。但可以使用` x:Reference` 直接访问同一 XAML 文档内定义的具名元素。
+  原因： Popup 的内容被加载到一个独立的视觉树根上，切断了与主树的父子连接。`x:Reference` 不依赖树结构，而是通过 XAML 编译时建立的名称作用域引用关系直接获取对象实例，因此能够穿透这个隔离。
+- ✅ ElementName 与 x:Reference 的作用范围
+  两者都仅限当前 XAML 文档内部的名称。
 
 ```xaml
 <Window.Resources>
