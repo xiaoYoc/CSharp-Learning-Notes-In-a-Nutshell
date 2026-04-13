@@ -496,7 +496,7 @@ xmlns[:可选映射前缀] = "命名空间"
 
 ## 语法
 
-元素转为为类对象的过程：
+元素转为为对象的过程：
 
 :one: 使用无参数构造函数创建对象。
 
@@ -584,7 +584,7 @@ flowchart TD
 
 ![image-20250810124104686](assets/image-20250810124104686.png)
 
-尽管它具有元素的语法，但它不会生成对象，它用来设置对象的属性，如设置一个渐变颜色的按钮。
+尽管它具有元素的语法，但它不会生成控件对象，它用来设置控件对象的属性，如设置一个渐变颜色的按钮。
 
 ![image-20250810123845875](assets/image-20250810123845875.png)
 
@@ -777,6 +777,14 @@ public class MyTime : MarkupExtension
 ```
 
 ![image-20250810162022371](assets/image-20250810162022371.png)
+
+```xaml
+<!-- 嵌套示例-->
+<!-- Source执行有参构造，外部执行无参构造，赋值-->
+<Button Content="{Binding Source={StaticResource somekey}}"/>
+```
+
+
 
 ### 空白与特殊字符
 
@@ -1012,7 +1020,7 @@ graph TD
 | 属性名          | 默认值        | 说明                                                         |
 | :-------------- | :------------ | :----------------------------------------------------------- |
 | `Orientation`   | `Vertical`    | 子元素排列方向： `Vertical`（垂直，默认） `Horizontal`（水平） |
-| `FlowDirection` | `LeftToRight` | 设置元素在父元素中排列的方向                                 |
+| `FlowDirection` | `LeftToRight` | 方向流                                                       |
 
 ![image-20250807232754675](assets/image-20250807232754675.png)
 
@@ -2405,6 +2413,24 @@ private void Button_Click_2(object sender, RoutedEventArgs e)
                 Margin="10 5"/>
 </StackPanel>
 ```
+
+### `Popup`
+
+> 弹出式控件，独立于主视觉树。
+
+```xaml
+<Popup PlacementTarget="{Binding ElementName=text}"  IsOpen="True" StaysOpen="False"
+       Placement="Bottom">
+    <Label Content="1" Background="#f0f0f5"/>
+</Popup>
+```
+
+| 参数              | 含义                                | 说明                                                         |
+| :---------------- | :---------------------------------- | :----------------------------------------------------------- |
+| `PlacementTarget` | 指定 Popup 的**定位锚点元素**       | Popup 将相对于名为 `text` 的控件（例如一个 `TextBox`）进行定位。 |
+| `IsOpen`          | 控制 Popup 是否**显示**             | Popup 会立即打开。如果设为 `False`，则隐藏。                 |
+| `StaysOpen`       | 控制用户点击外部时是否**自动关闭**  | 当用户点击 Popup 外的任何地方（包括 `PlacementTarget` 元素）时，Popup 会自动关闭。如果设为 `True`，则必须手动设置 `IsOpen=False` 才会关闭。 |
+| `Placement`       | 指定 Popup **相对于定位锚点的位置** | Popup 会出现在锚点元素（`text`）的**正下方**（默认左对齐）。其他常见值：`Top`、`Left`、`Right` 等。 |
 
 ### 与数值相关的控件
 
@@ -4080,12 +4106,20 @@ public MainWindow()
     //FindResource方法来搜索资源并将结果给按钮的Background 属性。
     //搜索的结果必须强制转换回 Brush 类型
     btn.Background = (Brush)btn.FindResource("background");
-    //该方法从当前元素开始，沿着元素树向上搜索，查询每个元素的 Resources 属性
+    //该方法从当前元素开始，沿着逻辑树向上搜索，查询每个元素的 Resources 属性
     //如果找到资源，则返回其引用。否则，抛出异常
 }
 ```
 
-如果 `FindResource `方法到达元素树的顶部并且没有找到资源，它们在放弃之前会尝试两个地方—— `Application` 对象和系统资源
+如果 `FindResource `方法到达逻辑树的顶部并且没有找到资源，它们在放弃之前会尝试两个地方—— `Application` 对象和系统资源。
+
+:red_circle:平行的控件（兄弟元素）之间，**无法直接通过 `{StaticResource}` 互相访问对方 `Resources` 中定义的资源。**
+
+:red_circle:`{StaticResource}` 写在 **独立的 `.xaml` 资源字典文件**中则：
+
+- **不会沿逻辑树查找**，因为资源字典本身不在逻辑树中。
+- 查找范围仅限：**本字典内已定义的资源** + **本字典的 `MergedDictionaries` 中的资源**（按添加顺序）。
+- 无法找到外部  `App.Resources` 中的资源。
 
 
 
@@ -4279,7 +4313,7 @@ WPF 外观系统
 
 - `TargetType`：指定这个样式可以应用到哪种类型的控件上（如 `Button`, `TextBlock`）。
 - `Setters`：核心部分，是一个集合，里面包含了你要设置的属性和其目标值。
-- `Resources`：样式通常被定义为资源，以便复用。
+- `Resources`：样式内部的资源，以便复用。
 - `Triggers`：允许样式在特定条件（如鼠标悬停、获得焦点）下改变属性值，提供动态交互效果。
 
 定义和应用样式有两种方式——命名样式和目标样式。
@@ -4412,7 +4446,9 @@ flowchart TD
 * 使用TargetType属性，给出样式应用的确切类型。
 * 样式不能使用x:Key属性。
 * 设置器不需要类名。
-* 样式将自动应用**定义该样式的资源字典的作用域内**的所有匹配类型的元素。
+
+- **目标样式（和隐式 DataTemplate）**‍ 可以跨 `UserControl` 工作，因为它们的查找基于 `TargetType`/`DataType` 并遵循逻辑树路径。
+- **带键的资源**（样式、模板等）默认不能跨 `UserControl` 直接访问，因为它们需要显式引用，而该引用被限制在定义它的资源作用域内。
 
 ## `EventSetter`
 
@@ -4474,11 +4510,11 @@ flowchart TD
 
 样式类中有三个重要的集合：
 
-| 集合名称           | 主要作用                                            |
-| ------------------ | --------------------------------------------------- |
-| **Setters 集合**   | 设置目标元素的属性值，定义控件的基础外观样式        |
-| **Triggers 集合**  | 提供条件样式，根据特定状态或条件动态改变元素外观    |
-| **Resources 集合** | 存储对象资源，供样式中的Setters和Triggers使用和共享 |
+| 集合名称          | 主要作用                                            |
+| ----------------- | --------------------------------------------------- |
+| **Setters 集合**  | 设置目标元素的属性值，定义控件的基础外观样式        |
+| **Triggers 集合** | 提供条件样式，根据特定状态或条件动态改变元素外观    |
+| **Resources **    | 存储对象资源，供样式中的Setters和Triggers使用和共享 |
 
 ![image-20250830101711582](assets/image-20250830101711582.png)
 
@@ -4654,7 +4690,7 @@ WPF创建控件的实例时，它执行以下两个任务：
 - ✅ 数据模板内部的常规控件（如 ComboBoxItem 里的 StackPanel）
   可以使用 `ElementName`、`x:Reference`、`RelativeSource `访问外部控件的 DataContext。
   原因： 模板生成的 UI 被挂载到了视觉树上，具备完整的树遍历路径和名称作用域链。
-- ✅ 数据模板内部的弹出窗口（Popup）
+- ✅ 数据模板内部的弹出窗口（Popup,上下文菜单）
   不能依赖 `ElementName 或 FindAncestor`，因为它们不在视觉树上。但可以使用` x:Reference` 直接访问同一 XAML 文档内定义的具名元素。
   原因： Popup 的内容被加载到一个独立的视觉树根上，切断了与主树的父子连接。`x:Reference` 不依赖树结构，而是通过 XAML 编译时建立的名称作用域引用关系直接获取对象实例，因此能够穿透这个隔离。
 - ✅ ElementName 与 x:Reference 的作用范围
@@ -4760,7 +4796,34 @@ public class MainView :ViewModelBase
 </App.Resources>
 ```
 
-`App.Resources`只能包含一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源（通过直接定义或合并其他字典）
+`App.Resources`是一个 `ResourceDictionary`对象，这个 `ResourceDictionary` 可以包含多个资源
+
+1. 通过直接定义，相当于`add`添加键值对。
+2. 合并其他字典，往`Collection<ResourceDictionary>`集合中添加对象
+
+优先查找直接定义的键值对，未找到则查找合并字典集合。
+
+## 隐式数据模板
+
+```xaml
+<ContentControl Content="{Binding NozzleManagerVM.CurrentNozzleBaseViewModel}" 
+                Grid.Row="4" Grid.ColumnSpan="2"/>
+```
+
+`Content`绑定视图模型对象为基类，`wpf`会根据实际运行的类型动态选择模板进行渲染。
+
+```xaml
+ <!--顶部，当内容为 TopNozzleVM 类型时，使用这个模板渲染-->
+ <DataTemplate DataType="{x:Type local:TopNozzleVM}"></DataTemplate>
+    <!--底部管口-->
+<DataTemplate DataType="{x:Type local:BottomNozzleVM}"></DataTemplate>
+```
+
+`DataType`指定类型，告诉模板用在哪个视图模型上；如果没有找到派生类模板，会**沿继承链向上逐个匹配，找到第一个可用的模板**。
+
+
+
+
 
 # 其他
 
